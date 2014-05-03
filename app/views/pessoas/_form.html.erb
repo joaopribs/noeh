@@ -16,6 +16,8 @@
                                 fields : "id,name,first_name,gender,birthday"
                             },
                             function(response) {
+                                console.log(response.id);
+
                                 if (response.id == undefined) {
                                     alert("Nenhum perfil de Facebook foi encontrado no link.");
                                     $("#carregando_fb_" + qualDeles).hide();
