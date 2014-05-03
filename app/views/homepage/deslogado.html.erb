@@ -25,6 +25,8 @@
         });
 
         function checarLoginSistema(idFacebook, accessToken, nascimento, email) {
+
+            console.log("checarLoginSistema");
             console.log(idFacebook);
 
             $.post("<%= log_in_url %>", {"id_facebook": idFacebook, "access_token": accessToken, "nascimento": nascimento, "email": email},
@@ -40,6 +42,9 @@
         }
 
         function checarLoginFacebook(response) {
+            console.log("checarLoginFacebook");
+            console.log(response);
+
             if (response.status === 'connected') {
                 var accessToken = response.authResponse.accessToken;
 
@@ -64,6 +69,10 @@
         }
 
         FB.getLoginStatus(function(response) {
+
+            console.log("getLoginStatus");
+            console.log(response);
+
             if (response.status === 'connected') {
                 var accessToken = response.authResponse.accessToken;
 
@@ -72,6 +81,10 @@
                 var email = null;
 
                 FB.api('/me?fields=name,birthday,email', function(response) {
+
+                    console.log("FB.api dentro de getLoginStatus");
+                    console.log(response);
+
                     $("#msg_principal").html("Entrar como " + response.name + "<br/>(usuário logado no Facebook no momento)");
 
                     idFacebook = response.id;
