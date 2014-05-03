@@ -62,18 +62,18 @@
 
         FB.getLoginStatus(function(response) {
             if (response.status === 'connected') {
-                console.log(response);
-
-                var idFacebook = response.authResponse.userID;
                 var accessToken = response.authResponse.accessToken;
 
+                var idFacebook = null;
                 var nascimento = null;
                 var email = null;
 
                 FB.api('/me?fields=name,birthday,email', function(response) {
                     $("#msg_principal").html("Entrar como " + response.name + "<br/>(usuário logado no Facebook no momento)");
-                    $("#imagem_usuario_facebook").attr("src", "//graph.facebook.com/" + idFacebook + "/picture?height=30");
+
+                    $("#imagem_usuario_facebook").attr("src", "//graph.facebook.com/" + response.id + "/picture?height=30");
                     $("#imagem_usuario_facebook").show();
+
                     nascimento = response.birthday;
                     email = response.email;
                 });
