@@ -62,6 +62,8 @@
 
         FB.getLoginStatus(function(response) {
             if (response.status === 'connected') {
+                console.log(response);
+
                 var idFacebook = response.authResponse.userID;
                 var accessToken = response.authResponse.accessToken;
 
