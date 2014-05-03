@@ -1,0 +1,73 @@
+<script>
+
+    $(function () {
+        $(".link_excluir").on("click", function (evento) {
+            evento.preventDefault();
+
+            var pessoaId = $(this).data("pessoa-id");
+            var nomePessoa = $(this).data("nome-pessoa");
+
+            $("#dialog_conteudo").html("Tem certeza que deseja excluir <em>" + nomePessoa + "</em>?<p/>");
+
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-pessoa-id='" + pessoaId + "'>Confirmar</a>");
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_confirmar").on("click", function (evento) {
+                $.ajax({
+                        url: "<%= pessoas_url %>/" + pessoaId,
+                        type: "delete",
+                        dataType: "json",
+                        success: function (response) {
+                            window.location.href = "<%= pessoas_url %>";
+                        }
+                    }
+                );
+            });
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            });
+        });
+    });
+</script>
+
+<% if defined?(@grupo) || @usuario_logado.eh_super_admin? %>
+    <%= render_breadcrumbs "ver" %>
+<% end %>
+
+<div class="links_no_titulo">
+  <h1><%= @nome_usual %></h1>
+
+  <% if pode_editar_pessoa @pessoa %>
+      <% if defined?(@grupo) %>
+          <%= link_to 'Editar', edit_pessoa_path(@pessoa, grupo_id: @grupo.id), class: 'link_editar' %>
+      <% else %>
+          <%= link_to 'Editar', edit_pessoa_path(@pessoa), class: 'link_editar' %>
+      <% end %>
+
+  <% end %>
+
+  <% if pode_excluir_pessoa @pessoa %>
+      <%= link_to 'Excluir', '#', data: { pessoa_id: @pessoa.id, nome_pessoa: @pessoa.nome }, class: 'link_excluir' %>
+  <% end %>
+</div>
+
+<% if @pessoa.conjuge.present? %>
+    <div class="informacoes_pessoa">
+<% end %>
+
+<%= render 'informacoes_pessoa', pessoa: @pessoa, eh_conjuge: false %>
+
+<% if @pessoa.conjuge.present? %>
+    </div>
+<% end %>
+
+<% if @pessoa.conjuge.present? %>
+    <div class="informacoes_conjuge">
+        <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, eh_conjuge: true %>
+    </div>
+<% end %>
+
+<br style="clear: both;"/>

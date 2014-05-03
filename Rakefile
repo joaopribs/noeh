@@ -3,4 +3,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-SistemaIgreja::Application.load_tasks
+Noeh::Application.load_tasks

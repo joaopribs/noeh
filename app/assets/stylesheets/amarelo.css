@@ -1,0 +1,85 @@
+/* Geral
+------------------------------------------------------------------------------*/
+
+a {
+    color: #e3c800;
+}
+
+a:hover {
+    color: #ad9800;
+}
+
+th {
+    background-color: #e3c800;
+    color: #fff;
+}
+
+.ativo {
+    background-color: #e3c800;
+    color: #000;
+}
+
+/* Página deslogado
+------------------------------------------------------------------------------*/
+
+body.deslogado {
+    background-color: #e3c800;
+}
+
+#overlay_faixa_principal {
+    background-color: #e3c800;
+}
+
+#central_faixa_principal {
+    color: #000;
+}
+
+#imagem_noeh_deslogado {
+    background-image: url(/assets/noeh_preto.png);
+}
+
+/* Faixa do topo
+------------------------------------------------------------------------------*/
+
+#faixa_superior {
+    background-color: #e3c800;
+    color: #fff;
+}
+
+#link_usuario_logado {
+    background-color: #bba500;
+    color: #fff;
+}
+
+#sair_fb {
+    color: #e3c800;
+    background-color: #000;
+}
+
+#link_logo {
+    background-image: url(/assets/noeh25_preto.png);
+}
+
+#link_logo:hover {
+    background-color: #bba500;
+}
+
+#navegacao a {
+    color: #fff;
+    background-color: #bba500;
+}
+
+#navegacao a:hover {
+    background-color: #928100;
+}
+
+/* Dialog
+------------------------------------------------------------------------------*/
+
+#dialog #dialog_overlay {
+    background-color: #bba500;
+}
+
+#dialog #dialog_conteudo em {
+    color: #000;
+}

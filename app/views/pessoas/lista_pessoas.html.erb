@@ -1,0 +1,122 @@
+<% plural_pessoas = @total != 1 %>
+<%
+   texto_casais = []
+   if @numero_casais > 0
+     texto_casais << ", sendo #{@numero_casais} casa"
+     if @numero_casais == 1
+       texto_casais << "l"
+     else
+       texto_casais << "is"
+     end
+   end
+   texto_casais = texto_casais.join
+%>
+
+<% if @tipo_pagina == "lista_pessoas" %>
+    Total de <%= @total %> pessoa<%= "s" if plural_pessoas %> cadastrada<%= "s" if plural_pessoas %><%= texto_casais %>
+<% elsif @tipo_pagina == "pessoas_no_grupo" %>
+    Total de <%= @total %> pessoa<%= "s" if plural_pessoas %> no grupo<%= texto_casais %>
+<% end %>
+
+<% if @total > 0 %>
+    <table class="zebra">
+        <thead>
+        <tr>
+            <th align="left">Pessoa</th>
+            <th align="left">Casado com</th>
+
+            <% if @tipo_pagina == "lista_pessoas" %>
+                <th></th>
+                <th></th>
+            <% elsif @tipo_pagina == "pessoas_no_grupo" %>
+                <th>Coordenador</th>
+                <th>Remover</th>
+                <th></th>
+                <th></th>
+            <% end %>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @pessoas.each do |pessoa| %>
+            <%
+               if @tipo_pagina == "pessoas_no_grupo"
+                 relacionamento = RelacaoPessoaGrupo.where({:pessoa => pessoa, :grupo => @grupo}).first
+                 eh_coordenador = relacionamento.eh_coordenador
+               end
+            %>
+
+            <tr>
+                <td>
+                    <% link_pessoa = (@tipo_pagina == "lista_pessoas") ? pessoa : pessoa_path(pessoa, grupo_id: params[:grupo_id]) %>
+                    <%= link_to link_pessoa do %>
+                        <%= image_tag pessoa.url_imagem(true, 30, 30), :class => "imagem_pessoa_lista" %>
+                        <%= "#{pessoa.nome} (#{pessoa.nome_usual})" %>
+                    <% end %>
+                </td>
+                <td>
+                    <% if pessoa.conjuge.present? %>
+                        <% link_conjuge = (@tipo_pagina == "lista_pessoas") ? pessoa.conjuge : pessoa_path(pessoa.conjuge, grupo_id: params[:grupo_id]) %>
+                        <%= link_to link_conjuge do %>
+                            <%= image_tag pessoa.conjuge.url_imagem(true, 30, 30), :class => "imagem_pessoa_lista" %>
+                            <%= "#{pessoa.conjuge.nome} (#{pessoa.conjuge.nome_usual})" %>
+                        <% end %>
+                    <% end %>
+                </td>
+
+                <%
+                    if pessoa.conjuge.nil?
+                        nome_pra_dialog = pessoa.nome
+                    else
+                        nome_pra_dialog = "#{pessoa.nome_usual} / #{pessoa.conjuge.nome_usual}"
+                    end
+                %>
+
+                <% if @tipo_pagina == "lista_pessoas" %>
+
+                    <td align="center">
+                        <%= link_to 'Editar', edit_pessoa_path(pessoa), class: 'link_editar'  if pode_editar_pessoa(pessoa) %>
+                    </td>
+                    <td align="center">
+                         <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir' if pode_excluir_pessoa(pessoa) %>
+                    </td>
+
+                <% elsif @tipo_pagina == "pessoas_no_grupo" %>
+
+                    <td align="center">
+                        <% if !@usuario_logado.eh_super_admin? %>
+                            <%= eh_coordenador ? "Coordenador" : "" %>
+                        <% else %>
+                            <input type="checkbox" name="eh_coordenador" <%= "checked" if eh_coordenador %> class="checkbox_coordenador" data-pessoa_id="<%= pessoa.id %>"/>
+                        <% end %>
+                    </td>
+
+                    <td align="center">
+                        <%= link_to 'Remover', '#', class: 'link_remover_do_grupo link_cancelar',
+                                    data: {
+                                        grupo_id: @grupo.id,
+                                        pessoa_id: pessoa.id,
+                                        nome_grupo: @grupo.nome,
+                                        nome_pessoa: nome_pra_dialog,
+                                        page: @pessoas.current_page
+                                    }
+                        %>
+                    </td>
+
+                    <td align="center">
+                        <%= link_to 'Editar', edit_pessoa_path(pessoa, grupo_id: @grupo.id), class: 'link_editar' if pode_editar_pessoa(pessoa) %>
+                    </td>
+                    <td align="center">
+                      <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir' if pode_excluir_pessoa(pessoa) %>
+                    </td>
+
+                <% end %>
+
+            </tr>
+
+        <% end %>
+        </tbody>
+    </table>
+<% end %>
+
+<%= paginate @pessoas %>

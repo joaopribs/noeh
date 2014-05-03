@@ -1,0 +1,562 @@
+/* Geral
+------------------------------------------------------------------------------*/
+
+body {
+    font-family: 'Roboto', Verdana;
+    font-size: 10pt;
+    padding: 0;
+    margin: 0;
+    background-color: #ddd;
+}
+
+a {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+h1, h2, h3 {
+    font-weight: normal;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 10px 0;
+    width: 100%;
+}
+
+table.zebra {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+table.zebra tr:nth-child(odd) {
+    background-color: #f0f0f0;
+}
+
+th {
+    font-weight: normal;
+    padding: 2px 10px;
+}
+
+td {
+    padding: 4px 10px;
+}
+
+.faixa_horizontal_com_linha_separadora {
+    width: 100%;
+    text-align: center;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 20px;
+}
+
+.notificacao {
+    padding: 15px 0 15px 60px;
+    border: 1px solid #57732f;
+    color: #57732f;
+    background: url(/assets/notificacao.png) no-repeat #d4e9b6;
+    background-position: 20px center;
+}
+
+form.espaco_embaixo {
+    margin-bottom: 20px;
+}
+
+.links_no_titulo h1 {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.links_no_titulo a {
+    margin-right: 10px;
+    vertical-align: 2px;
+}
+
+.imagem_pessoa_lista {
+    height: 30px;
+    margin: 0 3px 0 0;
+    vertical-align: middle;
+}
+
+.carregando_fb {
+    color: #fff;
+    width: 100px;
+    min-height: 50px;
+    padding: 10px;
+    padding-right: 70px;
+    background: url(/assets/facebook.png) no-repeat #425691;
+    background-position: right 10px center;
+}
+
+.carregando_fb:before {
+    content: "Carregando...";
+}
+
+#links {
+    margin-bottom: 20px;
+}
+
+/* Formulários
+------------------------------------------------------------------------------*/
+
+input[type = text] {
+    padding: 5px;
+}
+
+input[type = submit],
+button {
+    padding: 5px 10px;
+}
+
+.erro_form {
+    color: #ff0000;
+    display: block;
+}
+
+.field {
+    display: inline-block;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.actions {
+    margin-top: 10px;
+    clear: both;
+}
+
+.actions a {
+    margin-right: 10px;
+}
+
+/* Links especiais
+------------------------------------------------------------------------------*/
+
+a.link_facebook {
+    color: #3d5cb9;
+}
+
+a.link_facebook:hover {
+    color: #4e78f6;
+}
+
+a.link_novo {
+    color: #008d14;
+    padding-left: 20px;
+    background: url(/assets/novo.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_novo:hover {
+    color: #48e05e;
+}
+
+a.link_editar {
+    color: #634f24;
+    padding-left: 20px;
+    background: url(/assets/editar.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_editar:hover {
+    color: #ae8429;
+}
+
+a.link_excluir {
+    color: #760000;
+    padding-left: 15px;
+    background: url(/assets/excluir.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_excluir:hover {
+    color: #d41111;
+}
+
+a.link_procurar_fb {
+    color: #3d5cb9;
+    padding-left: 20px;
+    background: url(/assets/procurar_fb.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_procurar_fb:hover {
+    color: #4e78f6;
+}
+
+a.link_submeter {
+    color: #008d14;
+    padding-left: 20px;
+    background: url(/assets/check.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_submeter:hover {
+    color: #48e05e;
+}
+
+a.link_cancelar {
+    color: #760000;
+    padding-left: 20px;
+    background: url(/assets/cancelar.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_cancelar:hover {
+    color: #d41111;
+}
+
+/* Paginação
+------------------------------------------------------------------------------*/
+
+.pagination {
+    font-size: 9pt;
+}
+
+.pagination a {
+    display: inline-block;
+    text-align: center;
+    line-height: 25px;
+    height: 25px;
+}
+
+.pagination a.numeros {
+    width: 25px;
+}
+
+.pagination .inicio {
+    margin-right: 8px;
+}
+
+.pagination .final {
+    margin-left: 8px;
+}
+
+.pagination .gap {
+    display: inline-block;
+    width: 25px;
+    text-align: center;
+}
+
+.pagination .pagina_atual {
+    display: inline-block;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    width: 25px;
+    text-align: center;
+}
+
+.pagination .anterior_proximo {
+    float: right;
+    color: #ccc;
+}
+
+.pagination .anterior_proximo .separador {
+    margin: 0 10px;
+}
+
+/* Breadcrumbs
+------------------------------------------------------------------------------*/
+
+#breadcrumbs {
+    font-size: 9pt;
+    color: #ccc;
+}
+
+#breadcrumbs .separador {
+    width: 10px;
+    text-align: center;
+    display: inline-block;
+}
+
+/* Página de Login
+------------------------------------------------------------------------------*/
+
+.erro_login {
+    margin-bottom: 20px;
+}
+
+.link_entrar_pelo_facebook {
+    color: #fff;
+    width: 400px;
+    min-height: 50px;
+    padding: 10px;
+    padding-right: 70px;
+    background: url(/assets/facebook.png) no-repeat #425691;
+    background-position: right 10px center;
+    margin: auto;
+    text-align: left;
+    font-size: 10pt;
+}
+
+.link_entrar_pelo_facebook:hover {
+    background-color: #3d5cb9;
+    cursor: pointer;
+}
+
+.link_entrar_pelo_facebook .imagem_usuario_facebook {
+    float: left;
+    height: 50px;
+    margin-right: 10px;
+    display: none;
+}
+
+/* Formulário de pessoa
+------------------------------------------------------------------------------*/
+
+.campo_solteiro_ou_casado {
+    clear: both;
+    display: block;
+}
+
+.imagem_facebook {
+    width: 120px;
+}
+
+.campos_casado {
+    clear: both;
+}
+
+.opcoes_conjuge h2 {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.opcoes_conjuge a {
+    margin-right: 10px;
+    padding: 5px 10px;
+}
+
+.imagem_pessoa_form {
+    vertical-align: top;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.imagem_pessoa_form img {
+    width: 120px;
+}
+
+.imagem_form {
+    vertical-align: top;
+    margin-right: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    white-space: nowrap;
+}
+
+/* Página deslogado
+------------------------------------------------------------------------------*/
+
+#faixa_principal {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -200px;
+    display: block;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+#faixa_principal_extrapolada {
+    width: 120%;
+}
+
+.imagens_faixa_principal {
+    height: 134px;
+    float: left;
+    padding: 0;
+    margin: 0;
+}
+
+#overlay_faixa_principal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 410px;
+    z-index: 2;
+    opacity: 0.8;
+    filter: alpha(opacity = 80); /* For IE8 and earlier */
+}
+
+#central_faixa_principal {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 3;
+    font-size: 11pt;
+}
+
+#imagem_noeh_deslogado {
+    width: 274px;
+    height: 186px;
+    display: inline-block;
+}
+
+/* Faixa do topo
+------------------------------------------------------------------------------*/
+
+#faixa_superior {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+}
+
+#area_central_superior {
+    position: relative;
+    width: 1000px;
+    margin: 0 auto;
+    padding: 0;
+    vertical-align: middle;
+    font-size: 9pt;
+}
+
+#area_superior_direita {
+    float: right;
+    line-height: 40px;
+}
+
+#link_usuario_logado {
+    font-weight: normal;
+    line-height: 20px;
+    display: inline-block;
+    text-decoration: none;
+    padding-left: 8px;
+    margin-right: 5px;
+}
+
+#link_usuario_logado:hover {
+    background-color: #96a800;
+    color: #fff;
+}
+
+#link_usuario_logado img {
+    height: 25px;
+    line-height: 25px;
+    vertical-align: middle;
+}
+
+#sair_fb {
+    text-decoration: none;
+    font-weight: bold;
+    padding: 2px 8px;
+}
+
+#sair_fb:hover {
+    background-color: #d41111;
+    color: #fff;
+}
+
+#link_logo {
+    width: 140px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    display: inline-block;
+}
+
+#navegacao {
+    display: inline-block;
+    margin-right: 50px;
+}
+
+#navegacao a {
+    text-decoration: none;
+    font-weight: normal;
+    padding: 2px 8px;
+    margin-left: 10px;
+}
+
+/* Conteúdo principal da página centralizado
+------------------------------------------------------------------------------*/
+
+#conteudo {
+    width: 960px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    padding-top: 60px;
+    min-height: 400px;
+}
+
+/* Rodapé
+------------------------------------------------------------------------------*/
+
+#rodape {
+    width: 1000px;
+    margin: 0 auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-color: #ddd;
+    color: #999;
+    text-align: center;
+}
+
+#rodape a {
+    font-weight: Normal;
+}
+
+/* Página de listagem de pessoas
+------------------------------------------------------------------------------*/
+
+.link_nova_pessoa {
+    float: right;
+}
+
+/* Página de detalhe de pessoas
+------------------------------------------------------------------------------*/
+.imagem_facebook_detalhe {
+    float: left;
+    width: 200px;
+    margin: 0;
+    margin-right: 20px;
+}
+
+.informacoes_conjuge img {
+    margin-left: 10px;
+}
+
+.informacoes_pessoa {
+    float: left;
+    margin: 0;
+    width: 50%;
+}
+
+.informacoes_conjuge {
+    float: right;
+    width: 50%;
+}
+
+/* Página de listagem de grupos
+------------------------------------------------------------------------------*/
+
+.link_novo_grupo {
+    float: right;
+}
+
+/* Página de edição de grupo
+------------------------------------------------------------------------------*/
+
+#opcoes_pessoa_grupo h2 {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+#opcoes_pessoa_grupo a {
+    margin-right: 10px;
+    padding: 5px 10px;
+}
+
+#form_pessoa_cadastrada {
+    position: relative;
+    padding-bottom: 30px;
+}
+
+#detalhes_pesquisa_grupo a {
+    margin-top: 10px;
+    display: inline-block;
+}

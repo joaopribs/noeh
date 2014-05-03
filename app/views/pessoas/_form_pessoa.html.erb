@@ -1,0 +1,143 @@
+<script>
+    $(function () {
+        $("#remover_facebook_<%= tipo_pessoa %>").on("change", function () {
+            if ($(this).is(":checked")) {
+                $("#id_facebook_<%= tipo_pessoa %>").val("");
+            }
+            else {
+                $("#id_facebook_<%= tipo_pessoa %>").val($("#id_facebook_fallback_<%= tipo_pessoa %>").val());
+            }
+        });
+    })
+</script>
+
+<table border="0">
+  <tr>
+    <td class="imagem_form">
+        <div id="informacoes_fb_<%= tipo_pessoa %>" <% if pessoa.id_facebook.blank? %>style="display: none;"<% end %>>
+          <a id="perfil_facebook_<%= tipo_pessoa %>" href="<%= "http://www.facebook.com/#{pessoa.id_facebook}" unless pessoa.id_facebook.blank? %>" target="_blank" class="link_facebook">
+            Ver perfil no Facebook<br/>
+            <img id="imagem_facebook_<%= tipo_pessoa %>" class="imagem_facebook" src="<%= pessoa.url_imagem(true, 120, 120) %>" />
+          </a>
+          <% if pode_remover_facebook(pessoa) %>
+              <br/>
+              <label>
+                <input type="checkbox" id="remover_facebook_<%= tipo_pessoa %>" />
+                Remover Facebook
+              </label>
+          <% end %>
+
+          <%= hidden_field_tag "id_facebook_#{tipo_pessoa}", pessoa.id_facebook %>
+          <input type="hidden" id="id_facebook_fallback_<%= tipo_pessoa %>" value="<%= pessoa.id_facebook %>" />
+
+          <div id="carregando_fb_<%= tipo_pessoa %>" class="carregando_fb" style="display: none;"></div>
+        </div>
+
+        <div id="imagem_<%= tipo_pessoa %>" <% if !pessoa.id_facebook.blank? %>style="display: none;"<% end %>>
+          <img src="<%= pessoa.url_imagem(true, 120, 120) %>" />
+        </div>
+    </td>
+    <td>
+      <% if pode_editar_facebook_de_pessoa(pessoa) %>
+          <div class="field" id="campo_para_colocar_fb_<%= tipo_pessoa %>" style="display: block;">
+            <%= label_tag "link_facebook_#{tipo_pessoa}", 'Facebook' %><br>
+            <span class="erro_form"><%= pessoa.errors[:id_facebook].first %></span>
+            <input type="text" name="link_facebook_<%= tipo_pessoa %>" id="link_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= "http://facebook.com/#{pessoa.id_facebook}" unless pessoa.id_facebook.blank? %>" />
+            <a href="#" id="consultar_fb_<%= tipo_pessoa %>" class="link_procurar_fb">Consultar</a>
+          </div>
+      <% end %>
+
+      <div class="field">
+        <%= label_tag "nome_#{tipo_pessoa}", 'Nome*' %><br>
+        <div class="erro_form"><%= pessoa.errors[:nome].first %></div>
+        <%= text_field_tag "nome_#{tipo_pessoa}", pessoa.nome, size: 40 %>
+      </div>
+
+      <div class="field">
+        <%= label_tag "nome_usual_#{tipo_pessoa}", 'Nome usual*' %><br>
+        <div class="erro_form"><%= pessoa.errors[:nome_usual].first %></div>
+        <%= text_field_tag "nome_usual_#{tipo_pessoa}", pessoa.nome_usual %>
+      </div>
+
+      <div class="field">
+        <%= label_tag 'Gênero' %><br>
+
+        <label><%= radio_button_tag "eh_homem_#{tipo_pessoa}", true, pessoa.eh_homem, :id => "eh_homem_#{tipo_pessoa}" %> Homem</label>
+        <label><%= radio_button_tag "eh_homem_#{tipo_pessoa}", false, !pessoa.eh_homem, :id => "eh_mulher_#{tipo_pessoa}" %> Mulher</label>
+      </div>
+
+      <div class="field">
+        <%= label_tag "dia_#{tipo_pessoa}", 'Data de nascimento' %><br>
+        <div class="erro_form"><%= pessoa.errors[:nascimento].first %></div>
+
+        <%= select_tag "dia_#{tipo_pessoa}", options_for_select(1..31, pessoa.dia), :include_blank => true %>
+        <%= select_tag "mes_#{tipo_pessoa}", options_for_select(1..12, pessoa.mes), :include_blank => true %>
+        <%= select_tag "ano_#{tipo_pessoa}", options_for_select(Date.today.year.downto(1920).to_a, pessoa.ano), :include_blank => true %>
+      </div>
+
+      <div class="field">
+        <%= label_tag "email_#{tipo_pessoa}", 'Email' %><br>
+        <div class="erro_form"><%= pessoa.errors[:email].first %></div>
+        <%= text_field_tag "email_#{tipo_pessoa}", pessoa.email, size: 30 %>
+      </div>
+
+      <br style="clear: right;" />
+
+      <% if tipo_pessoa != 'conjuge' %>
+
+          <div class="field">
+            <%= label_tag "rua_#{tipo_pessoa}", 'Rua' %><br>
+            <div class="erro_form"><%= pessoa.errors[:rua].first %></div>
+            <%= text_field_tag "rua_#{tipo_pessoa}", pessoa.rua, size: 20 %>
+          </div>
+
+          <div class="field">
+            <%= label_tag :"numero_#{tipo_pessoa}", 'Número' %><br>
+            <div class="erro_form"><%= pessoa.errors[:numero].first %></div>
+            <%= text_field_tag "numero_#{tipo_pessoa}", pessoa.numero, size: 3 %>
+          </div>
+
+          <div class="field">
+            <%= label_tag :"complemento_#{tipo_pessoa}", 'Complemento' %><br>
+            <div class="erro_form"><%= pessoa.errors[:complemento].first %></div>
+            <%= text_field_tag "complemento_#{tipo_pessoa}", pessoa.complemento, size: 10 %>
+          </div>
+
+          <div class="field">
+            <%= label_tag "bairro_#{tipo_pessoa}", 'Bairro' %><br>
+            <div class="erro_form"><%= pessoa.errors[:bairro].first %></div>
+            <%= text_field_tag "bairro_#{tipo_pessoa}", pessoa.bairro, size: 15 %>
+          </div>
+
+          <div class="field">
+            <%= label_tag "cidade_#{tipo_pessoa}", 'Cidade' %><br>
+            <div class="erro_form"><%= pessoa.errors[:cidade].first %></div>
+            <%= text_field_tag "cidade_#{tipo_pessoa}", pessoa.cidade %>
+          </div>
+
+          <div class="field">
+            <%= label_tag "estado_#{tipo_pessoa}", 'Estado' %><br>
+            <div class="erro_form"><%= pessoa.errors[:estado].first %></div>
+            <%= select_tag "estado_#{tipo_pessoa}", options_for_select(estados_brasil, pessoa.estado), :include_blank => true %>
+          </div>
+
+          <div class="field">
+            <%= label_tag "cep_#{tipo_pessoa}", 'CEP' %><br>
+            <div class="erro_form"><%= pessoa.errors[:cep].first %></div>
+
+            <%
+               cep1 = ''
+               cep2 = ''
+               if pessoa.cep.present?
+                 elementos = pessoa.cep.split('-')
+                 cep1 = elementos[0]
+                 cep2 = elementos[1]
+               end
+            %>
+
+            <%= text_field_tag "cep1_#{tipo_pessoa}", cep1, size: 5, maxlength: 5 %>-<%= text_field_tag "cep2_#{tipo_pessoa}", cep2, size: 3, maxlength: 3 %>
+          </div>
+      <% end %>
+    </td>
+  </tr>
+</table>

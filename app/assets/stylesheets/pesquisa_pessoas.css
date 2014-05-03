@@ -1,0 +1,119 @@
+.container_dos_campos_de_pesquisa {
+    position: relative;
+}
+
+.nome_pessoa_pesquisa {
+    width: 456px;
+    padding-left: 35px !important;
+    background: url(/assets/procurar.png) no-repeat;
+    background-position: 10px center;
+}
+
+.resultados_pesquisa {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background-color: #bbb;
+    z-index: 999;
+    width: 500px;
+    height: auto;
+}
+
+.conteudo_resultados_pesquisa {
+    display: block;
+    position: relative;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: auto;
+}
+
+p.conteudo_resultados_pesquisa {
+    padding: 10px;
+    color: #555;
+}
+
+.conteudo_resultados_pesquisa li {
+    display: block;
+    float: none;
+    clear: both;
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-left: 0;
+    padding: 0;
+    width: 100%;
+    list-style-type: none;
+    padding-top: 5px;
+}
+
+.conteudo_resultados_pesquisa li:first-child {
+    padding-top: 0;
+}
+
+.conteudo_resultados_pesquisa a {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    display: block;
+    text-decoration: none;
+    color: #000;
+    font-weight: normal;
+    line-height: 30px;
+}
+
+.conteudo_resultados_pesquisa a:hover,
+.conteudo_resultados_pesquisa a.selecionado {
+    background-color: #ccc;
+}
+
+.conteudo_resultados_pesquisa .extrapolou {
+    padding: 10px;
+}
+
+.imagem_fb_busca {
+    float: left;
+    height: 30px;
+    vertical-align: middle;
+}
+
+.conteudo_resultados_pesquisa li img.imagem_fb_busca:first-child {
+    padding-left: 10px;
+}
+
+.conteudo_resultados_pesquisa span {
+    margin-left: 10px;
+}
+
+.container_dos_campos_de_pesquisa {
+    float: left;
+    margin-right: 30px;
+    margin-bottom: 20px;
+}
+
+.detalhes_pesquisa {
+    width: 430px;
+    display: inline-block;
+}
+
+.imagens_detalhe_pesquisa {
+    float: left;
+    display: inline-block;
+    margin: 0 10px 10px 0;
+}
+
+img.imagem_detalhe_pesquisa {
+    margin: 0;
+    width: 100px;
+    height: 100px;
+}
+
+.nome_detalhe_pesquisa {
+    font-size: 18px;
+    display: block;
+}

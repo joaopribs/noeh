@@ -1,0 +1,9 @@
+<% if defined?(@grupo) || @usuario_logado.eh_super_admin? %>
+    <%= render_breadcrumbs "editar" %>
+<% end %>
+
+<h1>Editar <%= @nome_usual %></h1>
+
+<%= render 'shared/notificacao' %>
+
+<%= render 'form', modo: "editando" %>

@@ -1,0 +1,24 @@
+<script>
+    $(function () {
+        $("#link_enviar").on("click", function (e) {
+            e.preventDefault();
+            $(this).closest("form").submit();
+        });
+    });
+</script>
+
+<%= form_for(@grupo, html: {class: 'espaco_embaixo'}) do |f| %>
+    <div class="field">
+        <%= f.label "Nome*", :for => "nome" %><br>
+        <div class="erro_form"><%= @grupo.errors[:nome].first %></div>
+        <%= f.text_field :nome, size: '50' %>
+    </div>
+
+    <div class="field">
+        <%= f.label "Super grupo?*", :for => "eh_super_grupo" %><br>
+        <div class="erro_form"><%= @grupo.errors[:eh_super_grupo].first %></div>
+        <%= f.check_box :eh_super_grupo %>
+    </div>
+
+    <a href="#" id="link_enviar" class="link_submeter">Salvar</a>
+<% end %>

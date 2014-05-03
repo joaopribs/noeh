@@ -1,0 +1,317 @@
+<% content_for :javascript_fb do %>
+            function consultarFacebook(qualDeles) {
+                $("#informacoes_fb_" + qualDeles).hide();
+                $("#carregando_fb_" + qualDeles).show();
+
+                var link_facebook = $("#link_facebook_" + qualDeles).val();
+
+                if (link_facebook != "") {
+                    var matches = link_facebook.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[\w\-]*\/)*([\w\-\.]*)/);
+
+                    if (matches != null && matches.length > 1) {
+                        var username_facebook = matches[1];
+
+                        FB.api('/' + username_facebook,
+                            {
+                                fields : "id,name,first_name,gender,birthday"
+                            },
+                            function(response) {
+                                if (response.id == undefined) {
+                                    alert("Nenhum perfil de Facebook foi encontrado no link.");
+                                    $("#carregando_fb_" + qualDeles).hide();
+                                    $("#link_facebook_" + qualDeles).val("");
+                                    return;
+                                }
+                                else {
+                                    var id_facebook = response.id;
+                                    var nome_facebook = response.name;
+                                    var nome_usual_facebook = response.first_name;
+                                    var genero_facebook = response.gender;
+
+                                    $.ajax({url: "<%= consulta_ja_existe_fb_url %>",
+                                        type: "post",
+                                        data: {
+                                            "id_facebook": id_facebook
+                                        },
+                                        success: function (response) {
+                                            $("#carregando_fb_" + qualDeles).hide();
+
+                                            $("#id_facebook_" + qualDeles).val(id_facebook);
+                                            $("#id_facebook_fallback_" + qualDeles).val(id_facebook);
+
+                                            $("#nome_" + qualDeles).val(nome_facebook);
+                                            $("#nome_usual_" + qualDeles).val(nome_usual_facebook);
+                                            if (genero_facebook == "male") {
+                                                $("#eh_homem_" + qualDeles).prop("checked", true);
+                                            }
+                                            else {
+                                                $("#eh_mulher_" + qualDeles).prop("checked", true);
+                                            }
+
+                                            $("#imagem_facebook_" + qualDeles).attr("src", "http://graph.facebook.com/" + id_facebook + "/picture?type=square&width=120&height=120");
+                                            $("#perfil_facebook_" + qualDeles).attr("href", "http://www.facebook.com/" + id_facebook);
+                                            $("#informacoes_fb_" + qualDeles).show();
+                                            $("#imagem_" + qualDeles).hide();
+                                        },
+                                        error: function (response) {
+                                            alert("Já existe um pessoa cadastrada com esse Facebook");
+                                            $("#carregando_fb_" + qualDeles).hide();
+                                            $("#link_facebook_" + qualDeles).val("");
+                                        }
+                                    }
+                                );
+                            }
+                        });
+
+                        return;
+                    }
+
+                }
+
+                alert("Nenhum perfil de Facebook foi encontrado no link.");
+                $("#carregando_fb_" + qualDeles).hide();
+                $("#link_facebook_" + qualDeles).val("");
+            }
+
+            $("#consultar_fb_pessoa").on("click", function(e) {
+                e.preventDefault();
+                consultarFacebook("pessoa");
+            });
+
+            $("#link_facebook_pessoa").keypress(function (evento) {
+                if (evento.which == 13) {
+                    evento.preventDefault();
+                    consultarFacebook("pessoa");
+                }
+            });
+
+            $("#consultar_fb_conjuge").on("click", function(e) {
+                e.preventDefault();
+                consultarFacebook("conjuge");
+            });
+
+            $("#link_facebook_conjuge").keypress(function (evento) {
+                if (evento.which == 13) {
+                    evento.preventDefault();
+                    consultarFacebook("conjuge");
+                }
+            });
+
+<% end %>
+
+<script>
+    function resetarFormPessoa() {
+        $("#form_pessoa")
+                .find("input, select")
+                .not("input[name = authenticity_token]")
+                .not("input[type = radio]")
+                .val("");
+        $("input[name = casado_ou_solteiro]")
+                .filter("[value = solteiro]")
+                .prop("checked", true);
+        casadoOuSolteiro();
+        $("input[name = eh_homem_pessoa], input[name = eh_homem_conjuge]")
+                .filter("[value = true]")
+                .prop("checked", true);
+        $(".informacoes_fb").hide();
+        $(".opcoes_conjuge a").removeClass("ativo");
+        $("#form_novo_conjuge").hide();
+        $("#form_conjuge_ja_cadastrado").hide();
+        $("#detalhes_pesquisa_conjuge").hide();
+    }
+
+    function setarOpcaoEscolhida(elemento) {
+        $(elemento).addClass("ativo");
+        $(elemento).siblings("a").removeClass("ativo");
+    }
+
+    function casadoOuSolteiro() {
+        if ($("input[name=casado_ou_solteiro]:checked").val() == 'casado') {
+            $(".campos_casado").show();
+        }
+        else {
+            $(".campos_casado").hide();
+        }
+    }
+
+    $(function () {
+
+        $("#link_enviar").on("click", function (e) {
+            e.preventDefault();
+            $(this).closest("form").submit();
+        });
+
+        $("input[name=casado_ou_solteiro]").on("change", function () {
+            casadoOuSolteiro();
+        });
+
+        $("#conjuge_ja_cadastrado").on("click", function (e) {
+            e.preventDefault();
+
+            setarOpcaoEscolhida($(this));
+
+            $("#tipo_de_conjuge_escolhido").val("ja_cadastrado");
+
+            $("#form_conjuge_ja_cadastrado").show();
+            $("#form_novo_conjuge").hide();
+        });
+
+        $("#novo_conjuge").on("click", function (e) {
+            e.preventDefault();
+
+            setarOpcaoEscolhida($(this));
+
+            $("#tipo_de_conjuge_escolhido").val("novo");
+
+            $("#form_conjuge_ja_cadastrado").hide();
+            $("#form_novo_conjuge").show();
+        });
+
+        $(".link_excluir").on("click", function (evento) {
+            evento.preventDefault();
+
+            var pessoaId = $(this).data("pessoa-id");
+            var nomePessoa = $(this).data("nome-pessoa");
+
+            $("#dialog_conteudo").html("Tem certeza que deseja excluir <em>" + nomePessoa + "</em>?<p/>");
+
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-pessoa-id='" + pessoaId + "'>Confirmar</a>");
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_confirmar").on("click", function (evento) {
+                $.ajax({
+                        url: "<%= pessoas_url %>/" + pessoaId,
+                        type: "delete",
+                        dataType: "json",
+                        success: function (response) {
+                            window.location.href = "<%= pessoas_url %>";
+                        }
+                    }
+                );
+            });
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            });
+
+        });
+
+    });
+</script>
+
+<%
+    if modo == "criando"
+        form_url = pessoas_url
+        form_method = :post
+    elsif modo == "editando"
+        form_url = pessoa_url(@pessoa)
+        form_method = :put
+    end
+%>
+
+<%= form_tag form_url, method: form_method, id: "form_pessoa" do %>
+
+    <% if defined?(@grupo) %>
+        <input type="hidden" name="grupo_id" value="<%= @grupo.id %>" />
+    <% end %>
+
+    <div class="field campo_solteiro_ou_casado" <% if !pode_alterar_estado_civil_de(@pessoa) %>style="display: none;"<% end %>>
+      <label><%= radio_button_tag :casado_ou_solteiro, 'solteiro', (!@eh_casal) %>Solteiro</label>
+      <label><%= radio_button_tag :casado_ou_solteiro, 'casado', (@eh_casal) %>Casado</label>
+    </div>
+
+    <%= render 'form_pessoa', pessoa: @pessoa, tipo_pessoa: 'pessoa' %>
+
+    <div class="campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>>
+
+      <div class="opcoes_conjuge">
+        <h2>Cônjuge</h2>
+
+        <%
+            ativar_form_conjuge = false
+            ativar_pesquisa_conjuge = false
+            tipo_de_conjuge_escolhido = ""
+            if defined?(@tipo_conjuge) && @tipo_conjuge == 'form'
+                ativar_form_conjuge = true
+                tipo_de_conjuge_escolhido = "novo"
+            elsif defined?(@tipo_conjuge) && @tipo_conjuge == 'ja_cadastrado'
+                ativar_pesquisa_conjuge = true
+                tipo_de_conjuge_escolhido = "ja_cadastrado"
+            end
+        %>
+
+        <% if pode_alterar_tipo_de_conjuge(@pessoa) %>
+            <a href="#" id="novo_conjuge" <% if ativar_form_conjuge %>class="ativo"<% end %>>
+                <% if modo == 'editando' && @pessoa.conjuge.present? %>
+                    Editar pessoa
+                <% else %>
+                    Nova pessoa
+                <% end %>
+            </a>
+            <a href="#" id="conjuge_ja_cadastrado" <% if ativar_pesquisa_conjuge %>class="ativo"<% end %>>
+                <% if modo == 'editando' && @pessoa.conjuge.present? %>
+                    Alterar por outra pessoa já cadastrada
+                <% else %>
+                    Pessoa já cadastrada
+                <% end %>
+            </a>
+        <% end %>
+
+        <input type="hidden" name="tipo_de_conjuge_escolhido" id="tipo_de_conjuge_escolhido" value="<%= tipo_de_conjuge_escolhido %>" />
+      </div>
+
+      <div id="form_novo_conjuge" <% if !ativar_form_conjuge %>style="display: none;"<% end %>>
+
+        <%
+           if @tipo_conjuge == 'form'
+             conjuge_mostrar = @conjuge
+           else
+             conjuge_mostrar = Pessoa.new
+           end
+        %>
+
+        <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge' %>
+
+      </div>
+
+      <div id="form_conjuge_ja_cadastrado" <% if !ativar_pesquisa_conjuge %>style="display: none;"<% end %>>
+
+        <%
+           if @tipo_conjuge == 'ja_cadastrado'
+             @conjuge_mostrar = @conjuge
+           else
+             @conjuge_mostrar = Pessoa.new
+           end
+        %>
+
+        <%= render 'pessoas/pesquisa_pessoas', tipo_pesquisa: "pesquisa_conjuge" %>
+      </div>
+
+    </div>
+
+    <div class="actions faixa_horizontal_com_linha_separadora">
+
+        <%
+            if @grupo.present? && modo == "criando"
+                texto_link = "Adicionar a #{@grupo.nome}"
+            else
+                texto_link = "Salvar"
+            end
+
+            if @pessoa.conjuge.present?
+              nome_dialog = "#{@pessoa.nome_usual} / #{@pessoa.conjuge.nome_usual}"
+            else
+              nome_dialog = @pessoa.nome
+            end
+        %>
+        <%= link_to texto_link, '#', id: 'link_enviar', class: 'link_submeter' %>
+
+        <% if modo == "editando" && pode_excluir_pessoa(@pessoa) %>
+            <%= link_to 'Excluir', '#', data: {pessoa_id: @pessoa.id, nome_pessoa: nome_dialog}, class: 'link_excluir' %>
+        <% end %>
+
+    </div>
+
+<% end %>

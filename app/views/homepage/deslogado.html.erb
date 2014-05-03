@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>noeh</title>
+    <%= stylesheet_link_tag "estilo.css" %>
+
+    <%= stylesheet_link_tag "#{@cor}.css" %>
+
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body class="deslogado">
+
+<div id="fb-root"></div>
+
+<script>
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '512260458882588',
+            status     : false, // check login status
+            cookie     : false, // enable cookies to allow the server to access the session
+            xfbml      : true  // parse XFBML
+        });
+
+        function checarLoginSistema(idFacebook, accessToken, nascimento, email) {
+            $.post("<%= log_in_url %>", {"id_facebook": idFacebook, "access_token": accessToken, "nascimento": nascimento, "email": email},
+                    function(resposta) {
+                        if (resposta == "ok") {
+                            window.location.href = "<%= root_url %>";
+                        }
+                        else {
+                            $("#erro_login").html("Você não está permitido a usar o sistema.");
+                            $("#link_fb").hide();
+                        }
+                    });
+        }
+
+        function checarLoginFacebook(response) {
+            if (response.status === 'connected') {
+                var idFacebook = response.authResponse.userID;
+                var accessToken = response.authResponse.accessToken;
+
+                var nascimento = null;
+                var email = null;
+
+                FB.api('/me?fields=birthday,email', function(response) {
+                    nascimento = response.birthday;
+                    email = response.email;
+                });
+
+                checarLoginSistema(idFacebook, accessToken, nascimento, email);
+            }
+            else {
+                if (response.status === 'not_authorized') {
+                    $("#erro_login").html("Você precisa dar permissão ao sistema.");
+                }
+                $("#link_fb").show();
+            }
+        }
+
+        FB.getLoginStatus(function(response) {
+            if (response.status === 'connected') {
+                var idFacebook = response.authResponse.userID;
+                var accessToken = response.authResponse.accessToken;
+
+                var nascimento = null;
+                var email = null;
+
+                FB.api('/me?fields=name,birthday,email', function(response) {
+                    $("#msg_principal").html("Entrar como " + response.name + "<br/>(usuário logado no Facebook no momento)");
+                    $("#imagem_usuario_facebook").attr("src", "//graph.facebook.com/" + idFacebook + "/picture?height=30");
+                    $("#imagem_usuario_facebook").show();
+                    nascimento = response.birthday;
+                    email = response.email;
+                });
+
+                $("#link_fb").on("click", function(e) {
+                    e.preventDefault();
+                    checarLoginSistema(idFacebook, accessToken, nascimento, email);
+                });
+            }
+            else {
+                $("#link_fb").on("click", function(e) {
+                    e.preventDefault();
+                    FB.login(function(response) {
+                        checarLoginFacebook(response);
+                    }, {scope: 'email,user_birthday'});
+                });
+            }
+        });
+    };
+
+    // Load the SDK Asynchronously
+    (function(d){
+        var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+        js = d.createElement('script'); js.id = id; js.async = true;
+        js.src = "//connect.facebook.net/pt_BR/all.js";
+        d.getElementsByTagName('head')[0].appendChild(js);
+    }(document));
+</script>
+
+<%
+   pessoas = []
+   if Pessoa.count > 0
+       while pessoas.length < 50 do
+         pessoas += Pessoa.where("id_facebook != ''").sample(50)
+       end
+   end
+%>
+
+<div id="faixa_principal">
+    <div id="faixa_principal_extrapolada">
+        <% pessoas.each do |pessoa| %>
+            <img src="http://graph.facebook.com/<%= pessoa.id_facebook %>/picture?height=100" class="imagens_faixa_principal" />
+        <% end %>
+    </div>
+
+    <div id="overlay_faixa_principal"></div>
+
+    <div id="central_faixa_principal">
+        <div id="imagem_noeh_deslogado"></div><br/>
+        Sistema de cadastro na igreja
+        <p/>
+        <div class="link_entrar_pelo_facebook" id="link_fb">
+            <img id="imagem_usuario_facebook" src="" class="imagem_usuario_facebook"/>
+
+            <div id="msg_principal">Entre no sistema usando sua conta de Facebook</div>
+        </div>
+        <div id="erro_login" class="msg_erro erro_login"></div>
+    </div>
+</div>
+
+</body>
+</html>

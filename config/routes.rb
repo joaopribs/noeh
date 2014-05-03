@@ -1,56 +1,26 @@
-SistemaIgreja::Application.routes.draw do
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
+Noeh::Application.routes.draw do
+  scope path_names: { new: 'criar', edit: 'editar' } do
+    resources :grupos
+    resources :pessoas
+  end
 
-  # You can have the root of your site routed with "root"
-  # root 'welcome#index'
+  root :to => 'homepage#index'
 
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
+  get '/deslogado', :to => 'homepage#deslogado', :as => :deslogado
 
-  # Example of named route that can be invoked with purchase_url(id: product.id)
-  #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
+  get '/super_admin', :to => 'super_admin#pagina_inicial', :as => :super_admin_inicial
 
-  # Example resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
+  post '/log_in', :to => 'sessions#log_in', :as => :log_in
+  get '/log_out', :to => 'sessions#log_out', :as => :log_out
 
-  # Example resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
+  get '/lista_pessoas', :to => 'pessoas#lista_pessoas', :as => :lista_pessoas
+  get '/lista_pessoas_js', :to => 'pessoas#lista_pessoas_js', :as => :lista_pessoas_js, :defaults => { :format => 'js' }
+  post '/consulta_ja_existe_fb', :to => 'pessoas#consulta_ja_existe_fb', :as => :consulta_ja_existe_fb
+  post '/pesquisa_pessoas', :to => 'pessoas#pesquisa_pessoas', :as => :pesquisa_pessoas
 
-  # Example resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
+  get '/pessoas_no_grupo', :to => 'grupos#pessoas_no_grupo', :as => :pessoas_no_grupo, :defaults => { :format => 'js' }
+  post '/setar_coordenador_de_grupo', :to => 'grupos#setar_eh_coordenador', :as => :setar_coordenador_de_grupo
+  post '/adicionar_pessoa_a_grupo', :to => 'grupos#adicionar_pessoa_a_grupo', :as => :adicionar_pessoa_a_grupo
+  post '/remover_pessoa_de_grupo', :to => 'grupos#remover_pessoa_de_grupo', :as => :remover_pessoa_de_grupo
 
-  # Example resource route with more complex sub-resources:
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', on: :collection
-  #     end
-  #   end
-
-  # Example resource route with concerns:
-  #   concern :toggleable do
-  #     post 'toggle'
-  #   end
-  #   resources :posts, concerns: :toggleable
-  #   resources :photos, concerns: :toggleable
-
-  # Example resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
 end

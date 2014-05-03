@@ -1,14 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>SistemaIgreja</title>
-  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
-  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
-  <%= csrf_meta_tags %>
-</head>
-<body>
+    <title>noeh</title>
 
-<%= yield %>
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+
+    <%= stylesheet_link_tag "estilo.css" %>
+    <%= stylesheet_link_tag "dialog.css" %>
+
+    <%= stylesheet_link_tag "#{@cor}.css" %>
+
+    <%= stylesheet_link_tag "ui-darkness/jquery-ui-1.10.4.custom.min.css" %>
+
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body <% if content_for?(:classe_body) %>class="<%= yield(:classe_body)  %>"<% end %>>
+
+    <div id="fb-root"></div>
+
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '512260458882588',
+                status     : false, // check login status
+                cookie     : false, // enable cookies to allow the server to access the session
+                xfbml      : true  // parse XFBML
+            });
+
+<%= yield(:javascript_fb) if content_for?(:javascript_fb) %>
+        };
+
+        // Load the SDK Asynchronously
+        (function(d){
+            var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+            js = d.createElement('script'); js.id = id; js.async = true;
+            js.src = "//connect.facebook.net/pt_BR/all.js";
+            d.getElementsByTagName('head')[0].appendChild(js);
+        }(document));
+    </script>
+
+    <div id="faixa_superior">
+        <div id="area_central_superior">
+            <a href="<%= root_url %>" id="link_logo"></a>
+
+            <div id="area_superior_direita">
+
+                <div id="navegacao">
+                    <%= render 'layouts/navegacao' %>
+                </div>
+
+                <a id="link_usuario_logado" href="<%= pessoa_path(@usuario_logado) %>">
+                    Logado como <b><%= @usuario_logado.nome_usual %></b>
+                    <img src="<%= @usuario_logado.url_imagem(true, 25, 25) %>" />
+                </a>
+
+                <%= link_to "Sair", log_out_path, id: "sair_fb" %>
+            </div>
+        </div>
+    </div>
+
+    <div id="conteudo">
+
+        <%= yield %>
+
+    </div>
+
+    <div id="rodape">
+      Desenvolvido por <a href="http://jpribeiro.com" target="_blank">João Paulo Ribeiro</a><br/>
+      <a href="http://jpribeiro.com" target="_blank">jpribeiro.com</a> | <a href="mailto: joao@jpribeiro.com">joao@jpribeiro.com</a>
+    </div>
+
+    <div id="dialog">
+        <div id="dialog_overlay"></div>
+        <div id="dialog_conteudo"></div>
+    </div>
 
 </body>
 </html>

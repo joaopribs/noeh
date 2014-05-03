@@ -1,0 +1,96 @@
+<%= stylesheet_link_tag "pesquisa_pessoas.css" %>
+
+<%
+   if tipo_pesquisa == "pesquisa_conjuge"
+     campo_pesquisa = "campo_pesquisa_conjuge"
+     resultados_pesquisa = "resultados_pesquisa_conjuge"
+     pessoa_a_mostrar = @conjuge_mostrar
+     mostrar_pessoa = pessoa_a_mostrar.id.present?
+     detalhes_pesquisa = "detalhes_pesquisa_conjuge"
+   elsif tipo_pesquisa == "pesquisa_grupo"
+     campo_pesquisa = "campo_pesquisa_grupo"
+     resultados_pesquisa = "resultados_pesquisa_grupo"
+     pessoa_a_mostrar = nil
+     mostrar_pessoa = false
+     detalhes_pesquisa = "detalhes_pesquisa_grupo"
+   end
+%>
+
+<script>
+    var buscaDePessoas;
+
+    $(function () {
+        <% if tipo_pesquisa == "pesquisa_grupo" %>
+            $("#botao_adicionar_pessoa_ao_grupo").on("click", function (evento) {
+                evento.preventDefault();
+
+                var id_pessoa = $(this).data("id_pessoa");
+
+                if (id_pessoa != null && id_pessoa != "") {
+                    $.post(
+                            "<%= adicionar_pessoa_a_grupo_url %>",
+                            {
+                                id_grupo: <%= @grupo.id %>,
+                                id_pessoa: id_pessoa
+                            },
+                            function (response) {
+                                listaPessoas.carregar();
+                                buscaDePessoas.limpar();
+
+                                mostrarNotificacao(response.msgSucesso);
+
+                                $("html, body").animate({scrollTop: 0}, 500);
+                            }
+                    );
+                }
+            });
+        <% end %>
+
+        buscaDePessoas = new BuscaDePessoas("<%= pesquisa_pessoas_url %>",
+                $("#<%= resultados_pesquisa %>"),
+                $("#<%= campo_pesquisa %>"),
+                $("#<%= detalhes_pesquisa %>"),
+                {
+                    <% if tipo_pesquisa == "pesquisa_grupo" %>
+                        id_grupo_ignorar: <%= @grupo.id %>
+                    <% elsif tipo_pesquisa == "pesquisa_conjuge" %>
+                        ignorar_casais: true
+                        <% if !@pessoa.new_record? %>
+                            , pessoa_ignorar: <%= @pessoa.id %>
+                        <% end %>
+                    <% end %>
+                },
+                function (idPessoa) {
+                    <% if tipo_pesquisa == "pesquisa_grupo" %>
+                        $("#botao_adicionar_pessoa_ao_grupo").data("id_pessoa", idPessoa);
+                    <% elsif tipo_pesquisa == "pesquisa_conjuge" %>
+                        $("#id_conjuge").val(idPessoa);
+                    <% end %>
+                }
+        );
+        buscaDePessoas.inicializar();
+    });
+</script>
+
+<div class="container_dos_campos_de_pesquisa">
+      <input type="text" class="nome_pessoa_pesquisa" id="<%= campo_pesquisa %>" value="<%= pessoa_a_mostrar.nome_usual if mostrar_pessoa %>" />
+      <div class="resultados_pesquisa" id="<%= resultados_pesquisa %>"></div>
+</div>
+
+<div class="detalhes_pesquisa" id="<%= detalhes_pesquisa %>" <% if !mostrar_pessoa %>style="display: none;"<% end %>>
+    <div class="imagens_detalhe_pesquisa">
+        <img class="imagem_detalhe_pesquisa" src="<%= pessoa_a_mostrar.url_imagem(true, 100, 100) if mostrar_pessoa %>" /><img class="imagem_detalhe_pesquisa" src="" style="display: none;" />
+    </div>
+
+    <span class="nome_detalhe_pesquisa"><%= pessoa_a_mostrar.nome if mostrar_pessoa %></span>
+    <span class="nome_usual_detalhe_pesquisa"><%= "(#{pessoa_a_mostrar.nome_usual})" if mostrar_pessoa %></span>
+
+    <% if tipo_pesquisa == "pesquisa_grupo" %>
+        <br/>
+        <%= link_to 'Adicionar', '#', class: 'link_novo', id: 'botao_adicionar_pessoa_ao_grupo' %>
+    <% elsif tipo_pesquisa == "pesquisa_conjuge" %>
+        <input type="hidden" name="id_conjuge" id="id_conjuge" value="<%= pessoa_a_mostrar.id if mostrar_pessoa %>" />
+    <% end %>
+</div>
+
+<br style="clear: both;" />

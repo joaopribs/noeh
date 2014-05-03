@@ -1,0 +1,86 @@
+<script>
+    $(function () {
+        $(".link_excluir").on("click", function (evento) {
+            evento.preventDefault();
+
+            var idGrupo = $(this).data("id-grupo");
+            var page = $(this).data("page");
+            var nome = $(this).data("nome-grupo")
+
+            $("#dialog_conteudo").html("Tem certeza que deseja excluir o grupo <em>" + nome + "</em> do sistema?<p/>");
+            $("#dialog_conteudo").append("<a href='#' class='confirmar_excluir_grupo dialog_link_confirmar' data-id-grupo='" + idGrupo + "' data-page='" + page + "'>Confirmar</a>")
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            });
+
+            $(".confirmar_excluir_grupo").on("click", function (evento) {
+                var idGrupo = $(this).data("id-grupo");
+                var page = $(this).data("page");
+
+                $.ajax({url: "<%= grupos_url %>/" + idGrupo + ".json",
+                        type: "delete",
+                        data: {
+                            "page": page
+                        },
+                        success: function (response) {
+                            location.reload();
+                        }
+                    }
+                );
+            });
+        });
+    });
+</script>
+
+<%= render_breadcrumbs "grupos" %>
+
+<h1>Grupos</h1>
+
+<%= render 'shared/notificacao' %>
+
+<% plural = @total != 1 %>
+
+Total de <%= @total %> grupo<%= "s" if plural %>.
+
+<% if @usuario_logado.eh_super_admin? %>
+    <%= link_to 'Criar novo grupo', new_grupo_path, :class => "link_novo link_novo_grupo" %>
+<% end %>
+
+<% if @grupos.count > 0 %>
+    <table class="zebra">
+        <thead>
+            <tr>
+                <th align="left">Nome</th>
+                <th align="left">Núm. pessoas</th>
+                <% if @usuario_logado.eh_super_admin? %>
+                    <th>Super grupo?</th>
+                    <th></th>
+                    <th></th>
+                <% end %>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% @grupos.each do |grupo| %>
+                <tr>
+                    <td><%= link_to grupo.nome, edit_grupo_path(grupo) %></td>
+
+                    <% numero_pessoas = grupo.pessoas.count %>
+                    <td><%= numero_pessoas %> pessoa<%= 's' unless numero_pessoas == 1 %></td>
+
+                    <% if @usuario_logado.eh_super_admin? %>
+                        <td align="center"><%= grupo.eh_super_grupo? ? "Sim" : "Não" %></td>
+                        <td align="center"><%= link_to 'Editar', edit_grupo_path(grupo), class: 'link_editar' %></td>
+                        <td align="center"><%= link_to 'Excluir', '#', data: { nome_grupo: grupo.nome, id_grupo: grupo.id, page: @grupos.current_page }, class: 'link_excluir' %></td>
+                    <% end %>
+                </tr>
+            <% end %>
+        </tbody>
+    </table>
+
+    <%= paginate @grupos %>
+<% end %>

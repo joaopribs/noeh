@@ -1,0 +1,190 @@
+function ListaPessoas(containerDaTabela, tipoPagina, grupoId, funcaoSucesso) {
+
+    var self = this;
+
+    if (funcaoSucesso == null) {
+        funcaoSucesso = function () {
+        };
+    }
+
+    this.containerDaTabela = containerDaTabela,
+    this.tipoPagina = tipoPagina,
+    this.funcaoSucesso = funcaoSucesso,
+    this.grupoId = grupoId,
+
+    this.carregar = function (numeroPagina) {
+
+        var parametros = [];
+        parametros.push("tipo_pagina=" + self.tipoPagina);
+
+        if (numeroPagina != null) {
+            parametros.push("page=" + numeroPagina);
+        }
+
+        if (grupoId != null) {
+            parametros.push("grupo_id=" + self.grupoId);
+        }
+
+        parametros = parametros.join("&");
+
+        $(self.containerDaTabela).load("<%= lista_pessoas_url %>?" + parametros, function () {
+            $(".pagination a").on("click", function (e) {
+                e.preventDefault();
+                var numeroPagina = $(this).data("numero_pagina");
+                self.carregar(numeroPagina);
+            });
+
+            $(".link_excluir").on("click", function (evento) {
+                evento.preventDefault();
+
+                var pessoaId = $(this).data("pessoa-id");
+                var page = $(this).data("page");
+                var nome = $(this).data("nome-pessoa")
+
+                $("#dialog_conteudo").html("Tem certeza que deseja excluir <em>" + nome + "</em> do sistema?<p/>");
+                $("#dialog_conteudo").append("<a href='#' class='confirmar_excluir_pessoa dialog_link_confirmar' data-pessoa-id='" + pessoaId + "' data-page='" + page + "'>Confirmar</a>");
+                $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+                $("#dialog").show();
+
+                $(".dialog_link_cancelar").on("click", function (evento) {
+                    evento.preventDefault();
+                    esconderDialog();
+                });
+
+                $(".confirmar_excluir_pessoa").on("click", function (evento) {
+                    var pessoaId = $(this).data("pessoa-id");
+                    var page = $(this).data("page");
+
+                    $.ajax({url: "<%= pessoas_url %>/" + pessoaId,
+                            type: "delete",
+                            data: {
+                                "page": page
+                            },
+                            success: function (response) {
+                                esconderDialog();
+
+                                var novaPagina = parseInt(response.novaPagina);
+                                self.carregar(novaPagina);
+
+                                mostrarNotificacao(response.msgSucesso);
+
+                                $("html, body").animate({scrollTop: 0}, 500);
+                            }
+                        }
+                    );
+                });
+            });
+
+            $(".link_remover_do_grupo").on("click", function (evento) {
+                evento.preventDefault();
+
+                var grupoId = $(this).data("grupo-id");
+                var pessoaId = $(this).data("pessoa-id");
+                var page = $(this).data("page");
+                var nomePessoa = $(this).data("nome-pessoa");
+                var nomeGrupo = $(this).data("nome-grupo");
+
+                $("#dialog_conteudo").html("Tem certeza que deseja remover <em>" + nomePessoa + "</em> do grupo <em>" + nomeGrupo + "</em>?<p/>");
+                $("#dialog_conteudo").append("<label><input type='radio' name='tipo_remover' value='acidente' />Adicionado <em>por acidente</em> (não deveria fazer parte do grupo)</label><br/>");
+                $("#dialog_conteudo").append("<label><input type='radio' name='tipo_remover' value='saindo' /><em>Já participou</em>, mas saiu do grupo na seguinte data:</label>");
+                $("#dialog_conteudo").append("<input id='data_saindo' type='text' readonly='true'/>")
+
+                $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar dialog_link_desativado' data-grupo-id='" + grupoId + "' data-pessoa-id='" + pessoaId + "' data-page='" + page + "'>Confirmar</a>");
+                $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+                $("#dialog").show();
+
+                $("#data_saindo").datepicker({
+                    dateFormat: 'dd/mm/yy',
+                    dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
+                    dayNamesMin: ['D','S','T','Q','Q','S','S','D'],
+                    dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+                    monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+                    monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+                    nextText: 'Próximo',
+                    prevText: 'Anterior',
+                    changeMonth: true,
+                    changeYear: true
+                });
+
+                $("input[name=tipo_remover]").on("change", function (evento) {
+                    var valorDoRadio = $("input[name=tipo_remover]:radio:checked").val();
+
+                    if (valorDoRadio == 'acidente') {
+                        $(".dialog_link_confirmar").removeClass('dialog_link_desativado');
+                    }
+                    else {
+                        $("#data_saindo").datepicker('show');
+
+                        if ($("#data_saindo").val() == '') {
+                            $(".dialog_link_confirmar").addClass('dialog_link_desativado');
+                        }
+                        else {
+                            $(".dialog_link_confirmar").removeClass('dialog_link_desativado');
+                        }
+                    }
+                });
+
+                $("#data_saindo").on({
+                    change: function (evento) {
+                        if ($(this).val() != '') {
+                            $(".dialog_link_confirmar").removeClass('dialog_link_desativado');
+                        }
+                        else {
+                            $(".dialog_link_confirmar").addClass('dialog_link_desativado');
+                        }
+                    },
+                    click: function (evento) {
+                        $("input[name=tipo_remover][value=saindo]").prop("checked", true);
+                    }
+                });
+
+                $(".dialog_link_confirmar").on("click", function (evento) {
+                    if ($(this).hasClass('dialog_link_desativado')) {
+                        return;
+                    }
+
+                    var valorDoRadio = $("input[name=tipo_remover]:radio:checked").val();
+
+                    var pessoaId = $(this).data("pessoa-id");
+                    var grupoId = $(this).data("grupo-id");
+                    var tipoRemover = $("input[name=tipo_remover]:radio:checked").val();
+                    var page = $(this).data("page");
+                    var deixouDeParticiparEm = $("#data_saindo").val();
+
+                    $.post(
+                        "<%= remover_pessoa_de_grupo_url %>",
+                        {
+                            id_grupo: grupoId,
+                            id_pessoa: pessoaId,
+                            tipo_remover: tipoRemover,
+                            page: page,
+                            deixou_de_participar_em: deixouDeParticiparEm
+                        },
+                        function (response) {
+                            esconderDialog();
+
+                            var novaPagina = parseInt(response.novaPagina);
+                            self.carregar(novaPagina);
+
+                            mostrarNotificacao(response.msgSucesso);
+
+                            $("html, body").animate({scrollTop: 0}, 500);
+                        }
+                    );
+                });
+
+                $(".dialog_link_cancelar").on("click", function (evento) {
+                    evento.preventDefault();
+                    esconderDialog();
+                });
+            });
+
+            self.funcaoSucesso();
+        });
+
+    },
+
+    this.inicializar = function () {
+        self.carregar();
+    }
+}

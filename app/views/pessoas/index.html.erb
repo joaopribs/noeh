@@ -1,0 +1,18 @@
+<script src="<%= lista_pessoas_js_url %>"></script>
+
+<script>
+    $(function () {
+        listaPessoas = new ListaPessoas($("#lista_pessoas"), "lista_pessoas");
+        listaPessoas.inicializar();
+    });
+</script>
+
+<%= render_breadcrumbs "pessoas" %>
+
+<h1>Pessoas</h1>
+
+<%= render 'shared/notificacao' %>
+
+<%= link_to 'Criar nova pessoa', new_pessoa_path, :class => "link_novo link_nova_pessoa" %>
+
+<div id="lista_pessoas"></div>

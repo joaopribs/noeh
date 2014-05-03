@@ -1,0 +1,13 @@
+<%= render_breadcrumbs "criar" %>
+
+<%
+    if @grupo.present?
+        titulo = "Adicionar pessoa a #{@grupo.nome}"
+    else
+        titulo = "Criar nova pessoa"
+    end
+%>
+
+<h1><%= titulo %></h1>
+
+<%= render 'form', modo: "criando" %>

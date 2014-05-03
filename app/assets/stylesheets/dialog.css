@@ -1,0 +1,83 @@
+#dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    padding: 200px;
+    display: none;
+}
+
+#dialog #dialog_overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.9;
+    filter: alpha(opacity = 90); /* For IE8 and earlier */
+    z-index: -1;
+}
+
+#dialog #dialog_conteudo {
+    font-size: 18pt;
+    color: #fff;
+}
+
+#dialog #dialog_conteudo em {
+    font-style: normal;
+}
+
+#dialog #dialog_conteudo a {
+    margin-top: 30px;
+    font-size: 14pt;
+    padding: 5px 10px;
+    margin-right: 20px;
+}
+
+#dialog #dialog_conteudo a.dialog_link_cancelar {
+    color: #d41111;
+    background-color: #fff;
+}
+
+#dialog #dialog_conteudo a.dialog_link_cancelar:hover {
+    background-color: #d41111;
+    color: #fff;
+}
+
+#dialog #dialog_conteudo a.dialog_link_confirmar {
+    color: #008d14;
+    background-color: #fff;
+}
+
+#dialog #dialog_conteudo a.dialog_link_confirmar:hover {
+    background-color: #008d14;
+    color: #fff;
+}
+
+#dialog #dialog_conteudo a.dialog_link_desativado,
+#dialog #dialog_conteudo a.dialog_link_desativado:hover {
+    background-color: #6a6a6a;
+    color: #3a3a3a;
+}
+
+#dialog #dialog_conteudo a.dialog_link_desativado:hover {
+    cursor: default;
+}
+
+#dialog #dialog_conteudo input[type=radio] {
+    margin-right: 20px;
+    vertical-align: middle;
+}
+
+#dialog #dialog_conteudo input[type=text] {
+    vertical-align: middle;
+}
+
+/* Dialog pra remover pessoa do grupo
+------------------------------------------------------------------------------*/
+
+#data_saindo {
+    margin-left: 10px;
+}

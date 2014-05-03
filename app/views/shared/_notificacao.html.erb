@@ -1,0 +1,14 @@
+<%
+    notice = flash[:notice]
+    flash[:notice] = nil
+%>
+
+<% if notice %>
+    <script>
+        $(function () {
+            mostrarNotificacao();
+        });
+    </script>
+<% end %>
+
+<p class="notificacao" style="display: none;"><%= notice %></p>

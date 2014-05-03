@@ -1,0 +1,8 @@
+<% if @usuario_logado.eh_super_admin %>
+    <%= link_to "Grupos", grupos_path %>
+    <%= link_to "Pessoas", pessoas_path %>
+<% else %>
+    <% if @usuario_logado.grupos_que_coordena.count > 0 %>
+        <%= link_to "Grupos que você coordena", grupos_path %>
+    <% end %>
+<% end %>

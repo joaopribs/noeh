@@ -1,0 +1,15 @@
+<nav id="breadcrumbs">
+    <% separador = "" %>
+
+    <% @breadcrumbs.each do |breadcrumb| %>
+        <%= raw separador %>
+
+        <% if breadcrumb[:identificador] != ativo %>
+            <%= link_to breadcrumb[:titulo], breadcrumb[:url] %>
+        <% else %>
+            <%= breadcrumb[:titulo] %>
+        <% end %>
+
+        <% separador = '<span class="separador">›</span>' %>
+    <% end %>
+</nav>
