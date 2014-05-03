@@ -29,3 +29,5 @@ end
 gem 'mysql2'
 gem 'kaminari'
 gem 'activerecord-session_store', github: 'rails/activerecord-session_store'
+
+gem 'rails_12factor', group: :production
