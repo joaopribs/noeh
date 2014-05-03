@@ -25,6 +25,8 @@
         });
 
         function checarLoginSistema(idFacebook, accessToken, nascimento, email) {
+            console.log(idFacebook);
+
             $.post("<%= log_in_url %>", {"id_facebook": idFacebook, "access_token": accessToken, "nascimento": nascimento, "email": email},
                     function(resposta) {
                         if (resposta == "ok") {
