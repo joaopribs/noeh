@@ -52,7 +52,11 @@
                 var nascimento = null;
                 var email = null;
 
-                FB.api('/me?fields=birthday,email', function(response) {
+                FB.api('/me?fields=id,birthday,email', function(response) {
+
+                    console.log("FB.api dentro de checarLoginFacebook");
+                    console.log(response);
+
                     idFacebook = response.id;
                     nascimento = response.birthday;
                     email = response.email;
@@ -80,7 +84,7 @@
                 var nascimento = null;
                 var email = null;
 
-                FB.api('/me?fields=name,birthday,email', function(response) {
+                FB.api('/me?fields=id,name,birthday,email', function(response) {
 
                     console.log("FB.api dentro de getLoginStatus");
                     console.log(response);
