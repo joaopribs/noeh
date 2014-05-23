@@ -11,4 +11,6 @@ function mostrarNotificacao(mensagem) {
     timer = setTimeout(function () {
             $(".notificacao").hide(500);
         }, 4000);
+
+    $.post('/notif');
 }

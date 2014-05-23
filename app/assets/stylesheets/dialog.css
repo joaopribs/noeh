@@ -23,6 +23,7 @@
 #dialog #dialog_conteudo {
     font-size: 18pt;
     color: #fff;
+    width: 1050px;
 }
 
 #dialog #dialog_conteudo em {

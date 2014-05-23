@@ -79,7 +79,7 @@
 
 <div class="detalhes_pesquisa" id="<%= detalhes_pesquisa %>" <% if !mostrar_pessoa %>style="display: none;"<% end %>>
     <div class="imagens_detalhe_pesquisa">
-        <img class="imagem_detalhe_pesquisa" src="<%= pessoa_a_mostrar.url_imagem(true, 100, 100) if mostrar_pessoa %>" /><img class="imagem_detalhe_pesquisa" src="" style="display: none;" />
+        <img class="imagem_detalhe_pesquisa" src="<%= pessoa_a_mostrar.url_imagem(100) if mostrar_pessoa %>" /><img class="imagem_detalhe_pesquisa" src="" style="display: none;" />
     </div>
 
     <span class="nome_detalhe_pesquisa"><%= pessoa_a_mostrar.nome if mostrar_pessoa %></span>

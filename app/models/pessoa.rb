@@ -6,7 +6,7 @@ class Pessoa < ActiveRecord::Base
   before_save :atualizar_data
   default_scope { order(:nome) }
 
-  attr_accessor :dia, :mes, :ano
+  attr_accessor :dia, :mes, :ano, :tem_facebook
 
   has_many :relacoes_pessoa_grupo, class_name: 'RelacaoPessoaGrupo', dependent: :destroy
   has_many :grupos, through: :relacoes_pessoa_grupo
@@ -23,59 +23,34 @@ class Pessoa < ActiveRecord::Base
   validate :validate_email
   validate :validate_cep
 
-  def url_imagem square, largura, altura
-    if self.id_facebook.present?
-      url = []
-      url << "http://graph.facebook.com/#{self.id_facebook}/picture?"
-
-      params = []
-      if square
-        params << "type=square"
-      end
-      params << "width=#{largura}" unless largura.nil?
-      params << "height=#{altura}" unless altura.nil?
-
-      url << params.join("&")
-      url = url.join
+  def self.url_imagem_sem_imagem tamanho
+    if tamanho > 120
+      url = "/assets/semfoto200.png"
+    elsif tamanho > 80
+      url = "/assets/semfoto100.png"
     else
-      if largura > 120
-        url = "/assets/semfoto200.png"
-      elsif largura > 80
-        url = "/assets/semfoto100.png"
-      else
-        url = "/assets/semfoto50.png"
-      end
+      url = "/assets/semfoto50.png"
     end
 
     return url
   end
 
-  def validate_nascimento
-    if !self.ano.blank? || !self.mes.blank? || !self.dia.blank?
-      begin
-        Date.parse("#{self.ano}-#{self.mes}-#{self.dia}")
-      rescue
-        errors.add(:nascimento, "Data inválida")
+  def url_imagem tamanho
+    if self.url_foto_pequena.present? || self.url_foto_grande.present?
+      if tamanho < 80
+        url = self.url_foto_pequena.present? ? self.url_foto_pequena : self.url_foto_grande
+      else
+        url = self.url_foto_grande.present? ? self.url_foto_grande : self.url_foto_pequena
       end
+    else
+      url = Pessoa.url_imagem_sem_imagem tamanho
     end
+
+    return url
   end
 
-  def validate_facebook
-    if self.new_record? && self.id_facebook.present? && !Pessoa.where(:id_facebook => self.id_facebook).empty?
-      errors.add(:id_facebook, "Já há outra pessoa com esse Facebook")
-    end
-  end
-
-  def validate_email
-    if !self.email.blank? && ((self.email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i) == nil)
-      errors.add(:email, "Email inválido")
-    end
-  end
-
-  def validate_cep
-    if !self.cep.blank? && ((self.cep =~ /[0-9]{5}-[0-9]{3}/) == nil)
-      errors.add(:cep, "CEP inválido")
-    end
+  def tem_informacoes_facebook
+    return self.url_facebook.present? || self.nome_facebook.present? || self.email_facebook.present?
   end
 
   def eh_coordenador_de_grupo_de(outra_pessoa)
@@ -127,6 +102,46 @@ class Pessoa < ActiveRecord::Base
     elementos << self.cidade unless self.cidade.blank?
     elementos << self.estado unless self.estado.blank?
     return elementos.join(" - ")
+  end
+
+  def validate_nascimento
+    if !self.ano.blank? || !self.mes.blank? || !self.dia.blank?
+      begin
+        Date.parse("#{self.ano}-#{self.mes}-#{self.dia}")
+      rescue
+        errors.add(:nascimento, "Data inválida")
+      end
+    end
+  end
+
+  def validate_facebook
+    if self.tem_facebook.present? && (self.tem_facebook == "on")
+      if self.nome_facebook.blank?
+        errors.add(:nome_facebook, "Obrigatório para quem tem Facebook")
+      end
+
+      if self.url_facebook.blank?
+        errors.add(:url_facebook, "Obrigatório para quem tem Facebook")
+      elsif self.new_record? && !Pessoa.where(:url_facebook => self.url_facebook).empty?
+        errors.add(:url_facebook, "Já há outra pessoa com esse Facebook")
+      end
+
+      if self.url_foto_grande.blank?
+        errors.add(:url_foto_grande, "Obrigatório para quem tem Facebook")
+      end
+    end
+  end
+
+  def validate_email
+    if !self.email.blank? && ((self.email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i) == nil)
+      errors.add(:email, "Email inválido")
+    end
+  end
+
+  def validate_cep
+    if !self.cep.blank? && ((self.cep =~ /[0-9]{5}-[0-9]{3}/) == nil)
+      errors.add(:cep, "CEP inválido")
+    end
   end
 
   private

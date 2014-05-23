@@ -25,6 +25,7 @@
         window.fbAsyncInit = function() {
             FB.init({
                 appId      : '<%= APP_CONFIG['id_app_facebook'] %>',
+                version    : 'v2.0',
                 status     : false, // check login status
                 cookie     : false, // enable cookies to allow the server to access the session
                 xfbml      : true  // parse XFBML
@@ -37,7 +38,7 @@
         (function(d){
             var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
             js = d.createElement('script'); js.id = id; js.async = true;
-            js.src = "//connect.facebook.net/pt_BR/all.js";
+            js.src = "//connect.facebook.com/pt_BR/all.js";
             d.getElementsByTagName('head')[0].appendChild(js);
         }(document));
     </script>
@@ -54,7 +55,7 @@
 
                 <a id="link_usuario_logado" href="<%= pessoa_path(@usuario_logado) %>">
                     Logado como <b><%= @usuario_logado.nome_usual %></b>
-                    <img src="<%= @usuario_logado.url_imagem(true, 25, 25) %>" />
+                    <img src="<%= @usuario_logado.url_imagem(25) %>" />
                 </a>
 
                 <%= link_to "Sair", log_out_path, id: "sair_fb" %>

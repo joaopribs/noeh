@@ -1,9 +1,4 @@
-<%
-    notice = flash[:notice]
-    flash[:notice] = nil
-%>
-
-<% if notice %>
+<% if flash[:notice] %>
     <script>
         $(function () {
             mostrarNotificacao();
@@ -11,4 +6,4 @@
     </script>
 <% end %>
 
-<p class="notificacao" style="display: none;"><%= notice %></p>
+<p class="notificacao" style="display: none;"><%= flash[:notice] %></p>

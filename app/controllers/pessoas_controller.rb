@@ -204,7 +204,11 @@ class PessoasController < ApplicationController
 
     adicionar_breadcrumb "Editar #{@nome_usual}", edit_pessoa_url(@pessoa), "editar"
 
+    tinha_facebook_antes = @pessoa.tem_informacoes_facebook
+
     @pessoa.assign_attributes(pessoa_params)
+
+    @pessoa = remover_facebook_se_necessario(@pessoa, tinha_facebook_antes)
 
     precisa_salvar_pessoa = true
     precisa_salvar_velho_conjuge = false
@@ -241,6 +245,8 @@ class PessoasController < ApplicationController
         else
           @conjuge = Pessoa.new(conjuge_params)
         end
+
+        @conjuge = remover_facebook_se_necessario(@conjuge, @conjuge.tem_informacoes_facebook)
 
         if !@conjuge.valid?
           precisa_salvar_pessoa = false
@@ -332,18 +338,6 @@ class PessoasController < ApplicationController
     end
   end
 
-  def consulta_ja_existe_fb
-    ja_existe = !Pessoa.where(:id_facebook => params[:id_facebook]).empty?
-
-    respond_to do |format|
-      if ja_existe
-        format.json { render json: {}, status: :unprocessable_entity }
-      else
-        format.json { render json: {}, status: :ok }
-      end
-    end
-  end
-
   def pesquisa_pessoas
     condicoes = []
 
@@ -421,6 +415,18 @@ class PessoasController < ApplicationController
       @pessoa = Pessoa.find(params[:id])
     end
 
+    def remover_facebook_se_necessario(pessoa, tinha_antes)
+      if tinha_antes && (pessoa.tem_facebook.nil? || pessoa.tem_facebook == "off")
+        pessoa.url_foto_pequena = nil
+        pessoa.url_foto_grande = nil
+        pessoa.nome_facebook = nil
+        pessoa.url_facebook = nil
+        pessoa.email_facebook = nil
+      end
+
+      return pessoa
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def pessoa_params
       if params[:cep1_pessoa].present? || params[:cep2_pessoa].present?
@@ -429,7 +435,6 @@ class PessoasController < ApplicationController
 
       hash = ActionController::Parameters.new(nome: params[:nome_pessoa],
                                               nome_usual: params[:nome_usual_pessoa],
-                                              id_facebook: params[:id_facebook_pessoa],
                                               dia: params[:dia_pessoa],
                                               mes: params[:mes_pessoa],
                                               ano: params[:ano_pessoa],
@@ -440,7 +445,11 @@ class PessoasController < ApplicationController
                                               bairro: params[:bairro_pessoa],
                                               cidade: params[:cidade_pessoa],
                                               estado: params[:estado_pessoa],
-                                              cep: cep)
+                                              cep: cep,
+                                              tem_facebook: params[:tem_facebook_pessoa],
+                                              nome_facebook: params[:nome_facebook_pessoa],
+                                              url_facebook: params[:url_facebook_pessoa],
+                                              url_foto_grande: params[:imagem_facebook_pessoa])
       hash.permit!
       return hash
     end
@@ -449,12 +458,15 @@ class PessoasController < ApplicationController
     def conjuge_params
       hash = ActionController::Parameters.new(nome: params[:nome_conjuge],
                                               nome_usual: params[:nome_usual_conjuge],
-                                              id_facebook: params[:id_facebook_conjuge],
                                               dia: params[:dia_conjuge],
                                               mes: params[:mes_conjuge],
                                               ano: params[:ano_conjuge],
                                               eh_homem: params[:eh_homem_conjuge],
-                                              email: params[:email_conjuge])
+                                              email: params[:email_conjuge],
+                                              tem_facebook: params[:tem_facebook_conjuge],
+                                              nome_facebook: params[:nome_facebook_conjuge],
+                                              url_facebook: params[:url_facebook_conjuge],
+                                              url_foto_grande: params[:imagem_facebook_conjuge])
       hash.permit!
       return hash
     end

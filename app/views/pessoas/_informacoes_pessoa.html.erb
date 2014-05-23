@@ -1,8 +1,13 @@
-<img src="<%= pessoa.url_imagem(false, 200, nil) %>" class="imagem_facebook_detalhe"/>
+<img src="<%= pessoa.url_imagem(200) %>" class="imagem_facebook_detalhe"/>
+
+<% if pessoa.ultimo_login.present? %>
+    <b>Último login:</b> <%= pessoa.ultimo_login.strftime('%d/%m/%Y %H:%M:%S') %>
+    <p/>
+<% end %>
 
 <b>Nome:</b> <%= pessoa.nome %><br/>
 <b>Nome usual:</b> <%= pessoa.nome_usual %><br/>
-<b>Facebook:</b> <%= link_to "Facebook", "http://facebook.com/#{pessoa.id_facebook}", target: '_blank', class: 'link_facebook' unless pessoa.id_facebook.blank? %><br/>
+<b>Facebook:</b> <%= link_to "Facebook", pessoa.url_facebook, target: '_blank', class: 'link_facebook' unless pessoa.url_facebook.blank? %><br/>
 <b>Gênero:</b> <%= (pessoa.eh_homem? ? "Homem" : "Mulher") %><br/>
 <b>Data de nascimento:</b> <%= pessoa.nascimento.strftime("%d/%m/%Y") unless pessoa.nascimento.blank? %><br/>
 <b>Email:</b> <%= link_to pessoa.email, "mailto:#{pessoa.email}", target: '_blank' unless pessoa.email.blank? %><br/>

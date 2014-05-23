@@ -20,17 +20,26 @@
         FB.init({
             appId      : '<%= APP_CONFIG['id_app_facebook'] %>',
             status     : false, // check login status
-            cookie     : false, // enable cookies to allow the server to access the session
+            cookie     : true, // enable cookies to allow the server to access the session
             xfbml      : true  // parse XFBML
         });
 
-        function checarLoginSistema(idFacebook, accessToken, nascimento, email) {
+        function checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande) {
+            console.log(nomeFacebook);
+            console.log(emailFacebook);
+            console.log(nascimento);
+            console.log(urlFotoPequena);
+            console.log(urlFotoGrande);
 
-            console.log("checarLoginSistema");
-            console.log(idFacebook);
-
-            $.post("<%= log_in_url %>", {"id_facebook": idFacebook, "access_token": accessToken, "nascimento": nascimento, "email": email},
-                    function(resposta) {
+            $.post("<%= log_in_url %>",
+                    {
+                        "nome_facebook": nomeFacebook,
+                        "email_facebook": emailFacebook,
+                        "nascimento": nascimento,
+                        "url_foto_pequena": urlFotoPequena,
+                        "url_foto_grande": urlFotoGrande
+                    },
+                    function (resposta) {
                         if (resposta == "ok") {
                             window.location.href = "<%= root_url %>";
                         }
@@ -38,31 +47,33 @@
                             $("#erro_login").html("Você não está permitido a usar o sistema.");
                             $("#link_fb").hide();
                         }
-                    });
+                    }
+            );
         }
 
         function checarLoginFacebook(response) {
-            console.log("checarLoginFacebook");
-            console.log(response);
-
             if (response.status === 'connected') {
-                var accessToken = response.authResponse.accessToken;
+                FB.api('/me?fields=email,picture,name,birthday', function (response) {
+                    var nomeFacebook = response.name;
+                    var emailFacebook = response.email;
+                    var nascimento = response.birthday;
 
-                var idFacebook = null;
-                var nascimento = null;
-                var email = null;
+                    var urlFotoGrande = null;
+                    var urlFotoPequena = null;
 
-                FB.api('/me?fields=id,birthday,email', function(response) {
+                    if (!response.picture.data.is_silhouette) {
+                        urlFotoPequena = response.picture.data.url;
 
-                    console.log("FB.api dentro de checarLoginFacebook");
-                    console.log(response);
+                        FB.api('/me/picture?redirect=0&height=200&type=normal&width=200', function (response) {
+                            urlFotoGrande = response.data.url;
+                            checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                        });
+                    }
+                    else {
+                        checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                    }
 
-                    idFacebook = response.id;
-                    nascimento = response.birthday;
-                    email = response.email;
                 });
-
-                checarLoginSistema(idFacebook, accessToken, nascimento, email);
             }
             else {
                 if (response.status === 'not_authorized') {
@@ -72,41 +83,48 @@
             }
         }
 
-        FB.getLoginStatus(function(response) {
+        function atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande) {
+            $("#msg_principal").html("Entrar como " + nomeFacebook + "<br/>(usuário logado no Facebook no momento)");
 
-            console.log("getLoginStatus");
-            console.log(response);
+            if (urlFotoPequena != null) {
+                $("#imagem_usuario_facebook").attr("src", urlFotoPequena);
+                $("#imagem_usuario_facebook").show();
+            }
 
+            $("#link_fb").on("click", function (e) {
+                e.preventDefault();
+                checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+            });
+        }
+
+        FB.getLoginStatus(function (response) {
             if (response.status === 'connected') {
-                var accessToken = response.authResponse.accessToken;
-
-                var idFacebook = null;
+                var nomeFacebook = null;
+                var emailFacebook = null;
                 var nascimento = null;
-                var email = null;
+                var urlFotoPequena = null;
+                var urlFotoGrande = null;
 
-                FB.api('/me?fields=id,name,birthday,email', function(response) {
-
-                    console.log("FB.api dentro de getLoginStatus");
-                    console.log(response);
-
-                    $("#msg_principal").html("Entrar como " + response.name + "<br/>(usuário logado no Facebook no momento)");
-
-                    idFacebook = response.id;
-
-                    $("#imagem_usuario_facebook").attr("src", "//graph.facebook.com/" + idFacebook + "/picture?height=30");
-                    $("#imagem_usuario_facebook").show();
-
+                FB.api('/me?fields=email,picture,name,birthday', function (response) {
+                    nomeFacebook = response.name;
+                    emailFacebook = response.email;
                     nascimento = response.birthday;
-                    email = response.email;
-                });
 
-                $("#link_fb").on("click", function(e) {
-                    e.preventDefault();
-                    checarLoginSistema(idFacebook, accessToken, nascimento, email);
+                    if (!response.picture.data.is_silhouette) {
+                        urlFotoPequena = response.picture.data.url;
+
+                        FB.api('/me/picture?redirect=0&height=200&type=normal&width=200', function (response) {
+                            urlFotoGrande = response.data.url;
+                            atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                        });
+                    }
+                    else {
+                        atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                    }
                 });
             }
             else {
-                $("#link_fb").on("click", function(e) {
+                $("#link_fb").on("click", function (e) {
                     e.preventDefault();
                     FB.login(function(response) {
                         checarLoginFacebook(response);
@@ -120,24 +138,27 @@
     (function(d){
         var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
         js = d.createElement('script'); js.id = id; js.async = true;
-        js.src = "//connect.facebook.net/pt_BR/all.js";
+        js.src = "//connect.facebook.com/pt_BR/all.js";
         d.getElementsByTagName('head')[0].appendChild(js);
     }(document));
 </script>
 
 <%
-   pessoas = []
-   if Pessoa.count > 0
-       while pessoas.length < 50 do
-         pessoas += Pessoa.where("id_facebook != ''").sample(50)
-       end
-   end
+    pessoas = Pessoa.where("url_foto_grande != ''").sample(20)
+
+    if pessoas.count > 0
+        while pessoas.length < 50 do
+            pessoas += pessoas
+        end
+
+        pessoas = pessoas.shuffle
+    end
 %>
 
 <div id="faixa_principal">
     <div id="faixa_principal_extrapolada">
         <% pessoas.each do |pessoa| %>
-            <img src="http://graph.facebook.com/<%= pessoa.id_facebook %>/picture?height=100" class="imagens_faixa_principal" />
+            <img src="<%= pessoa.url_foto_grande %>" class="imagens_faixa_principal" />
         <% end %>
     </div>
 
@@ -147,11 +168,10 @@
         <div id="imagem_noeh_deslogado"></div><br/>
         Sistema de cadastro na igreja
         <p/>
-        <div class="link_entrar_pelo_facebook" id="link_fb">
+        <a class="link_entrar_pelo_facebook" id="link_fb" href="#">
             <img id="imagem_usuario_facebook" src="" class="imagem_usuario_facebook"/>
-
-            <div id="msg_principal">Entre no sistema usando sua conta de Facebook</div>
-        </div>
+            <span id="msg_principal">Entre no sistema usando sua conta de Facebook</span>
+        </a>
         <div id="erro_login" class="msg_erro erro_login"></div>
     </div>
 </div>

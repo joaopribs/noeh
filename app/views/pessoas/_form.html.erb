@@ -1,106 +1,3 @@
-<% content_for :javascript_fb do %>
-            function consultarFacebook(qualDeles) {
-                $("#informacoes_fb_" + qualDeles).hide();
-                $("#carregando_fb_" + qualDeles).show();
-
-                var link_facebook = $("#link_facebook_" + qualDeles).val();
-
-                if (link_facebook != "") {
-                    var matches = link_facebook.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[\w\-]*\/)*([\w\-\.]*)/);
-
-                    if (matches != null && matches.length > 1) {
-                        var username_facebook = matches[1];
-
-                        FB.api('/' + username_facebook,
-                            {
-                                fields : "id,name,first_name,gender,birthday"
-                            },
-                            function(response) {
-                                console.log(response.id);
-
-                                if (response.id == undefined) {
-                                    alert("Nenhum perfil de Facebook foi encontrado no link.");
-                                    $("#carregando_fb_" + qualDeles).hide();
-                                    $("#link_facebook_" + qualDeles).val("");
-                                    return;
-                                }
-                                else {
-                                    var id_facebook = response.id;
-                                    var nome_facebook = response.name;
-                                    var nome_usual_facebook = response.first_name;
-                                    var genero_facebook = response.gender;
-
-                                    $.ajax({url: "<%= consulta_ja_existe_fb_url %>",
-                                        type: "post",
-                                        data: {
-                                            "id_facebook": id_facebook
-                                        },
-                                        success: function (response) {
-                                            $("#carregando_fb_" + qualDeles).hide();
-
-                                            $("#id_facebook_" + qualDeles).val(id_facebook);
-                                            $("#id_facebook_fallback_" + qualDeles).val(id_facebook);
-
-                                            $("#nome_" + qualDeles).val(nome_facebook);
-                                            $("#nome_usual_" + qualDeles).val(nome_usual_facebook);
-                                            if (genero_facebook == "male") {
-                                                $("#eh_homem_" + qualDeles).prop("checked", true);
-                                            }
-                                            else {
-                                                $("#eh_mulher_" + qualDeles).prop("checked", true);
-                                            }
-
-                                            $("#imagem_facebook_" + qualDeles).attr("src", "http://graph.facebook.com/" + id_facebook + "/picture?type=square&width=120&height=120");
-                                            $("#perfil_facebook_" + qualDeles).attr("href", "http://www.facebook.com/" + id_facebook);
-                                            $("#informacoes_fb_" + qualDeles).show();
-                                            $("#imagem_" + qualDeles).hide();
-                                        },
-                                        error: function (response) {
-                                            alert("Já existe um pessoa cadastrada com esse Facebook");
-                                            $("#carregando_fb_" + qualDeles).hide();
-                                            $("#link_facebook_" + qualDeles).val("");
-                                        }
-                                    }
-                                );
-                            }
-                        });
-
-                        return;
-                    }
-
-                }
-
-                alert("Nenhum perfil de Facebook foi encontrado no link.");
-                $("#carregando_fb_" + qualDeles).hide();
-                $("#link_facebook_" + qualDeles).val("");
-            }
-
-            $("#consultar_fb_pessoa").on("click", function(e) {
-                e.preventDefault();
-                consultarFacebook("pessoa");
-            });
-
-            $("#link_facebook_pessoa").keypress(function (evento) {
-                if (evento.which == 13) {
-                    evento.preventDefault();
-                    consultarFacebook("pessoa");
-                }
-            });
-
-            $("#consultar_fb_conjuge").on("click", function(e) {
-                e.preventDefault();
-                consultarFacebook("conjuge");
-            });
-
-            $("#link_facebook_conjuge").keypress(function (evento) {
-                if (evento.which == 13) {
-                    evento.preventDefault();
-                    consultarFacebook("conjuge");
-                }
-            });
-
-<% end %>
-
 <script>
     function resetarFormPessoa() {
         $("#form_pessoa")
@@ -140,7 +37,63 @@
 
         $("#link_enviar").on("click", function (e) {
             e.preventDefault();
-            $(this).closest("form").submit();
+
+            var form = $(this).closest("form");
+
+            var nomePessoa = $('#nome_usual_pessoa').val();
+            var nomeConjuge = $('#nome_usual_conjuge').val();
+            var tirouFbPessoa = null;
+            var tirouFbConjuge = null;
+
+            if ($('#esta_tirando_facebook_pessoa').size() > 0) {
+                tirouFbPessoa = $('#esta_tirando_facebook_pessoa').val();
+            }
+
+            if ($('#esta_tirando_facebook_conjuge').size() > 0) {
+                tirouFbConjuge = $('#esta_tirando_facebook_conjuge').val();
+            }
+
+            if (tirouFbPessoa == "1" || tirouFbConjuge == "1") {
+                var nomesArray = [];
+
+                if (tirouFbPessoa == "1") {
+                    nomesArray.push(nomePessoa);
+                }
+
+                if (tirouFbConjuge == "1") {
+                    nomesArray.push(nomeConjuge);
+                }
+
+                var nomes = nomesArray.join(" e ");
+                var plural = $(nomesArray).size() > 1;
+
+                $("#dialog_conteudo").html("Como você removeu o Facebook de <em>" + nomes + "</em>, ");
+                if (plural) {
+                    $("#dialog_conteudo").append("essas pessoas perderão acesso ao sistema.");
+                }
+                else {
+                    $("#dialog_conteudo").append("essa pessoa perderá acesso ao sistema.");
+                }
+                $("#dialog_conteudo").append("<br/>Tem certeza que deseja continuar?<p/>");
+                $("#dialog_conteudo").append("<a href='#' class='dialog_link_confirmar'>Confirmar</a>");
+                $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+                $("#dialog").show();
+
+                $(".dialog_link_confirmar").on("click", function (evento) {
+                    evento.preventDefault();
+                    form.submit();
+                });
+
+                $(".dialog_link_cancelar").on("click", function (evento) {
+                    evento.preventDefault();
+                    esconderDialog();
+                });
+
+            }
+            else {
+                form.submit();
+            }
+
         });
 
         $("input[name=casado_ou_solteiro]").on("change", function () {

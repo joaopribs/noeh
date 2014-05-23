@@ -6,19 +6,41 @@ class SessionsController < ApplicationController
 
   def log_in
 
-    id_facebook = params[:id_facebook]
+    nome_facebook = params[:nome_facebook]
+    email_facebook = params[:email_facebook]
+    nascimento = params[:nascimento]
+    url_foto_grande = params[:url_foto_grande]
+    url_foto_pequena = params[:url_foto_pequena]
 
-    usuario = Pessoa.where(:id_facebook => id_facebook).first
+    usuario = nil
 
-    if !usuario.nil?
-      session[:id_facebook] = id_facebook
+    usuarios = []
 
-      if params[:nascimento] || params[:email]
+    if email_facebook.present?
+      usuarios = Pessoa.where(email_facebook: email_facebook)
+    end
 
-        tem_que_salvar = false
+    if usuarios.count == 1
+      usuario = usuarios.first
+    elsif nome_facebook.present?
+      usuarios = Pessoa.where(nome_facebook: nome_facebook)
 
-        if params[:nascimento] && usuario.nascimento.blank?
-          elementos = params[:nascimento].split('/')
+      if usuarios.count == 1
+        usuario = usuarios.first
+      elsif usuarios.count > 1
+        usuarios = Pessoa.where(nome_facebook: nome_facebook, email_facebook: email_facebook)
+
+        if usuarios.count == 1
+          usuario = usuarios.first
+        end
+
+      end
+    end
+
+    if usuario.present?
+      if nascimento.present? || email_facebook.present? || url_foto.present?
+        if nascimento.present? && usuario.nascimento.blank?
+          elementos = nascimento.split('/')
           mes = elementos[0]
           dia = elementos[1]
           ano = elementos[2]
@@ -26,19 +48,28 @@ class SessionsController < ApplicationController
           usuario.dia = dia
           usuario.mes = mes
           usuario.ano = ano
-
-          tem_que_salvar = true
         end
 
-        if params[:email] && usuario.email.blank?
-          usuario.email = params[:email]
-          tem_que_salvar = true
+        if email_facebook.present? && usuario.email.blank?
+          usuario.email = email_facebook
         end
 
-        if tem_que_salvar
-          usuario.save
+        if email_facebook.present? && usuario.email_facebook.blank?
+          usuario.email_facebook = email_facebook
+        end
+
+        if (usuario.url_foto_grande.blank? || usuario.url_foto_pequena.blank?) &&
+            (url_foto_grande.present? || url_foto_pequena.present?)
+          usuario.url_foto_grande = url_foto_grande
+          usuario.url_foto_pequena = url_foto_pequena
         end
       end
+
+      usuario.ultimo_login = Time.zone.now
+
+      usuario.save
+
+      session[:usuario] = usuario
 
       msg = "ok"
     else
@@ -50,7 +81,7 @@ class SessionsController < ApplicationController
 
   def log_out
 
-    session[:id_facebook] = nil
+    session[:usuario] = nil
     redirect_to deslogado_url and return
 
   end

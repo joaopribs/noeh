@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140430211240) do
+ActiveRecord::Schema.define(version: 20140523104904) do
 
   create_table "grupos", force: true do |t|
     t.string   "nome"
@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(version: 20140430211240) do
   end
 
   create_table "pessoas", force: true do |t|
-    t.string   "id_facebook"
+    t.string   "nome_facebook"
     t.string   "nome"
     t.string   "nome_usual"
     t.date     "nascimento"
@@ -46,6 +46,11 @@ ActiveRecord::Schema.define(version: 20140430211240) do
     t.integer  "quem_editou_id"
     t.integer  "quem_deletou_id"
     t.datetime "quando_deletou"
+    t.string   "email_facebook"
+    t.string   "url_foto_grande"
+    t.string   "url_facebook"
+    t.string   "url_foto_pequena"
+    t.datetime "ultimo_login"
   end
 
   create_table "relacoes_pessoa_grupo", force: true do |t|

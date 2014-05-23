@@ -9,15 +9,7 @@ class ApplicationController < ActionController::Base
 
   def precisa_estar_logado
 
-    id_facebook = session[:id_facebook]
-
-    if id_facebook.nil?
-      redirect_to deslogado_url and return
-    end
-
-    usuario = Pessoa.where(id_facebook: id_facebook).first
-
-    @usuario_logado = usuario
+    @usuario_logado = session[:usuario]
 
     if @usuario_logado.nil?
       redirect_to deslogado_url and return

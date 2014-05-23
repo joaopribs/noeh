@@ -50,7 +50,7 @@
                 <td>
                     <% link_pessoa = (@tipo_pagina == "lista_pessoas") ? pessoa : pessoa_path(pessoa, grupo_id: params[:grupo_id]) %>
                     <%= link_to link_pessoa do %>
-                        <%= image_tag pessoa.url_imagem(true, 30, 30), :class => "imagem_pessoa_lista" %>
+                        <%= image_tag pessoa.url_imagem(30), :class => "imagem_pessoa_lista" %>
                         <%= "#{pessoa.nome} (#{pessoa.nome_usual})" %>
                     <% end %>
                 </td>
@@ -58,7 +58,7 @@
                     <% if pessoa.conjuge.present? %>
                         <% link_conjuge = (@tipo_pagina == "lista_pessoas") ? pessoa.conjuge : pessoa_path(pessoa.conjuge, grupo_id: params[:grupo_id]) %>
                         <%= link_to link_conjuge do %>
-                            <%= image_tag pessoa.conjuge.url_imagem(true, 30, 30), :class => "imagem_pessoa_lista" %>
+                            <%= image_tag pessoa.conjuge.url_imagem(30), :class => "imagem_pessoa_lista" %>
                             <%= "#{pessoa.conjuge.nome} (#{pessoa.conjuge.nome_usual})" %>
                         <% end %>
                     <% end %>

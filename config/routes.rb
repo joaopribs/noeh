@@ -15,12 +15,13 @@ Noeh::Application.routes.draw do
 
   get '/lista_pessoas', :to => 'pessoas#lista_pessoas', :as => :lista_pessoas
   get '/lista_pessoas_js', :to => 'pessoas#lista_pessoas_js', :as => :lista_pessoas_js, :defaults => { :format => 'js' }
-  post '/consulta_ja_existe_fb', :to => 'pessoas#consulta_ja_existe_fb', :as => :consulta_ja_existe_fb
   post '/pesquisa_pessoas', :to => 'pessoas#pesquisa_pessoas', :as => :pesquisa_pessoas
 
   get '/pessoas_no_grupo', :to => 'grupos#pessoas_no_grupo', :as => :pessoas_no_grupo, :defaults => { :format => 'js' }
   post '/setar_coordenador_de_grupo', :to => 'grupos#setar_eh_coordenador', :as => :setar_coordenador_de_grupo
   post '/adicionar_pessoa_a_grupo', :to => 'grupos#adicionar_pessoa_a_grupo', :as => :adicionar_pessoa_a_grupo
   post '/remover_pessoa_de_grupo', :to => 'grupos#remover_pessoa_de_grupo', :as => :remover_pessoa_de_grupo
+
+  post '/notif', :to => 'homepage#limpar_notificacao', :as => :limpar_notificacao
 
 end

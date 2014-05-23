@@ -126,21 +126,27 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
                         resultados.push('<a href="#">');
 
                         var img_src = "";
-                        if (this.id_facebook != null && this.id_facebook != "") {
-                            img_src = 'http://graph.facebook.com/' + this.id_facebook + '/picture?height=30&width=30';
+                        if (this.url_foto_pequena != null && this.url_foto_pequena != "") {
+                            img_src = this.url_foto_pequena;
+                        }
+                        else if (this.url_foto_grande != null && this.url_foto_grande != "") {
+                            img_src = this.url_foto_grande;
                         }
                         else {
-                            img_src = '/assets/semfoto100.png';
+                            img_src = '<%= Pessoa.url_imagem_sem_imagem(30) %>';
                         }
                         resultados.push('<img src="' + img_src + '" class="imagem_fb_busca"/>');
 
                         if (this.conjuge != null) {
                             var img_src_conjuge = "";
-                            if (this.conjuge.id_facebook != null && this.conjuge.id_facebook != "") {
-                                img_src_conjuge = 'http://graph.facebook.com/' + this.conjuge.id_facebook + '/picture?height=30&width=30';
+                            if (this.conjuge.url_foto_pequena != null && this.conjuge.url_foto_pequena != "") {
+                                img_src_conjuge = this.conjuge.url_foto_pequena;
+                            }
+                            else if (this.conjuge.url_foto_grande != null && this.conjuge.url_foto_grande != "") {
+                                img_src_conjuge = this.conjuge.url_foto_grande;
                             }
                             else {
-                                img_src_conjuge = '/assets/semfoto100.png';
+                                img_src_conjuge = '<%= Pessoa.url_imagem_sem_imagem(30) %>';
                             }
                             resultados.push('<img src="' + img_src_conjuge + '" class="imagem_fb_busca"/>');
                         }
@@ -207,16 +213,20 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
             var pessoa = self.arrayResultados[self.resultadoSelecionado];
 
             var idPessoa = pessoa.id;
-            var idFacebook = pessoa.id_facebook;
             var nome = pessoa.nome;
             var nomeUsual = pessoa.nome_usual;
+            var urlFotoGrande = pessoa.url_foto_grande;
+            var urlFotoPequena = pessoa.url_foto_pequena;
             var conjuge = pessoa.conjuge;
 
-            if (idFacebook != "") {
-                $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").first().attr("src", "http://graph.facebook.com/" + idFacebook + "/picture?type=square&height=100&width=100");
+            if (urlFotoGrande != null && urlFotoGrande != "") {
+                $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").first().attr("src", urlFotoGrande);
+            }
+            else if (urlFotoPequena != null && urlFotoPequena != "") {
+                $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").first().attr("src", urlFotoPequena);
             }
             else {
-                $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").first().attr("src", "/assets/semfoto100.png");
+                $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").first().attr("src", "<%= Pessoa.url_imagem_sem_imagem(100) %>");
             }
 
             if (conjuge == null) {
@@ -226,13 +236,17 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
             }
             else {
                 var nomeUsualConjuge = conjuge.nome_usual;
-                var idFacebookConjuge = conjuge.id_facebook;
+                var urlFotoGrandeConjuge = conjuge.url_foto_grande;
+                var urlFotoPequenaConjuge = conjuge.url_foto_pequena;
 
-                if (idFacebookConjuge != "") {
-                    $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").last().attr("src", "http://graph.facebook.com/" + idFacebookConjuge + "/picture?type=square&height=100&width=100");
+                if (urlFotoGrandeConjuge != null && urlFotoGrandeConjuge != "") {
+                    $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").last().attr("src", urlFotoGrandeConjuge);
+                }
+                else if (urlFotoPequenaConjuge != null && urlFotoPequenaConjuge != "") {
+                    $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").last().attr("src", urlFotoPequenaConjuge);
                 }
                 else {
-                    $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").last().attr("src", "/assets/semfoto100.png");
+                    $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").last().attr("src", "<%= Pessoa.url_imagem_sem_imagem(100) %>");
                 }
 
                 $(this.containerDosDetalhes).find(".nome_detalhe_pesquisa").html(nomeUsual + " / " + nomeUsualConjuge);

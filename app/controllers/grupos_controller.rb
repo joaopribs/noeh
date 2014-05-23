@@ -250,32 +250,6 @@ class GruposController < ApplicationController
       params.require(:grupo).permit(:nome, :eh_super_grupo)
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def pessoa_params
-      hash = ActionController::Parameters.new(nome: params[:nome_pessoa],
-                                              nome_usual: params[:nome_usual_pessoa],
-                                              id_facebook: params[:id_facebook_pessoa],
-                                              dia: params[:dia_pessoa],
-                                              mes: params[:mes_pessoa],
-                                              ano: params[:ano_pessoa],
-                                              eh_homem: params[:eh_homem_pessoa])
-      hash.permit!
-      return hash
-    end
-
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def conjuge_params
-      hash = ActionController::Parameters.new(nome: params[:nome_conjuge],
-                                              nome_usual: params[:nome_usual_conjuge],
-                                              id_facebook: params[:id_facebook_conjuge],
-                                              dia: params[:dia_conjuge],
-                                              mes: params[:mes_conjuge],
-                                              ano: params[:ano_conjuge],
-                                              eh_homem: params[:eh_homem_conjuge])
-      hash.permit!
-      return hash
-    end
-
     def pode_ver_grupos
       return @usuario_logado.eh_super_admin? || @usuario_logado.grupos_que_coordena.count > 0
     end

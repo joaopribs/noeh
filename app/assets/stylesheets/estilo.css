@@ -285,11 +285,13 @@ a.link_cancelar:hover {
     margin: auto;
     text-align: left;
     font-size: 10pt;
+    font-weight: normal;
+    display: inline-block;
 }
 
 .link_entrar_pelo_facebook:hover {
     background-color: #3d5cb9;
-    cursor: pointer;
+    color: #fff;
 }
 
 .link_entrar_pelo_facebook .imagem_usuario_facebook {
@@ -329,9 +331,6 @@ a.link_cancelar:hover {
     vertical-align: top;
     margin-right: 20px;
     margin-bottom: 20px;
-}
-
-.imagem_pessoa_form img {
     width: 120px;
 }
 
@@ -341,6 +340,19 @@ a.link_cancelar:hover {
     text-align: center;
     margin-bottom: 20px;
     white-space: nowrap;
+}
+
+.campos_de_facebook {
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    padding: 10px;
+    padding-bottom: 0;
+    margin-bottom: 10px;
+}
+
+.label_tem_facebook {
+    display: block;
+    margin-bottom: 10px;
 }
 
 /* Página deslogado
