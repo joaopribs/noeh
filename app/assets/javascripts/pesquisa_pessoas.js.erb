@@ -88,6 +88,9 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
     },
 
     this.buscar = function (esperar) {
+        self.arrayResultados = [];
+        self.resultadoSelecionado = -1;
+
         clearTimeout(self.timer);
         var query = $(self.campoDePesquisa).val();
 
@@ -114,9 +117,9 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
             function (response) {
                 var descricao_quantidade = response.descricao_quantidade;
 
-                resultados = [];
-                self.resultadoSelecionado = -1;
                 self.arrayResultados = response.pessoas;
+
+                resultados = [];
 
                 if (descricao_quantidade == "nenhuma") {
                     resultados.push('<p class="conteudo_resultados_pesquisa">');
@@ -265,6 +268,9 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
     },
 
     this.limpar = function () {
+        self.arrayResultados = [];
+        self.resultadoSelecionado = -1;
+
         $(this.campoDePesquisa).val("");
         $(this.containerDosDetalhes).hide();
     }
