@@ -98,6 +98,9 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
 
     this.mandarBuscaAjax = function (query) {
 
+        $(self.containerDosResultados).html('<ul class="conteudo_resultados_pesquisa"><li class="carregando">Carregando...</li></ul>');
+        $(self.containerDosResultados).show();
+
         if (query.length < 3) {
             $(self.containerDosResultados).hide();
             return;

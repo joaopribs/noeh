@@ -50,7 +50,7 @@ p.conteudo_resultados_pesquisa {
     padding-top: 5px;
 }
 
-.conteudo_resultados_pesquisa li:first-child {
+.conteudo_resultados_pesquisa li:not(.carregando):not(.extrapolou):first-of-type {
     padding-top: 0;
 }
 
@@ -72,6 +72,7 @@ p.conteudo_resultados_pesquisa {
     background-color: #ccc;
 }
 
+.conteudo_resultados_pesquisa .carregando,
 .conteudo_resultados_pesquisa .extrapolou {
     padding: 10px;
 }
@@ -82,7 +83,7 @@ p.conteudo_resultados_pesquisa {
     vertical-align: middle;
 }
 
-.conteudo_resultados_pesquisa li img.imagem_fb_busca:first-child {
+.conteudo_resultados_pesquisa li img.imagem_fb_busca:first-of-type {
     padding-left: 10px;
 }
 
