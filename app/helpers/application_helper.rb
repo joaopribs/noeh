@@ -71,6 +71,10 @@ module ApplicationHelper
     return ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
   end
 
+  def operadoras_telefone
+    return ['Fixo', 'Claro', 'Nextel', 'Oi', 'Tim', 'Vivo']
+  end
+
   def render_breadcrumbs(identificador_ativo)
     render partial: 'shared/breadcrumbs', locals: { ativo: identificador_ativo }
   end

@@ -59,6 +59,28 @@
             evento.preventDefault();
             carregarImagem<%= tipo_pessoa %>();
         });
+
+        $('#novo_telefone_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
+            $('#telefones_<%= tipo_pessoa %>').append(
+                            '<div class="campos_telefone">'
+                                + '<div class="field">'
+                                    + '<label for="telefone_<%= tipo_pessoa %>">Número</label><br/>'
+                                    + '<input type="text" name="telefones_<%= tipo_pessoa %>[]" class="mascara_telefone" size="30" />'
+                                + '</div>'
+                                + '<div class="field">'
+                                    + '<label for="telefone_<%= tipo_pessoa %>">Operadora</label><br/>'
+                                    + '<%= select_tag "operadoras_#{tipo_pessoa}[]", (raw options_for_select(operadoras_telefone).gsub! "\n", "") %> '
+                                    + '<a href="#" class="link_remover remover_telefone_<%= tipo_pessoa %>">Remover telefone</a>'
+                                + '</div>'
+                            + '</div>'
+            );
+
+            atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
+        });
+
+        atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
+
     });
 
     function carregarImagem<%= tipo_pessoa %>(url) {
@@ -68,6 +90,22 @@
         else {
             $('#imagem_<%= tipo_pessoa %>').attr('src', url);
         }
+    }
+
+    function atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>() {
+        $('.remover_telefone_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
+
+            $(this).closest('.campos_telefone').remove();
+        });
+
+        $('.mascara_telefone').mask(
+            '(00) 0000-0000',
+            {
+                clearIfNotMatch: true,
+                placeholder: '(__) ____-____'
+            }
+        );
     }
 </script>
 
@@ -157,7 +195,7 @@
       </div>
 
       <div class="field">
-        <%= label_tag "dia_#{tipo_pessoa}", 'Data de nascimento' %><br>
+        <%= label_tag "dia_#{tipo_pessoa}", 'Data de nascimento' %><br/>
         <div class="erro_form"><%= pessoa.errors[:nascimento].first %></div>
 
         <%= select_tag "dia_#{tipo_pessoa}", options_for_select(1..31, pessoa.dia), :include_blank => true %>
@@ -166,9 +204,38 @@
       </div>
 
       <div class="field">
-        <%= label_tag "email_#{tipo_pessoa}", 'Email' %><br>
+        <%= label_tag "email_#{tipo_pessoa}", 'Email' %><br/>
         <div class="erro_form"><%= pessoa.errors[:email].first %></div>
         <%= text_field_tag "email_#{tipo_pessoa}", pessoa.email, size: 30 %>
+      </div>
+
+      <br style="clear: right;" />
+
+      <div class="field">
+        <%= label_tag 'Telefones' %><br/>
+
+        <span id="telefones_<%= tipo_pessoa %>">
+            <%
+               telefones = pessoa.telefones
+               telefones.each do |telefone|
+            %>
+                <div class="campos_telefone">
+                    <div class="field">
+                        <label for="telefone_<%= tipo_pessoa %>">Número</label><br/>
+                        <div class="erro_form"><%= telefone.errors[:telefone].first %></div>
+                        <input type="text" name="telefones_<%= tipo_pessoa %>[]" value="<%= telefone.telefone %>" class="mascara_telefone" size="30" />
+                    </div>
+                    <div class="field">
+                        <label for="telefone_<%= tipo_pessoa %>">Operadora</label><br/>
+                        <div class="erro_form"><%= telefone.errors[:operadora].first %></div>
+                        <%= select_tag "operadoras_#{tipo_pessoa}[]", options_for_select(operadoras_telefone, telefone.operadora) %>
+                        <a href="#" class="link_remover remover_telefone_<%= tipo_pessoa %>">Remover telefone</a>
+                    </div>
+                </div>
+            <% end %>
+        </span>
+
+        <a href="#" id="novo_telefone_<%= tipo_pessoa %>" class="link_novo">Adicionar telefone</a>
       </div>
 
       <br style="clear: right;" />

@@ -433,6 +433,16 @@ class PessoasController < ApplicationController
         cep = "#{params[:cep1_pessoa]}-#{params[:cep2_pessoa]}"
       end
 
+      numeros_telefones = params[:telefones_pessoa]
+      operadoras = params[:operadoras_pessoa]
+
+      telefones = []
+      if numeros_telefones.present? && operadoras.present?
+        numeros_telefones.each_with_index do |numero_telefone, index|
+          telefones << Telefone.new(telefone: numero_telefone, operadora: operadoras[index])
+        end
+      end
+
       hash = ActionController::Parameters.new(nome: params[:nome_pessoa],
                                               nome_usual: params[:nome_usual_pessoa],
                                               dia: params[:dia_pessoa],
@@ -449,13 +459,24 @@ class PessoasController < ApplicationController
                                               tem_facebook: params[:tem_facebook_pessoa],
                                               nome_facebook: params[:nome_facebook_pessoa],
                                               url_facebook: params[:url_facebook_pessoa],
-                                              url_foto_grande: params[:imagem_facebook_pessoa])
+                                              url_foto_grande: params[:imagem_facebook_pessoa],
+                                              telefones: telefones)
       hash.permit!
       return hash
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def conjuge_params
+      numeros_telefones = params[:telefones_conjuge]
+      operadoras = params[:operadoras_conjuge]
+
+      telefones = []
+      if numeros_telefones.present? && operadoras.present?
+        numeros_telefones.each_with_index do |numero_telefone, index|
+          telefones << Telefone.new(telefone: numero_telefone, operadora: operadoras[index])
+        end
+      end
+
       hash = ActionController::Parameters.new(nome: params[:nome_conjuge],
                                               nome_usual: params[:nome_usual_conjuge],
                                               dia: params[:dia_conjuge],
@@ -466,7 +487,8 @@ class PessoasController < ApplicationController
                                               tem_facebook: params[:tem_facebook_conjuge],
                                               nome_facebook: params[:nome_facebook_conjuge],
                                               url_facebook: params[:url_facebook_conjuge],
-                                              url_foto_grande: params[:imagem_facebook_conjuge])
+                                              url_foto_grande: params[:imagem_facebook_conjuge],
+                                              telefones: telefones)
       hash.permit!
       return hash
     end

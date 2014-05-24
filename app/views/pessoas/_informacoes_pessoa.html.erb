@@ -1,14 +1,44 @@
-<img src="<%= pessoa.url_imagem(200) %>" class="imagem_facebook_detalhe"/>
+<table class="informacoes_pessoa <%= "tem_conjuge" if tem_conjuge %>">
+  <tr>
+    <td>
+        <img src="<%= pessoa.url_imagem(200) %>" class="imagem_facebook_detalhe"/>
+    </td>
+    <td>
+        <b>Nome:</b> <%= pessoa.nome %><br/>
+        <b>Nome usual:</b> <%= pessoa.nome_usual %><br/>
+        <b>Facebook:</b> <%= link_to "Facebook", pessoa.url_facebook, target: '_blank', class: 'link_facebook' unless pessoa.url_facebook.blank? %><br/>
+        <b>Gênero:</b> <%= (pessoa.eh_homem? ? "Homem" : "Mulher") %><br/>
+        <b>Data de nascimento:</b> <%= pessoa.nascimento.strftime("%d/%m/%Y") unless pessoa.nascimento.blank? %><br/>
+        <b>Email:</b> <%= link_to pessoa.email, "mailto:#{pessoa.email}", target: '_blank' unless pessoa.email.blank? %><br/>
 
-<% if pessoa.ultimo_login.present? %>
-    <b>Último login:</b> <%= pessoa.ultimo_login.strftime('%d/%m/%Y %H:%M:%S') %>
-    <p/>
-<% end %>
+        <%
+            if pessoa.telefones.count > 1
+                titulo_telefones = "Telefones"
+                separador_telefones = "<br/>"
+                array_telefones = []
+                pessoa.telefones.each do |telefone|
+                    array_telefones << "#{telefone.telefone} (#{telefone.operadora})"
+                end
+                string_telefones = array_telefones.join("<br/>")
+            else
+                titulo_telefones = "Telefone"
+                separador_telefones = " "
+                if pessoa.telefones.count == 1
+                    telefone = pessoa.telefones.first
+                    string_telefones = "#{telefone.telefone} (#{telefone.operadora})"
+                else
+                    string_telefones = ""
+                end
+            end
+        %>
 
-<b>Nome:</b> <%= pessoa.nome %><br/>
-<b>Nome usual:</b> <%= pessoa.nome_usual %><br/>
-<b>Facebook:</b> <%= link_to "Facebook", pessoa.url_facebook, target: '_blank', class: 'link_facebook' unless pessoa.url_facebook.blank? %><br/>
-<b>Gênero:</b> <%= (pessoa.eh_homem? ? "Homem" : "Mulher") %><br/>
-<b>Data de nascimento:</b> <%= pessoa.nascimento.strftime("%d/%m/%Y") unless pessoa.nascimento.blank? %><br/>
-<b>Email:</b> <%= link_to pessoa.email, "mailto:#{pessoa.email}", target: '_blank' unless pessoa.email.blank? %><br/>
-<b>Endereço:</b> <%= pessoa.endereco %><br/>
+        <b><%= titulo_telefones %>:</b><%= raw separador_telefones %><%= raw string_telefones %><br/>
+
+        <b>Endereço:</b> <%= pessoa.endereco %>
+
+        <% if pessoa.ultimo_login.present? %>
+            <p><b>Último login:</b> <%= pessoa.ultimo_login.strftime('%d/%m/%Y %H:%M:%S') %></p>
+        <% end %>
+    </td>
+  </tr>
+</table>

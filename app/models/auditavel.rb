@@ -4,6 +4,12 @@ module Auditavel
   included do
     before_create :atualizar_quem_criou
     before_update :atualizar_quem_editou
+    before_destroy {
+      self.update_column(:quando_deletou, Time.now)
+      if self.usuario_corrente.present?
+        self.update_column(:quem_deletou_id, self.usuario_corrente.id)
+      end
+    }
 
     default_scope { where(quando_deletou: nil) }
 
@@ -27,21 +33,9 @@ module Auditavel
   end
 
   def destroy
-    # esse update_column eh pra nao rodar o callback before_update (nao quero que
-    # marque "quem_editou" quando fizer uma exclusao)
-
-    self.update_column(:quando_deletou, Time.now)
-    if self.usuario_corrente.present?
-      self.update_column(:quem_deletou_id, self.usuario_corrente.id)
+    run_callbacks :destroy do
+      # Isso eh pra previnir os callbacks depois de excluir
     end
-
-    if defined?(self.conjuge) && self.conjuge.present?
-      self.conjuge.update_column(:quando_deletou, Time.now)
-      if self.usuario_corrente.present?
-        self.conjuge.update_column(:quem_deletou_id, self.usuario_corrente.id)
-      end
-    end
-
   end
 
 end

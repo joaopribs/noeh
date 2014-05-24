@@ -54,20 +54,12 @@
   <% end %>
 </div>
 
-<% if @pessoa.conjuge.present? %>
-    <div class="informacoes_pessoa">
-<% end %>
+<% tem_conjuge = @pessoa.conjuge.present? %>
 
-<%= render 'informacoes_pessoa', pessoa: @pessoa, eh_conjuge: false %>
+<%= render 'informacoes_pessoa', pessoa: @pessoa, tem_conjuge: tem_conjuge %>
 
-<% if @pessoa.conjuge.present? %>
-    </div>
-<% end %>
-
-<% if @pessoa.conjuge.present? %>
-    <div class="informacoes_conjuge">
-        <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, eh_conjuge: true %>
-    </div>
+<% if tem_conjuge %>
+    <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, tem_conjuge: tem_conjuge %>
 <% end %>
 
 <br style="clear: both;"/>

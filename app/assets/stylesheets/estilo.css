@@ -193,14 +193,14 @@ a.link_submeter:hover {
     color: #48e05e;
 }
 
-a.link_cancelar {
+a.link_remover {
     color: #760000;
     padding-left: 20px;
     background: url(/assets/cancelar.png) no-repeat;
     background-position: left center;
 }
 
-a.link_cancelar:hover {
+a.link_remover:hover {
     color: #d41111;
 }
 
@@ -521,25 +521,26 @@ a.link_cancelar:hover {
 
 /* Página de detalhe de pessoas
 ------------------------------------------------------------------------------*/
-.imagem_facebook_detalhe {
-    float: left;
-    width: 200px;
-    margin: 0;
-    margin-right: 20px;
-}
-
-.informacoes_conjuge img {
-    margin-left: 10px;
-}
-
 .informacoes_pessoa {
     float: left;
-    margin: 0;
-    width: 50%;
 }
 
-.informacoes_conjuge {
-    float: right;
+.informacoes_pessoa img {
+    width: 200px;
+    margin: 0;
+}
+
+.informacoes_pessoa td {
+    vertical-align: top;
+}
+
+.informacoes_pessoa td:first-of-type {
+    width: 200px;
+    margin: 0;
+    padding: 0;
+}
+
+.tem_conjuge {
     width: 50%;
 }
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140523104904) do
+ActiveRecord::Schema.define(version: 20140524200824) do
 
   create_table "grupos", force: true do |t|
     t.string   "nome"
@@ -75,5 +75,15 @@ ActiveRecord::Schema.define(version: 20140523104904) do
 
   add_index "sessions", ["session_id"], name: "index_sessions_on_session_id", unique: true, using: :btree
   add_index "sessions", ["updated_at"], name: "index_sessions_on_updated_at", using: :btree
+
+  create_table "telefones", force: true do |t|
+    t.string   "telefone"
+    t.string   "operadora"
+    t.integer  "pessoa_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "telefones", ["pessoa_id"], name: "index_telefones_on_pessoa_id", using: :btree
 
 end
