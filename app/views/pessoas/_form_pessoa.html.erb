@@ -20,7 +20,7 @@
         });
 
         $('#nome_facebook_<%= tipo_pessoa %>').on('keyup', function () {
-            var nome_facebook = $(this).val();
+            var nome_facebook = $(this).val().trim();
 
             if ($('#nome_<%= tipo_pessoa %>').data('acompanhar') == '1') {
                 $('#nome_<%= tipo_pessoa %>').val(nome_facebook);

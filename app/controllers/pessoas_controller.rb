@@ -457,9 +457,9 @@ class PessoasController < ApplicationController
                                               estado: params[:estado_pessoa],
                                               cep: cep,
                                               tem_facebook: params[:tem_facebook_pessoa],
-                                              nome_facebook: params[:nome_facebook_pessoa],
-                                              url_facebook: params[:url_facebook_pessoa],
-                                              url_foto_grande: params[:imagem_facebook_pessoa],
+                                              nome_facebook: params[:nome_facebook_pessoa].gsub(/\s+/, " ").strip,
+                                              url_facebook: params[:url_facebook_pessoa].strip,
+                                              url_foto_grande: params[:imagem_facebook_pessoa].strip,
                                               telefones: telefones)
       hash.permit!
       return hash
@@ -485,9 +485,9 @@ class PessoasController < ApplicationController
                                               eh_homem: params[:eh_homem_conjuge],
                                               email: params[:email_conjuge],
                                               tem_facebook: params[:tem_facebook_conjuge],
-                                              nome_facebook: params[:nome_facebook_conjuge],
-                                              url_facebook: params[:url_facebook_conjuge],
-                                              url_foto_grande: params[:imagem_facebook_conjuge],
+                                              nome_facebook: params[:nome_facebook_conjuge].gsub(/\s+/, " ").strip,
+                                              url_facebook: params[:url_facebook_conjuge].strip,
+                                              url_foto_grande: params[:imagem_facebook_conjuge].strip,
                                               telefones: telefones)
       hash.permit!
       return hash
