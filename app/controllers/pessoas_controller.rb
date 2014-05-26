@@ -458,7 +458,7 @@ class PessoasController < ApplicationController
                                               cep: cep,
                                               tem_facebook: params[:tem_facebook_pessoa],
                                               nome_facebook: params[:nome_facebook_pessoa].gsub(/\s+/, " ").strip,
-                                              url_facebook: params[:url_facebook_pessoa].strip,
+                                              url_facebook: params[:url_facebook_pessoa].strip.split("?")[0],
                                               url_foto_grande: params[:imagem_facebook_pessoa].strip,
                                               telefones: telefones)
       hash.permit!
