@@ -486,7 +486,7 @@ class PessoasController < ApplicationController
                                               email: params[:email_conjuge],
                                               tem_facebook: params[:tem_facebook_conjuge],
                                               nome_facebook: params[:nome_facebook_conjuge].gsub(/\s+/, " ").strip,
-                                              url_facebook: params[:url_facebook_conjuge].strip,
+                                              url_facebook: params[:url_facebook_conjuge].strip.split("?")[0],
                                               url_foto_grande: params[:imagem_facebook_conjuge].strip,
                                               telefones: telefones)
       hash.permit!
