@@ -30,13 +30,11 @@ class PessoasController < ApplicationController
       iniciar_breadcrumbs
       adicionar_breadcrumb "Grupos", grupos_url, "grupos"
 
-      @grupo = Grupo.find(params[:grupo_id])
-      adicionar_breadcrumb "Editar #{@grupo.nome}", edit_grupo_path(@grupo), "editar"
-
-      adicionar_breadcrumb @nome_usual, pessoa_url(@pessoa), "ver"
-    else
-      adicionar_breadcrumb @nome_usual, pessoa_url(@pessoa), "ver"
+      @grupo = Grupo.friendly.find(params[:grupo_id])
+      adicionar_breadcrumb @grupo.nome, @grupo, "editar"
     end
+
+    adicionar_breadcrumb @nome_usual, pessoa_url(@pessoa), "ver"
 
     @conjuge = @pessoa.conjuge
 
@@ -49,8 +47,8 @@ class PessoasController < ApplicationController
     if params.has_key?(:grupo_id)
       iniciar_breadcrumbs
       adicionar_breadcrumb "Grupos", grupos_url, "grupos"
-      @grupo = Grupo.find(params[:grupo_id])
-      adicionar_breadcrumb "Editar #{@grupo.nome}", edit_grupo_path(@grupo), "editar_grupo"
+      @grupo = Grupo.friendly.find(params[:grupo_id])
+      adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
     end
 
     adicionar_breadcrumb "Criar nova pessoa", new_pessoa_url, "criar"
@@ -65,6 +63,11 @@ class PessoasController < ApplicationController
 
     @eh_casal = @pessoa.conjuge.present?
 
+    @nome_usual = @pessoa.nome_usual
+    if @pessoa.conjuge.present?
+      @nome_usual += " / #{@pessoa.conjuge.nome_usual}"
+    end
+
     if @eh_casal
       precisa_poder_editar_pessoa @pessoa.conjuge
       @conjuge = @pessoa.conjuge
@@ -77,16 +80,14 @@ class PessoasController < ApplicationController
       iniciar_breadcrumbs
       adicionar_breadcrumb "Grupos", grupos_url, "grupos"
 
-      @grupo = Grupo.find(params[:grupo_id])
-      adicionar_breadcrumb "Editar #{@grupo.nome}", edit_grupo_path(@grupo), "editar_grupo"
+      @grupo = Grupo.friendly.find(params[:grupo_id])
+      adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
+      adicionar_breadcrumb @nome_usual, grupo_pessoa_url(@grupo, @pessoa), "ver"
+    else
+      adicionar_breadcrumb @nome_usual, pessoa_url(@pessoa), "ver"
     end
 
-    @nome_usual = @pessoa.nome_usual
-    if @pessoa.conjuge.present?
-      @nome_usual += " / #{@pessoa.conjuge.nome_usual}"
-    end
-
-    adicionar_breadcrumb "Editar #{@nome_usual}", edit_pessoa_url(@pessoa), "editar"
+    adicionar_breadcrumb "Editar", edit_pessoa_url(@pessoa), "editar"
 
   end
 
@@ -99,13 +100,12 @@ class PessoasController < ApplicationController
       iniciar_breadcrumbs
       adicionar_breadcrumb "Grupos", grupos_url, "grupos"
       @grupo = Grupo.find(params[:grupo_id])
-      adicionar_breadcrumb "Editar #{@grupo.nome}", edit_grupo_path(@grupo), "editar_grupo"
+      adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
     end
 
     adicionar_breadcrumb "Criar nova pessoa", new_pessoa_url, "criar"
 
     @pessoa = Pessoa.new(pessoa_params)
-    @pessoa.usuario_corrente = @usuario_logado
 
     @eh_casal = params[:casado_ou_solteiro] == 'casado'
 
@@ -138,8 +138,6 @@ class PessoasController < ApplicationController
       if casal_valido
         @pessoa.conjuge = @conjuge
         @conjuge.conjuge = @pessoa
-
-        @conjuge.usuario_corrente = @usuario_logado
       end
     else
       msg_sucesso = "Pessoa criada com sucesso"
@@ -154,7 +152,6 @@ class PessoasController < ApplicationController
 
         if params.has_key?(:grupo_id)
           relacao_pessoa = RelacaoPessoaGrupo.new({:pessoa_id => @pessoa.id, :grupo_id => params[:grupo_id]})
-          relacao_pessoa.usuario_corrente = @usuario_logado
           relacao_pessoa.save
 
           if @eh_casal
@@ -164,7 +161,6 @@ class PessoasController < ApplicationController
               relacao_conjuge = RelacaoPessoaGrupo.new({:pessoa_id => @conjuge.id, :grupo_id => params[:grupo_id]})
             end
 
-            relacao_conjuge.usuario_corrente = @usuario_logado
             relacao_conjuge.save
 
             msg_sucesso = "Casal criado e adicionado a #{@grupo.nome} com sucesso"
@@ -172,7 +168,7 @@ class PessoasController < ApplicationController
             msg_sucesso = "Pessoa criada e adicionada a #{@grupo.nome} com sucesso"
           end
 
-          pagina_retorno_sucesso = edit_grupo_path(@grupo)
+          pagina_retorno_sucesso = @grupo
         end
 
         format.html { redirect_to pagina_retorno_sucesso, notice: msg_sucesso }
@@ -194,7 +190,7 @@ class PessoasController < ApplicationController
       adicionar_breadcrumb "Grupos", grupos_url, "grupos"
 
       @grupo = Grupo.find(params[:grupo_id])
-      adicionar_breadcrumb "Editar #{@grupo.nome}", edit_grupo_path(@grupo), "editar_grupo"
+      adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
     end
 
     @nome_usual = @pessoa.nome_usual
@@ -202,7 +198,8 @@ class PessoasController < ApplicationController
       @nome_usual += " / #{@pessoa.conjuge.nome_usual}"
     end
 
-    adicionar_breadcrumb "Editar #{@nome_usual}", edit_pessoa_url(@pessoa), "editar"
+    adicionar_breadcrumb @nome_usual, pessoa_url(@pessoa), "ver"
+    adicionar_breadcrumb "Editar", edit_pessoa_url(@pessoa), "editar"
 
     tinha_facebook_antes = @pessoa.tem_informacoes_facebook
 
@@ -289,17 +286,7 @@ class PessoasController < ApplicationController
     pagina_retorno_sucesso = pessoas_path
 
     if params.has_key?(:grupo_id)
-      pagina_retorno_sucesso = edit_grupo_path(@grupo)
-    end
-
-    if precisa_salvar_pessoa
-      @pessoa.usuario_corrente = @usuario_logado
-    end
-    if precisa_salvar_conjuge
-      @conjuge.usuario_corrente = @usuario_logado
-    end
-    if precisa_salvar_velho_conjuge
-      @velho_conjuge.usuario_corrente = @usuario_logado
+      pagina_retorno_sucesso = @grupo
     end
 
     respond_to do |format|
@@ -319,7 +306,6 @@ class PessoasController < ApplicationController
   # DELETE /pessoas/1.json
   def destroy
     if pode_excluir_pessoa @pessoa
-      @pessoa.usuario_corrente = @usuario_logado
       @pessoa.destroy
     end
 
@@ -340,26 +326,42 @@ class PessoasController < ApplicationController
 
   def pesquisa_pessoas
     condicoes = []
+    id_pessoas_ignorar = []
+    id_pessoas_incluir = []
 
     if params.has_key? :query
-      condicoes << "(nome LIKE '%#{params[:query]}%' OR nome_usual LIKE '%#{params[:query]}%')"
+      condicoes.concat ["(nome LIKE '%#{params[:query]}%' OR nome_usual LIKE '%#{params[:query]}%')"]
     end
 
     if params.has_key? :id_grupo_ignorar
       grupo_ignorar = Grupo.find(params[:id_grupo_ignorar])
-      id_pessoas_ignorar = grupo_ignorar.pessoas.collect{ |p| p.id }
+      id_pessoas_ignorar.concat grupo_ignorar.pessoas.collect{ |p| p.id }
+    end
 
-      if id_pessoas_ignorar.count > 0
-        condicoes << "id NOT IN (#{id_pessoas_ignorar.join(",")})"
-      end
+    if params.has_key? :id_conjunto
+      conjunto = ConjuntoPessoas.find(params[:id_conjunto])
+      encontro = conjunto.encontro
+
+      id_pessoas_ignorar.concat RelacaoPessoaConjunto.joins(:pessoa, :conjunto_pessoas).where("conjuntos_pessoas.encontro_id = #{encontro.id}").collect{|r| r.pessoa_id}
+
+      grupo = conjunto.encontro.grupo
+      id_pessoas_incluir.concat grupo.pessoas.collect{ |p| p.id }
     end
 
     if params.has_key? :pessoa_ignorar
-      condicoes << "id != #{params[:pessoa_ignorar]}"
+      id_pessoas_ignorar.concat params[:pessoa_ignorar]
+    end
+
+    if id_pessoas_ignorar.count > 0
+      condicoes.concat ["id NOT IN (#{id_pessoas_ignorar.join(",")})"]
+    end
+
+    if id_pessoas_incluir.count > 0
+      condicoes.concat ["id IN (#{id_pessoas_incluir.join(",")})"]
     end
 
     if params.has_key? :ignorar_casais
-      condicoes << "conjuge_id IS NULL"
+      condicoes.concat ["conjuge_id IS NULL"]
     end
 
     sql = condicoes.join(" AND ")
@@ -403,6 +405,10 @@ class PessoasController < ApplicationController
       @grupo = Grupo.find(params[:grupo_id])
     end
 
+    if params.has_key?(:conjunto_id)
+      @conjunto = ConjuntoPessoas.find(params[:conjunto_id])
+    end
+
     render :layout => false
   end
 
@@ -433,15 +439,7 @@ class PessoasController < ApplicationController
         cep = "#{params[:cep1_pessoa]}-#{params[:cep2_pessoa]}"
       end
 
-      numeros_telefones = params[:telefones_pessoa]
-      operadoras = params[:operadoras_pessoa]
-
-      telefones = []
-      if numeros_telefones.present? && operadoras.present?
-        numeros_telefones.each_with_index do |numero_telefone, index|
-          telefones << Telefone.new(telefone: numero_telefone, operadora: operadoras[index])
-        end
-      end
+      telefones = pegar_telefones(params[:telefones_pessoa], params[:operadoras_pessoa])
 
       hash = ActionController::Parameters.new(nome: params[:nome_pessoa],
                                               nome_usual: params[:nome_usual_pessoa],
@@ -467,15 +465,7 @@ class PessoasController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def conjuge_params
-      numeros_telefones = params[:telefones_conjuge]
-      operadoras = params[:operadoras_conjuge]
-
-      telefones = []
-      if numeros_telefones.present? && operadoras.present?
-        numeros_telefones.each_with_index do |numero_telefone, index|
-          telefones << Telefone.new(telefone: numero_telefone, operadora: operadoras[index])
-        end
-      end
+      telefones = pegar_telefones(params[:telefones_conjuge], params[:operadoras_conjuge])
 
       hash = ActionController::Parameters.new(nome: params[:nome_conjuge],
                                               nome_usual: params[:nome_usual_conjuge],
@@ -491,6 +481,22 @@ class PessoasController < ApplicationController
                                               telefones: telefones)
       hash.permit!
       return hash
+    end
+
+    def pegar_telefones(numeros, operadoras)
+      telefones = []
+
+      if numeros.present? && operadoras.present?
+        numeros.each_with_index do |numero_telefone, index|
+          operadora = operadoras[index]
+
+          if numero_telefone.present? && operadora.present?
+            telefones << Telefone.new(telefone: numero_telefone, operadora: operadora)
+          end
+        end
+      end
+
+      return telefones
     end
 
     def pode_excluir_pessoa pessoa

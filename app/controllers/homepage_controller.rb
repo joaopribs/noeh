@@ -16,7 +16,7 @@ class HomepageController < ApplicationController
   end
 
   def limpar_notificacao
-    flash[:notify] = nil
+    flash[:notice] = nil
     render :text => "ok"
   end
 

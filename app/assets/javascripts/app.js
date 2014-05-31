@@ -12,5 +12,5 @@ function mostrarNotificacao(mensagem) {
             $(".notificacao").hide(500);
         }, 4000);
 
-    $.post('/notif');
+    $.post('/clearnotif');
 }

@@ -1,0 +1,2 @@
+class Equipe < ConjuntoPessoas
+end

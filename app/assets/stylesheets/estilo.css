@@ -29,7 +29,8 @@ table.zebra {
     border-bottom: 1px solid #f0f0f0;
 }
 
-table.zebra tr:nth-child(odd) {
+table.zebra > tr:nth-child(odd),
+table.zebra > tbody > tr:nth-child(odd) {
     background-color: #f0f0f0;
 }
 
@@ -95,11 +96,16 @@ form.espaco_embaixo {
     margin-bottom: 20px;
 }
 
+.helper {
+    color: #ccc;
+}
+
 /* Formulários
 ------------------------------------------------------------------------------*/
 
 input[type = text] {
     padding: 5px;
+    border: 1px solid #ccc;
 }
 
 input[type = submit],
@@ -202,6 +208,18 @@ a.link_remover {
 
 a.link_remover:hover {
     color: #d41111;
+}
+
+a.link_encontros {
+    padding-left: 22px;
+    background: url(/assets/encontros.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_forma_padrao {
+    padding-left: 20px;
+    background: url(/assets/estrutura.png) no-repeat;
+    background-position: left center;
 }
 
 /* Paginação
@@ -512,11 +530,35 @@ a.link_remover:hover {
     font-weight: Normal;
 }
 
+/* Páginas de listagens
+------------------------------------------------------------------------------*/
+
+.subtitulo_lista_pessoas {
+    font-weight: normal;
+    font-size: 0.75em;
+    color: #777;
+}
+
 /* Página de listagem de pessoas
 ------------------------------------------------------------------------------*/
 
 .link_nova_pessoa {
     float: right;
+}
+
+table.informacoes_pessoa_lista {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+table.informacoes_pessoa_lista td {
+    margin: 0;
+    padding: 0;
+}
+
+table.informacoes_pessoa_lista td:first-of-type {
+    padding-right: 3px;
 }
 
 /* Página de detalhe de pessoas
@@ -572,4 +614,23 @@ a.link_remover:hover {
 #detalhes_pesquisa_grupo a {
     margin-top: 10px;
     display: inline-block;
+}
+
+/* Página de listagem de encontros
+------------------------------------------------------------------------------*/
+
+.link_novo_encontro {
+    float: right;
+}
+
+/* Página de show encontro
+------------------------------------------------------------------------------*/
+.cor_conjunto_permanente {
+    padding: 0 5px;
+    font-weight: normal;
+}
+
+.link_novo_conjunto {
+    float: right;
+    margin-top: -30px;
 }

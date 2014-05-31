@@ -1,32 +1,18 @@
 #encoding: utf-8
 
 class Pessoa < ActiveRecord::Base
-  include Auditavel
+
   after_initialize :default_values
+
   before_save :atualizar_data
-  after_save {
-    Telefone.destroy_all(pessoa_id: nil)
-  }
-  after_destroy {
-      if self.conjuge.present?
-        self.conjuge.usuario_corrente = self.usuario_corrente
-        self.conjuge.destroy
-      end
 
-      self.relacoes_pessoa_grupo.map{ |relacao|
-        relacao.usuario_corrente = self.usuario_corrente
-        relacao.destroy
-      }
-
-      self.telefones.delete_all
-  }
   default_scope { order(:nome) }
 
   attr_accessor :dia, :mes, :ano, :tem_facebook
 
   has_many :relacoes_pessoa_grupo, class_name: 'RelacaoPessoaGrupo'
   has_many :grupos, through: :relacoes_pessoa_grupo
-  has_many :telefones
+  has_many :telefones, dependent: :destroy
 
   belongs_to :conjuge, class_name: 'Pessoa', foreign_key: :conjuge_id
 

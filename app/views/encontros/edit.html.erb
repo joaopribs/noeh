@@ -1,0 +1,13 @@
+<% if @padrao %>
+    <%= render_breadcrumbs "padrao" %>
+
+    <h1>Forma padrão para encontros de <%= @grupo.nome %></h1>
+
+    <%= render "form", encontro: @encontro, modo: "padrao" %>
+<% else %>
+    <%= render_breadcrumbs "editar" %>
+
+    <h1>Editar <%= @encontro.nome %></h1>
+
+    <%= render "form", encontro: @encontro, modo: "editando" %>
+<% end %>

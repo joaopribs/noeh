@@ -1,0 +1,65 @@
+<script>
+    $(function () {
+        $(".link_enviar").on("click", function (e) {
+            e.preventDefault();
+            $(this).closest("form").submit();
+        });
+    });
+</script>
+
+<%
+   if conjunto.new_record?
+     if conjunto.tipo == "Equipe"
+        url = create_equipe_url(conjunto.encontro)
+     elsif conjunto.tipo == "ConjuntoPermanente"
+        url = create_conjunto_permanente_url(conjunto.encontro)
+     end
+   else
+     url = equipe_post_url(conjunto)
+   end
+%>
+
+<%= form_tag(url, class: 'espaco_embaixo') do %>
+
+    <div class="field">
+      <%= label_tag "nome", "Nome*" %><br/>
+      <div class="erro_form"><%= conjunto.errors[:nome].first %></div>
+      <%= text_field_tag :nome, conjunto.nome, size: 30 %>
+    </div>
+
+    <div class="field">
+      <label for="cor_id">
+          <% if conjunto.tipo_do_conjunto == "Equipe" %>
+            Cor do crachá
+          <% else %>
+            Cor
+          <% end %>
+      </label>
+      <div class="erro_form"><%= conjunto.errors[:cor].first %></div>
+
+      <%
+         if conjunto.tipo_do_conjunto == "Equipe"
+           cores = Cor.where(de_equipe: true).collect{|c| [c.nome, c.id]}
+         else
+           cores = Cor.where(de_conjunto_permanente: true).collect{|c| [c.nome, c.id]}
+         end
+      %>
+
+      <%= select_tag :cor_id, options_for_select(cores, (conjunto.cor.present? ? conjunto.cor.id : "")), include_blank: true %>
+    </div>
+
+    <a href="#" class="link_enviar link_submeter" style="margin-right: 10px">
+      <% if conjunto.new_record? %>
+        Criar
+      <% else %>
+        Salvar
+      <% end %>
+    </a>
+
+    <% if conjunto.new_record? %>
+        <a href="#" id="link_cancelar_<%= conjunto.tipo %>" class="link_remover">
+          Cancelar
+        </a>
+    <% end %>
+
+<% end %>

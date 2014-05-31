@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  before_filter :precisa_estar_logado, :escolher_cor, :iniciar_breadcrumbs
+  before_filter :precisa_estar_logado, :escolher_cor, :iniciar_breadcrumbs, :notificacao
 
   def precisa_estar_logado
 
@@ -49,6 +49,13 @@ class ApplicationController < ActionController::Base
 
   def adicionar_breadcrumb titulo, url, identificador
     @breadcrumbs << { titulo: titulo, url: url, identificador: identificador }
+  end
+
+  def notificacao
+    if session[:notificacao]
+      flash[:notice] = session[:notificacao]
+      session[:notificacao] = nil
+    end
   end
 
 end

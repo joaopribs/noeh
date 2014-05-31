@@ -11,17 +11,46 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140524200824) do
+ActiveRecord::Schema.define(version: 20140531023935) do
+
+  create_table "conjuntos_pessoas", force: true do |t|
+    t.integer  "encontro_id"
+    t.string   "nome"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "tipo"
+    t.integer  "cor_id"
+  end
+
+  create_table "cores", force: true do |t|
+    t.string  "hex_cor"
+    t.string  "hex_contraste"
+    t.boolean "de_equipe"
+    t.boolean "de_conjunto_permanente"
+    t.string  "nome"
+  end
+
+  create_table "encontros", force: true do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "grupo_id"
+    t.boolean  "padrao",                            default: false
+    t.string   "denominacao_conjuntos_permanentes", default: "Círculo"
+    t.string   "nome"
+    t.string   "local"
+    t.string   "tema"
+    t.date     "data_inicio"
+    t.date     "data_termino"
+    t.date     "data_liberacao"
+    t.date     "data_fechamento"
+  end
 
   create_table "grupos", force: true do |t|
     t.string   "nome"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "eh_super_grupo",  default: false
-    t.integer  "quem_criou_id"
-    t.integer  "quem_editou_id"
-    t.integer  "quem_deletou_id"
-    t.datetime "quando_deletou"
+    t.boolean  "eh_super_grupo", default: false
+    t.string   "slug"
   end
 
   create_table "pessoas", force: true do |t|
@@ -42,15 +71,19 @@ ActiveRecord::Schema.define(version: 20140524200824) do
     t.boolean  "eh_super_admin"
     t.integer  "conjuge_id"
     t.string   "complemento"
-    t.integer  "quem_criou_id"
-    t.integer  "quem_editou_id"
-    t.integer  "quem_deletou_id"
-    t.datetime "quando_deletou"
     t.string   "email_facebook"
     t.string   "url_foto_grande"
     t.string   "url_facebook"
     t.string   "url_foto_pequena"
     t.datetime "ultimo_login"
+  end
+
+  create_table "relacoes_pessoa_conjunto", force: true do |t|
+    t.integer  "pessoa_id"
+    t.integer  "conjunto_pessoas_id"
+    t.boolean  "eh_coordenador"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "relacoes_pessoa_grupo", force: true do |t|
@@ -59,10 +92,6 @@ ActiveRecord::Schema.define(version: 20140524200824) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "grupo_id"
-    t.integer  "quem_criou_id"
-    t.integer  "quem_editou_id"
-    t.integer  "quem_deletou_id"
-    t.datetime "quando_deletou"
     t.date     "deixou_de_participar_em"
   end
 

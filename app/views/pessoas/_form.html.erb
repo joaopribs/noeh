@@ -140,7 +140,11 @@
                         type: "delete",
                         dataType: "json",
                         success: function (response) {
-                            window.location.href = "<%= pessoas_url %>";
+                            <% if defined?(@grupo) %>
+                                window.location.href = "<%= grupo_url(@grupo) %>";
+                            <% else %>
+                                window.location.href = "<%= pessoas_url %>";
+                            <% end %>
                         }
                     }
                 );

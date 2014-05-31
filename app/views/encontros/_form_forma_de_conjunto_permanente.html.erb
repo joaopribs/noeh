@@ -1,0 +1,13 @@
+<div class="campos_conjunto_permanente">
+  <div class="field">
+    <label class="titulo_conjuntos_permanentes_singular"><%= denominacao_conjunto_permanente %></label><br/>
+    <div class="erro_form"><%= conjunto_permanente.errors[:nome].first %></div>
+    <input type="text" name="nomes_conjuntos_permanentes[]" value="<%= conjunto_permanente.nome %>" />
+  </div>
+  <div class="field">
+    <label for="cor_conjunto_permanente">Cor</label><br/>
+    <div class="erro_form"><%= conjunto_permanente.errors[:cor].first %></div>
+    <%= select_tag "cores_conjuntos_permanentes[]", options_for_select(Cor.where(de_conjunto_permanente: true).collect{|c| [c.nome, c.id]}, (conjunto_permanente.cor.present? ? conjunto_permanente.cor.id : "")), include_blank: true %>
+    <a href="#" class="link_remover remover_conjunto_permanente">Remover</a>
+  </div>
+</div>

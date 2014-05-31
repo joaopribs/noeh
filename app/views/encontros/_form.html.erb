@@ -1,0 +1,250 @@
+<script>
+    var plurais = {
+        <%
+            array_strings_nomes = []
+            denominacoes_conjuntos_permanentes.each do |nome|
+                array_strings_nomes << "#{nome[:nome]}: \"#{nome[:plural]}\""
+            end
+        %>
+        <%= raw array_strings_nomes.join(", ") %>
+    };
+
+    var opcoesDatePicker = {
+        dateFormat: 'dd/mm/yy',
+        dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
+        dayNamesMin: ['D','S','T','Q','Q','S','S','D'],
+        dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+        monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+        monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+        nextText: 'Próximo',
+        prevText: 'Anterior',
+        changeMonth: true,
+        changeYear: true
+    };
+
+    $(function () {
+        $("#link_enviar").on("click", function (e) {
+            e.preventDefault();
+            $(this).closest("form").submit();
+        });
+
+        $('#adicionar_equipe').on('click', function (evento) {
+            evento.preventDefault();
+
+            $('#equipes').append(
+                    '<%= raw (render 'form_forma_de_equipe', equipe: Equipe.new).gsub("\n", "") %>'
+            );
+
+            $('#equipes').children('.campos_equipe').last().find('input[name="nomes_equipes[]"]').focus();
+
+            atualizarLinksPraRemoverEquipe();
+        });
+
+        $('#adicionar_conjunto_permanente').on('click', function (evento) {
+            evento.preventDefault();
+
+            var form = '';
+            if ($('input[name="denominacao_conjuntos_permanentes"]').val() == "Círculo") {
+                form = '<%= raw (render 'form_forma_de_conjunto_permanente', conjunto_permanente: ConjuntoPermanente.new, denominacao_conjunto_permanente: "Círculo").gsub("\n", "") %>';
+            }
+            else {
+                form = '<%= raw (render 'form_forma_de_conjunto_permanente', conjunto_permanente: ConjuntoPermanente.new, denominacao_conjunto_permanente: "Grupo").gsub("\n", "") %>';
+            }
+
+            $('#conjuntos_permanentes').append(form);
+
+            $('#conjuntos_permanentes').children('.campos_conjunto_permanente').last().find('input[name="nomes_conjuntos_permanentes[]"]').focus();
+
+            atualizarLinksPraRemoverConjuntoPermanente();
+        });
+
+        $('input[name="denominacao_conjuntos_permanentes"]').change(function (evento) {
+            var singular = $(this).val();
+            var plural = plurais[singular];
+            $('.titulo_conjuntos_permanentes_plural').html(plural);
+            $('.titulo_conjuntos_permanentes_singular').html(singular);
+        });
+
+
+        $("input[name='data_inicio']").datepicker(opcoesDatePicker);
+        $("input[name='data_termino']").datepicker(opcoesDatePicker);
+        $("input[name='data_liberacao']").datepicker(opcoesDatePicker);
+        $("input[name='data_fechamento']").datepicker(opcoesDatePicker);
+
+        atualizarLinksPraRemoverEquipe();
+        atualizarLinksPraRemoverConjuntoPermanente();
+
+    });
+
+    function atualizarLinksPraRemoverEquipe() {
+        $('.remover_equipe').on('click', function (evento) {
+            evento.preventDefault();
+
+            $(this).closest('.campos_equipe').remove();
+        });
+    }
+
+    function atualizarLinksPraRemoverConjuntoPermanente() {
+        $('.remover_conjunto_permanente').on('click', function (evento) {
+            evento.preventDefault();
+
+            $(this).closest('.campos_conjunto_permanente').remove();
+        });
+    }
+</script>
+
+<%
+    if modo == "criando"
+      url_form = grupo_encontros_url(encontro.grupo)
+      method = 'post'
+    elsif modo == "padrao"
+      url_form = grupo_update_padrao_url(encontro.grupo)
+      method = 'post'
+    else
+      url_form = encontro
+      method = 'put'
+    end
+%>
+
+<%= form_tag(url_form, class: 'espaco_embaixo', method: method) do %>
+
+    <% if modo != "padrao" %>
+        <div class="field">
+          <%= label_tag "nome", "Nome*" %><br/>
+          <div class="erro_form"><%= encontro.errors[:nome].first %></div>
+          <%= text_field_tag :nome, encontro.nome, size: 40 %>
+        </div>
+
+        <div class="field">
+          <%= label_tag "data_inicio", "Data início*" %><br/>
+          <div class="erro_form"><%= encontro.errors[:data_inicio].first %></div>
+          <%= text_field_tag :data_inicio, formatar_data(encontro.data_inicio), size: 20, readonly: true %>
+        </div>
+
+        <div class="field">
+          <%= label_tag "data_termino", "Data término*" %><br/>
+          <div class="erro_form"><%= encontro.errors[:data_termino].first %></div>
+          <%= text_field_tag :data_termino, formatar_data(encontro.data_termino), size: 20, readonly: true %>
+        </div>
+
+        <div class="field">
+          <%= label_tag "data_liberacao", "Liberação do sistema" %><br/>
+          <div class="erro_form"><%= encontro.errors[:data_liberacao].first %></div>
+          <%= text_field_tag :data_liberacao, formatar_data(encontro.data_liberacao), size: 20, readonly: true %>
+        </div>
+
+        <div class="field">
+          <%= label_tag "data_fechamento", "Fechamento do sistema" %><br/>
+          <div class="erro_form"><%= encontro.errors[:data_fechamento].first %></div>
+          <%= text_field_tag :data_fechamento, formatar_data(encontro.data_fechamento), size: 20, readonly: true %>
+        </div>
+
+        <br style="clear: both;" />
+
+        <div class="field">
+          <%= label_tag "tema", "Tema" %><br/>
+          <div class="erro_form"><%= encontro.errors[:tema].first %></div>
+          <%= text_field_tag :tema, encontro.tema, size: 120 %>
+        </div>
+
+        <br style="clear: both;" />
+    <% end %>
+
+    <div class="field">
+      <%= label_tag "Denominação dos conjuntos permanentes:" %>
+      <% denominacoes_conjuntos_permanentes.collect{|n| n[:nome]}.each do |denominacao| %>
+          <label><%= radio_button_tag 'denominacao_conjuntos_permanentes', denominacao, encontro.denominacao_conjuntos_permanentes == denominacao %><%= denominacao %></label>
+      <% end %>
+    </div>
+
+    <br style="clear: both;" />
+
+    <% if modo == "padrao" %>
+        <table>
+          <tr valign="top">
+            <td width="50%">
+              <h2>Equipes</h2>
+
+              <span id="equipes">
+                <%
+                   equipes = encontro.equipes
+                   equipes.each do |equipe|
+                %>
+                     <%= render 'form_forma_de_equipe', equipe: equipe %>
+                <%
+                   end
+                %>
+              </span>
+
+              <a href="#" id="adicionar_equipe" class="link_novo">Adicionar equipe</a>
+            </td>
+
+            <td width="50%">
+              <h2 class="titulo_conjuntos_permanentes_plural">
+                <%= denominacoes_conjuntos_permanentes.select{|nome| nome[:nome] == encontro.denominacao_conjuntos_permanentes}[0][:plural] %>
+              </h2>
+
+              <span id="conjuntos_permanentes">
+                <%
+                   conjuntos_permanentes = encontro.conjuntos_permanentes
+                   conjuntos_permanentes.each do |conjunto_permanente|
+                %>
+                    <%= render 'form_forma_de_conjunto_permanente', conjunto_permanente: conjunto_permanente, denominacao_conjunto_permanente: encontro.denominacao_conjuntos_permanentes %>
+                <%
+                   end
+                %>
+              </span>
+
+              <a href="#" id="adicionar_conjunto_permanente" class="link_novo">
+                Adicionar <span class="titulo_conjuntos_permanentes_singular"><%= encontro.denominacao_conjuntos_permanentes %></span>
+              </a>
+            </td>
+          </tr>
+        </table>
+    <% elsif modo == "criando" %>
+        <br/>
+        <%
+            plural_conjuntos_permanentes = denominacoes_conjuntos_permanentes.select{|d| d[:nome] == encontro.denominacao_conjuntos_permanentes}[0][:plural].downcase
+
+            feminino = true
+
+            texto_conjuntos_permanentes = ""
+            qtd_conjuntos_permanentes_padrao = encontro.grupo.encontro_padrao.conjuntos_permanentes.count
+            if qtd_conjuntos_permanentes_padrao == 1
+                texto_conjuntos_permanentes = "1 #{encontro.denominacao_conjuntos_permanentes.downcase}"
+                feminino = false
+            elsif qtd_conjuntos_permanentes_padrao > 1
+                texto_conjuntos_permanentes = "#{qtd_conjuntos_permanentes_padrao} #{plural_conjuntos_permanentes}"
+                feminino = false
+            end
+
+            texto_equipes = ""
+            qtd_equipes_padrao = encontro.grupo.encontro_padrao.equipes.count
+            if qtd_equipes_padrao == 1
+                texto_equipes = "1 equipe"
+            elsif qtd_equipes_padrao > 1
+                texto_equipes = "#{qtd_equipes_padrao} equipes"
+            end
+
+            texto_equipes_e_conjuntos_permanentes = [texto_conjuntos_permanentes, texto_equipes].join(" e ")
+        %>
+
+        Serão criados os <%= plural_conjuntos_permanentes %> e equipes
+        definidas na forma padrão para Encontros de <%= encontro.grupo.nome %>.
+        <% if qtd_conjuntos_permanentes_padrao + qtd_equipes_padrao > 0 %>
+            No momento,
+            <% if qtd_conjuntos_permanentes_padrao + qtd_equipes_padrao == 1 %>
+                está definid<% if feminino %>a<% else %>o<% end %>
+            <% else %>
+                estão definid<% if feminino %>a<% else %>o<% end %>s
+            <% end %>
+            <%= texto_equipes_e_conjuntos_permanentes %> na forma padrão.
+        <% end %>
+
+        O usuário poderá, então, adicionar pessoas a cada após a criação desse encontro.
+    <% end %>
+
+    <div class="actions faixa_horizontal_com_linha_separadora">
+      <%= link_to 'Salvar', '#', id: 'link_enviar', class: 'link_submeter' %>
+    </div>
+<% end %>

@@ -19,7 +19,11 @@
                         type: "delete",
                         dataType: "json",
                         success: function (response) {
-                            window.location.href = "<%= pessoas_url %>";
+                            <% if defined?(@grupo) %>
+                                window.location.href = "<%= grupo_url(@grupo) %>";
+                            <% else %>
+                                window.location.href = "<%= pessoas_url %>";
+                            <% end %>
                         }
                     }
                 );
@@ -42,7 +46,7 @@
 
   <% if pode_editar_pessoa @pessoa %>
       <% if defined?(@grupo) %>
-          <%= link_to 'Editar', edit_pessoa_path(@pessoa, grupo_id: @grupo.id), class: 'link_editar' %>
+          <%= link_to 'Editar', grupo_edit_pessoa_path(@grupo, @pessoa), class: 'link_editar' %>
       <% else %>
           <%= link_to 'Editar', edit_pessoa_path(@pessoa), class: 'link_editar' %>
       <% end %>

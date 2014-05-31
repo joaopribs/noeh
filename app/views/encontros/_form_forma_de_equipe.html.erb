@@ -1,0 +1,13 @@
+<div class="campos_equipe">
+  <div class="field">
+    <label for="nome_equipe">Equipe</label><br/>
+    <div class="erro_form"><%= equipe.errors[:nome].first %></div>
+    <input type="text" name="nomes_equipes[]" value="<%= equipe.nome %>" size="25"/>
+  </div>
+  <div class="field">
+    <label for="cor_equipe">Cor do crachá</label><br/>
+    <div class="erro_form"><%= equipe.errors[:cor].first %></div>
+    <%= select_tag "cores_equipes[]", options_for_select(Cor.where(de_equipe: true).collect{|c| [c.nome, c.id]}, (equipe.cor.present? ? equipe.cor.id : "")), include_blank: true %>
+    <a href="#" class="link_remover remover_equipe">Remover</a>
+  </div>
+</div>

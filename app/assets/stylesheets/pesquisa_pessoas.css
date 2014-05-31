@@ -12,7 +12,7 @@
 .resultados_pesquisa {
     display: none;
     position: absolute;
-    top: 30px;
+    top: 27px;
     left: 0;
     background-color: #bbb;
     z-index: 999;

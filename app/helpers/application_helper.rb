@@ -1,3 +1,5 @@
+#encoding: utf-8
+
 module ApplicationHelper
 
   def pode_editar_facebook_de_pessoa pessoa_a_ser_editada
@@ -73,6 +75,39 @@ module ApplicationHelper
 
   def operadoras_telefone
     return ['Fixo', 'Claro', 'Nextel', 'Oi', 'Tim', 'Vivo']
+  end
+
+  def denominacoes_conjuntos_permanentes
+    return [
+      {
+        nome: "Círculo",
+        plural: "Círculos"
+      },
+      {
+        nome: "Grupo",
+        plural: "Grupos"
+      }
+    ]
+  end
+
+  def cores_equipes
+    return [
+        ["Sem cor" ,""],
+        "Vermelho", "Amarelo", "Verde"]
+  end
+
+  def cores_conjuntos_permanentes
+    return [
+        ["Sem cor" ,""],
+        "Amarelo", "Azul", "Branco", "Laranja", "Marrom", "Preto", "Rosa", "Roxo", "Verde", "Vermelho", "Violeta"]
+  end
+
+  def formatar_data(data)
+    begin
+      return data.strftime("%d/%m/%Y")
+    rescue
+      return data
+    end
   end
 
   def render_breadcrumbs(identificador_ativo)

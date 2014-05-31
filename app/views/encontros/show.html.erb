@@ -1,0 +1,202 @@
+<script>
+    $(function () {
+        $(".link_excluir_encontro").on("click", function (evento) {
+            evento.preventDefault();
+
+            $("#dialog_conteudo").html("Tem certeza que deseja excluir <em><%= @encontro.nome %></em>?<p/>");
+
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>Confirmar</a>");
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_confirmar").on("click", function (evento) {
+                $.ajax({
+                            url: "<%= encontro_url(@encontro) %>",
+                            type: "delete",
+                            dataType: "json",
+                            success: function (response) {
+                                window.location.href = "<%= grupo_encontros_url(@grupo) %>";
+                            }
+                        }
+                );
+            });
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            });
+        });
+
+        $(".link_excluir_conjunto").on("click", function (evento) {
+            evento.preventDefault();
+
+            var idConjunto = $(this).data("id-conjunto");
+            var nomeConjunto = $(this).data("nome-conjunto");
+            var tipoConjunto = $(this).data("tipo-conjunto");
+
+            var texto = "";
+            if (tipoConjunto == "Equipe") {
+                texto = "Tem certeza que deseja remover a equipe <em>" + nomeConjunto + "</em> de <em><%= @encontro.nome %></em>?";
+            }
+            else {
+                texto = "Tem certeza que deseja remover o " + tipoConjunto + " <em>" + nomeConjunto + "</em> de <em><%= @encontro.nome %></em>?";
+            }
+
+            $("#dialog_conteudo").html(texto);
+
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-id-conjunto='" + idConjunto + "'>Confirmar</a>");
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_confirmar").on("click", function (evento) {
+                $.ajax({
+                            url: "<%= destroy_conjunto_url(id: '') %>" + idConjunto,
+                            type: "delete",
+                            dataType: "json",
+                            success: function (response) {
+                                window.location.href = "<%= encontro_url(@encontro) %>";
+                            }
+                        }
+                );
+            });
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            });
+        });
+
+        $('#link_nova_equipe').on('click', function (evento) {
+            evento.preventDefault();
+            $('#form_equipe').show();
+        });
+
+        $('#link_cancelar_Equipe').on('click', function (evento) {
+            evento.preventDefault();
+            $('#form_equipe').hide();
+        });
+
+        $('#link_novo_conjunto_permanente').on('click', function (evento) {
+            evento.preventDefault();
+            $('#form_conjunto_permanente').show();
+        });
+
+        $('#link_cancelar_ConjuntoPermanente').on('click', function (evento) {
+            evento.preventDefault();
+            $('#form_conjunto_permanente').hide();
+        });
+    });
+</script>
+
+
+<%= render_breadcrumbs "ver" %>
+
+<div class="links_no_titulo">
+  <h1><%= @encontro.nome %></h1>
+  <%= link_to 'Editar', edit_encontro_path(@encontro), class: 'link_editar' %>
+  <%= link_to 'Excluir', '#', class: 'link_excluir link_excluir_encontro' %>
+</div>
+
+<%= render 'shared/notificacao' %>
+
+<b>Nome:</b> <%= @encontro.nome %><br/>
+<b>Tema:</b> <%= @encontro.tema %><br/>
+<b>Data de realização:</b> <%= @encontro.data %><br/>
+<b>Liberação do sistema:</b> <%= @encontro.data_liberacao.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
+<b>Fechamento do sistema:</b> <%= @encontro.data_fechamento.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
+
+<% qtd_encontreiros = @encontro.equipes.sum{|e| e.pessoas.count} %>
+<b>Encontreiros:</b> <%= qtd_encontreiros %> pessoa<%= "s" if qtd_encontreiros != 1 %>,
+em <%= @encontro.equipes.count %> equipes<br/>
+
+<% qtd_encontristas = @encontro.conjuntos_permanentes.sum{|c| c.relacoes_pessoa_conjunto.where(eh_coordenador: false).count} %>
+<b>Encontristas:</b> <%= qtd_encontristas %> pessoa<%= "s" if qtd_encontristas != 1 %>,
+em <%= @encontro.conjuntos_permanentes.count %> <%= denominacoes_conjuntos_permanentes.select{|d| d[:nome] == @encontro.denominacao_conjuntos_permanentes}[0][:plural].downcase %><br/>
+
+<table>
+  <tr valign="top">
+    <td width="50%">
+
+      <h2>Equipes</h2>
+
+      <%= link_to "Criar nova equipe", '#', :id => 'link_nova_equipe', :class => "link_novo link_novo_conjunto" %>
+
+      <div id="form_equipe" style="display: none;">
+        <%= render 'conjuntos_pessoas/form', conjunto: Equipe.new(encontro: @encontro) %>
+      </div>
+
+      <table class="zebra">
+        <tbody>
+          <% @encontro.equipes.each do |equipe| %>
+            <tr>
+              <td>
+                <%= link_to equipe_url(equipe) do %>
+                    <%= equipe.nome %>
+                    <div class="subtitulo_lista_pessoas">
+                      Coord.: <%= equipe.coordenadores.collect{|p| p.nome_usual}.join(" / ") %>
+                    </div>
+                <% end %>
+              </td>
+              <td>
+                <%= equipe.pessoas.count %> pessoa<%= "s" unless equipe.pessoas.count == 1 %>
+              </td>
+              <td align="center">
+                <%=
+                    link_to 'Excluir', '#', class: 'link_excluir link_excluir_conjunto', data: {
+                        nome_conjunto: equipe.nome,
+                        tipo_conjunto: "Equipe",
+                        id_conjunto: equipe.id
+                    }
+                %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+    </td>
+    <td width="50%">
+
+      <h2><%= denominacoes_conjuntos_permanentes.select{|c| c[:nome] == @encontro.denominacao_conjuntos_permanentes}[0][:plural] %></h2>
+
+      <%= link_to "Criar novo #{@encontro.denominacao_conjuntos_permanentes.downcase}", '#', :id => 'link_novo_conjunto_permanente', :class => "link_novo link_novo_conjunto" %>
+
+      <div id="form_conjunto_permanente" style="display: none;">
+        <%= render 'conjuntos_pessoas/form', conjunto: ConjuntoPermanente.new(encontro: @encontro) %>
+      </div>
+
+      <table class="zebra">
+        <tbody>
+          <% @encontro.conjuntos_permanentes.each do |conjunto_permanente| %>
+            <tr>
+              <td>
+                <%= link_to circulo_url(conjunto_permanente) do %>
+                    <%= conjunto_permanente.nome %>
+                    <div class="subtitulo_lista_pessoas">
+                      Coord.: <%= conjunto_permanente.coordenadores.collect{|p| p.nome_usual}.join(" / ") %>
+                    </div>
+                <% end %>
+              </td>
+              <td align="center">
+                <% if conjunto_permanente.cor.present? %>
+                    <% style = "background-color: #{conjunto_permanente.cor.hex_cor}; color: #{conjunto_permanente.cor.hex_contraste}" %>
+                    <%= link_to conjunto_permanente.cor.nome, circulo_url(conjunto_permanente), class: 'cor_conjunto_permanente', style: style %>
+                <% end %>
+              </td>
+              <td align="center">
+                <%=
+                    link_to 'Excluir', '#', class: 'link_excluir link_excluir_conjunto', data: {
+                        nome_conjunto: conjunto_permanente.nome,
+                        tipo_conjunto: conjunto_permanente.tipo_do_conjunto,
+                        id_conjunto: conjunto_permanente.id
+                    }
+                %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+    </td>
+  </tr>
+</table>

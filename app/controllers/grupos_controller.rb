@@ -1,3 +1,5 @@
+#encoding: utf-8
+
 class GruposController < ApplicationController
   before_action :set_grupo, only: [:show, :edit, :update, :destroy]
   before_action :adicionar_breadcrumbs_controller
@@ -30,25 +32,14 @@ class GruposController < ApplicationController
     @grupo = Grupo.new
   end
 
-  # GET /grupos/1/edit
-  def edit
+  # GET /grupos/1
+  def show
     precisa_poder_gerenciar @grupo
 
-    adicionar_breadcrumb "Editar #{@grupo.nome}", edit_grupo_path(@grupo), "editar"
+    adicionar_breadcrumb @grupo.nome, @grupo, "editar"
 
     session[:pessoas] = @grupo.pessoas
     @tipo_pagina = "pessoas_no_grupo"
-
-    @pessoa = Pessoa.new if @pessoa.nil?
-
-    if @conjuge.nil?
-      if @pessoa.conjuge.present?
-        @conjuge = @pessoa.conjuge
-      else
-        @conjuge = Pessoa.new
-      end
-    end
-
   end
 
   # POST /grupos
@@ -59,7 +50,6 @@ class GruposController < ApplicationController
     adicionar_breadcrumb "Criar novo grupo", new_grupo_path, "criar"
 
     @grupo = Grupo.new(grupo_params)
-    @grupo.usuario_corrente = @usuario_logado
 
     respond_to do |format|
       if @grupo.save
@@ -77,17 +67,16 @@ class GruposController < ApplicationController
   def update
     precisa_ser_super_admin
 
-    adicionar_breadcrumb "Editar #{@grupo.nome}", edit_grupo_path(@grupo), "editar"
+    adicionar_breadcrumb @grupo.nome, @grupo, "editar"
 
     @pessoa = Pessoa.new if @pessoa.nil?
-    @grupo.usuario_corrente = @usuario_logado
 
     respond_to do |format|
       if @grupo.update(grupo_params)
         format.html { redirect_to grupos_url, notice: 'Grupo editado com sucesso.' }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        format.html { render action: 'show' }
         format.json { render json: @grupo.errors, status: :unprocessable_entity }
       end
     end
@@ -98,13 +87,14 @@ class GruposController < ApplicationController
   def destroy
     precisa_ser_super_admin
 
-    @grupo.usuario_corrente = @usuario_logado
     @grupo.destroy
 
     numero_pagina = params[:page].to_i
     if Grupo.all.count < (APP_CONFIG['items_per_page'] * (numero_pagina - 1) + 1)
       numero_pagina -= 1
     end
+
+    session[:notificacao] = "Grupo excluído com sucesso"
 
     respond_to do |format|
       format.html { redirect_to grupos_path(page: numero_pagina) }
@@ -128,14 +118,6 @@ class GruposController < ApplicationController
       relacao_conjuge.eh_coordenador = params[:eh_coordenador]
 
       precisa_salvar_relacao_conjuge = true
-    end
-
-    if precisa_salvar_relacao_pessoa
-      relacao_pessoa.usuario_corrente = @usuario_logado
-    end
-
-    if precisa_salvar_relacao_conjuge
-      relacao_conjuge.usuario_corrente = @usuario_logado
     end
 
     if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&
@@ -173,14 +155,6 @@ class GruposController < ApplicationController
       msg_sucesso = "Pessoa adicionada ao grupo com sucesso"
     end
 
-    if precisa_salvar_relacao_pessoa
-      relacao_pessoa.usuario_corrente = @usuario_logado
-    end
-
-    if precisa_salvar_relacao_conjuge
-      relacao_conjuge.usuario_corrente = @usuario_logado
-    end
-
     respond_to do |format|
       if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&
           ((precisa_salvar_relacao_conjuge && relacao_conjuge.save) || !precisa_salvar_relacao_conjuge)
@@ -205,14 +179,12 @@ class GruposController < ApplicationController
     if eh_casal
       condicoes_pessoas << ["pessoa_id = #{@pessoa.conjuge.id}"]
     end
-    condicoes_pessoas = condicoes_pessoas.join(" OR ")
+    condicoes_pessoas = "(#{condicoes_pessoas.join(" OR ")})"
 
     condicoes << condicoes_pessoas
     condicoes = condicoes.join(" AND ")
 
     RelacaoPessoaGrupo.where(condicoes).each { |relacao|
-      relacao.usuario_corrente = @usuario_logado
-
       if params[:tipo_remover] == 'acidente'
         relacao.destroy
       elsif params[:tipo_remover] == 'saindo'
@@ -242,12 +214,18 @@ class GruposController < ApplicationController
 
     # Use callbacks to share common setup or constraints between actions.
     def set_grupo
-      @grupo = Grupo.find(params[:id])
+      @grupo = Grupo.friendly.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def grupo_params
-      params.require(:grupo).permit(:nome, :eh_super_grupo)
+      params_grupo = params[:grupo]
+
+      hash = ActionController::Parameters.new(nome: params_grupo[:nome],
+                                              eh_super_grupo: params_grupo[:eh_super_grupo],
+                                              slug: nil)
+      hash.permit!
+      return hash
     end
 
     def pode_ver_grupos

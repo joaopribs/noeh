@@ -67,14 +67,14 @@ Total de <%= @total %> grupo<%= "s" if plural %>.
         <tbody>
             <% @grupos.each do |grupo| %>
                 <tr>
-                    <td><%= link_to grupo.nome, edit_grupo_path(grupo) %></td>
+                    <td><%= link_to grupo.nome, grupo %></td>
 
                     <% numero_pessoas = grupo.pessoas.count %>
                     <td><%= numero_pessoas %> pessoa<%= 's' unless numero_pessoas == 1 %></td>
 
                     <% if @usuario_logado.eh_super_admin? %>
                         <td align="center"><%= grupo.eh_super_grupo? ? "Sim" : "Não" %></td>
-                        <td align="center"><%= link_to 'Editar', edit_grupo_path(grupo), class: 'link_editar' %></td>
+                        <td align="center"><%= link_to 'Editar', grupo, class: 'link_editar' %></td>
                         <td align="center"><%= link_to 'Excluir', '#', data: { nome_grupo: grupo.nome, id_grupo: grupo.id, page: @grupos.current_page }, class: 'link_excluir' %></td>
                     <% end %>
                 </tr>

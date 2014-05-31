@@ -1,0 +1,5 @@
+<%= render_breadcrumbs "criar" %>
+
+<h1>Criar novo encontro de <%= @grupo.nome %></h1>
+
+<%= render 'form', encontro: @encontro, modo: "criando" %>

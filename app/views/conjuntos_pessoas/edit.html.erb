@@ -1,0 +1,64 @@
+<script src="<%= lista_pessoas_js_url %>"></script>
+
+<script>
+    var listaPessoas;
+
+    function recarregar() {
+        listaPessoas.carregar();
+    }
+
+    $(function () {
+        listaPessoas = new ListaPessoas($("#pessoas_no_conjunto"),
+                "pessoas_no_conjunto",
+                "conjunto_id",
+                <%= @conjunto.id %>,
+                function () {
+                    $(".checkbox_coordenador").on("click", function(e) {
+                        var pessoa_id = $(this).data("pessoa_id");
+                        var eh_coordenador = $(this).is(":checked");
+
+                        $.post("<%= setar_coordenador_de_conjunto_url %>",
+                                {
+                                    "pessoa_id": pessoa_id,
+                                    "conjunto_id": <%= @conjunto.id %>,
+                                    "eh_coordenador": eh_coordenador
+                                },
+                                function(response) {
+                                    if (response != "ok") {
+                                        alert("Erro ao setar coordenador");
+                                    }
+                                    else {
+                                        recarregar();
+                                    }
+                                }
+                        );
+                    });
+                });
+        listaPessoas.inicializar();
+    });
+</script>
+
+<script>
+    $(function () {
+        listaPessoas.carregar();
+    });
+</script>
+
+<%= render_breadcrumbs "conjunto" %>
+
+<h1><%= @titulo %></h1>
+
+<b>Encontro:</b> <%= @conjunto.encontro.nome %><br/>
+<b>Data:</b> <%= @conjunto.encontro.data %>
+
+<p/>
+
+<%= render 'form', conjunto: @conjunto %>
+
+<%= render 'shared/notificacao' %>
+
+<div id="pessoas_no_conjunto"></div>
+
+<h2>Adicionar pessoa:</h2>
+
+<%= render 'pessoas/pesquisa_pessoas', tipo_pesquisa: "pesquisa_conjunto" %>

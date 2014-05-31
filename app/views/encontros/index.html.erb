@@ -1,0 +1,88 @@
+<script>
+    $(function () {
+        $(".link_excluir").on("click", function (evento) {
+            evento.preventDefault();
+
+            var idEncontro = $(this).data("id-encontro");
+            var nomeEncontro = $(this).data("nome-encontro");
+
+            $("#dialog_conteudo").html("Tem certeza que deseja excluir <em>" + nomeEncontro + "</em>?<p/>");
+
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-id-encontro='" + idEncontro + "'>Confirmar</a>");
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_confirmar").on("click", function (evento) {
+                $.ajax({
+                            url: "<%= encontro_url(id: '') %>" + idEncontro,
+                            type: "delete",
+                            dataType: "json",
+                            success: function (response) {
+                                window.location.href = "<%= grupo_encontros_url(@grupo) %>";
+                            }
+                        }
+                );
+            });
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            });
+        });
+    });
+</script>
+
+<%= render_breadcrumbs "encontros" %>
+
+<h1>Encontros de <%= @grupo.nome %></h1>
+
+<%= render 'shared/notificacao' %>
+
+<% if @grupo.encontro_padrao.present? %>
+    <%= link_to "Forma padrão para encontros de #{@grupo.nome}", grupo_padrao_url(@grupo), class: "link_forma_padrao" %>
+
+    <span class="helper">
+        (Essa forma é utilizada ao se criar um novo encontro, para facilitar o processo)
+    </span>
+
+    <p/>
+<% end %>
+
+<% plural = @total != 1 %>
+
+Total de <%= @total %> encontro<%= "s" if plural %>.
+
+<% if @usuario_logado.eh_super_admin? %>
+    <%= link_to "Criar novo encontro de #{@grupo.nome}", new_grupo_encontro_url, :class => "link_novo link_novo_encontro" %>
+<% end %>
+
+<% if @encontros.count > 0 %>
+    <table class="zebra">
+      <thead>
+      <tr>
+        <th align="left">Nome</th>
+        <th align="left">Data</th>
+        <% if @usuario_logado.eh_super_admin? %>
+            <th></th>
+            <th></th>
+        <% end %>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% @encontros.each do |encontro| %>
+          <tr>
+            <td><%= link_to encontro.nome, encontro %></td>
+            <td><%= encontro.data unless encontro.data.nil? %></td>
+
+            <% if @usuario_logado.eh_super_admin? %>
+                <td align="center"><%= link_to 'Editar', edit_encontro_url(encontro), class: 'link_editar' %></td>
+                <td align="center"><%= link_to 'Excluir', '#', data: { id_encontro: encontro.id, nome_encontro: encontro.nome }, class: 'link_excluir' %></td>
+            <% end %>
+          </tr>
+      <% end %>
+      </tbody>
+    </table>
+
+    <%= paginate @encontros %>
+<% end %>
