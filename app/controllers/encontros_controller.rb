@@ -21,11 +21,6 @@ class EncontrosController < ApplicationController
   def new
     adicionar_breadcrumb "Criar novo encontro", new_grupo_encontro_url, "criar"
     @encontro = Encontro.new(grupo: @grupo)
-
-    encontro_padrao = @grupo.encontro_padrao
-
-    @encontro.equipes = encontro_padrao.equipes
-    @encontro.conjuntos_permanentes = encontro_padrao.conjuntos_permanentes
   end
 
   def create
@@ -33,6 +28,10 @@ class EncontrosController < ApplicationController
 
     @encontro = Encontro.new(encontro_params)
     @encontro.grupo = @grupo
+
+    encontro_padrao = @grupo.encontro_padrao
+    @encontro.equipes = encontro_padrao.equipes
+    @encontro.conjuntos_permanentes = encontro_padrao.conjuntos_permanentes
 
     respond_to do |format|
       if @encontro.save
