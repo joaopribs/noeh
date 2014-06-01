@@ -1,3 +1,5 @@
+#encoding: utf-8
+
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
 #
@@ -43,3 +45,16 @@ criar_cor("Vermelho", "#df0e0e", "#fff", true, true)
 criar_cor("Violeta", "#c572c5", "#fff", false, true)
 
 (Cor.all - @@cores).each { |cor| cor.destroy }
+
+joao = Pessoa.find_by_url_facebook('https://www.facebook.com/joaopaulo.ribs')
+if joao.nil?
+  joao = Pessoa.new({
+      nome: 'João Paulo Ribeiro da Silva',
+      nome_usual: 'João',
+      nome_facebook: 'João Paulo Ribeiro',
+      url_facebook: 'https://www.facebook.com/joaopaulo.ribs',
+      url_foto_grande: 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/t1.0-1/c0.0.320.320/p320x320/1238716_803437719668628_1377999441330663131_n.jpg'
+  })
+
+  joao.save
+end
