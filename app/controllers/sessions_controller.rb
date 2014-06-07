@@ -1,7 +1,7 @@
 #encoding: utf-8
 
 class SessionsController < ApplicationController
-  skip_before_filter :precisa_estar_logado, :only => :log_in
+  skip_before_filter :precisa_estar_logado, :only => [:log_in, :log_out]
   skip_before_filter :verify_authenticity_token
 
   def log_in
