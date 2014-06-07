@@ -142,6 +142,13 @@ form.espaco_embaixo {
     z-index: 9999;
 }
 
+#img_spinner {
+    height: 23px;
+    width: 23px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
 /* Formulários
 ------------------------------------------------------------------------------*/
 

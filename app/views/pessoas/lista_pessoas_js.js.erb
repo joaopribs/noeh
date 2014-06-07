@@ -41,7 +41,7 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
         }
 
         if (query != null) {
-            parametros.push("query=" + query);
+            parametros.push("query=" + encodeURIComponent(query));
         }
 
         parametros = parametros.join("&");
