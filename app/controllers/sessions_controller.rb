@@ -81,7 +81,8 @@ class SessionsController < ApplicationController
 
   def log_out
 
-    session[:id_usuario] = nil
+    # session[:id_usuario] = nil
+    session = nil
     redirect_to deslogado_url and return
 
   end
