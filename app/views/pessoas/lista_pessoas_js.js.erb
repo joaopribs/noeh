@@ -27,6 +27,8 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
     this.idObjeto = idObjeto,
 
     this.carregar = function (numeroPagina, query) {
+        $(self.containerDaTabela).find('.overlay_carregando').show();
+
         var parametros = [];
         parametros.push("tipo_pagina=" + self.tipoPagina);
 
@@ -352,6 +354,8 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
 
             self.funcaoSucesso();
         });
+
+        $(self.containerDaTabela).find('.overlay_carregando').hide();
 
     },
 
