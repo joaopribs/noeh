@@ -19,6 +19,17 @@ th {
     color: #fff;
 }
 
+/* Carregando
+------------------------------------------------------------------------------*/
+
+.overlay_carregando_texto {
+    color: #000;
+}
+
+.overlay_carregando_fundo {
+    background-color: #f86f05;
+}
+
 /* Página deslogado
 ------------------------------------------------------------------------------*/
 

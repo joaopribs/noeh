@@ -7,10 +7,21 @@ class ConjuntosPessoasController < ApplicationController
   ]
 
   def adicionar_breadcrumbs_controller
-    adicionar_breadcrumb "Grupos", grupos_url, "grupos"
-    adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
-    adicionar_breadcrumb "Encontros", grupo_encontros_url(@grupo), "encontros"
-    adicionar_breadcrumb @encontro.nome, @encontro, "encontro"
+    if @usuario_logado.eh_super_admin?
+      adicionar_breadcrumb "Grupos", grupos_url, "grupos"
+    end
+
+    if @usuario_logado.eh_super_admin? ||
+        (@grupo && @grupo.coordenadores.include?(@usuario_logado))
+      adicionar_breadcrumb @grupo.nome, @grupo, "editar"
+      adicionar_breadcrumb "Encontros", grupo_encontros_path(@grupo), "encontros"
+    end
+
+    if @usuario_logado.eh_super_admin? ||
+        @encontro.coordenadores.include?(@usuario_logado) ||
+        @encontro.grupo.coordenadores.include?(@usuario_logado)
+      adicionar_breadcrumb @encontro.nome, @encontro, "encontro"
+    end
   end
 
   def create
@@ -45,7 +56,7 @@ class ConjuntosPessoasController < ApplicationController
     @titulo = "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}"
     adicionar_breadcrumb @titulo, @conjunto, "conjunto"
 
-    session[:pessoas] = @conjunto.pessoas
+    carregar_pessoas(@conjunto.pessoas)
   end
 
   def update
@@ -87,29 +98,47 @@ class ConjuntosPessoasController < ApplicationController
   end
 
   def adicionar_pessoa_a_conjunto
-    precisa_salvar_relacao_pessoa = false
-
     @conjunto = ConjuntoPessoas.find(params[:id_conjunto])
     @pessoa = Pessoa.find(params[:id_pessoa])
+    eh_coordenador = params[:eh_coordenador] ? params[:eh_coordenador] == "true" : false
 
     relacao_pessoa = RelacaoPessoaConjunto.where({:pessoa => @pessoa, :conjunto_pessoas_id => params[:id_conjunto]}).first
 
     if relacao_pessoa.nil?
-      precisa_salvar_relacao_pessoa = true
       relacao_pessoa = RelacaoPessoaConjunto.new({:pessoa => @pessoa, :conjunto_pessoas_id => params[:id_conjunto]})
+    end
+
+    relacao_pessoa.eh_coordenador = eh_coordenador
+
+    relacao_pessoa_grupo = RelacaoPessoaGrupo.where({:pessoa => @pessoa, :grupo => @conjunto.encontro.grupo}).first
+    if relacao_pessoa_grupo.nil?
+      relacao_pessoa_grupo = RelacaoPessoaGrupo.new({:pessoa => @pessoa, :grupo => @conjunto.encontro.grupo})
     end
 
     if @conjunto.tipo == "Equipe"
       texto_conjunto = "à equipe com sucesso"
+    elsif @conjunto.tipo == "CoordenacaoEncontro"
+      texto_conjunto = "com sucesso"
     else
       texto_conjunto = "ao #{@conjunto.encontro.denominacao_conjuntos_permanentes.downcase} com sucesso"
     end
 
+    precisa_salvar_relacao_conjuge = false
+
     if @pessoa.conjuge.present?
+      precisa_salvar_relacao_conjuge = true
+
       relacao_conjuge = RelacaoPessoaConjunto.where({:pessoa => @pessoa.conjuge, :conjunto_pessoas_id => params[:id_conjunto]}).first
+
       if relacao_conjuge.nil?
-        precisa_salvar_relacao_conjuge = true
         relacao_conjuge = RelacaoPessoaConjunto.new({:pessoa => @pessoa.conjuge, :conjunto_pessoas_id => params[:id_conjunto]})
+      end
+
+      relacao_conjuge.eh_coordenador = eh_coordenador
+
+      relacao_conjuge_grupo = RelacaoPessoaGrupo.where({:pessoa => @pessoa.conjuge, :grupo => @conjunto.encontro.grupo}).first
+      if relacao_conjuge_grupo.nil?
+        relacao_conjuge_grupo = RelacaoPessoaGrupo.new({:pessoa => @pessoa.conjuge, :grupo => @conjunto.encontro.grupo})
       end
 
       msg_sucesso = "Casal adicionado #{texto_conjunto}"
@@ -118,11 +147,14 @@ class ConjuntosPessoasController < ApplicationController
     end
 
     respond_to do |format|
-      if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&
-          ((precisa_salvar_relacao_conjuge && relacao_conjuge.save) || !precisa_salvar_relacao_conjuge)
+      if relacao_pessoa.save && relacao_pessoa_grupo.save
+          ((precisa_salvar_relacao_conjuge && relacao_conjuge.save && relacao_conjuge_grupo.save) || !precisa_salvar_relacao_conjuge)
+        carregar_pessoas(@conjunto.pessoas)
         format.json { render json: {msgSucesso: msg_sucesso}, status: :ok }
+        format.html { redirect_to pessoa_url(@pessoa), notice: msg_sucesso }
       else
         format.json { render json: @pessoa.errors, status: :unprocessable_entity }
+        format.html { redirect_to pessoa_url(@pessoa) }
       end
     end
   end
@@ -148,10 +180,12 @@ class ConjuntosPessoasController < ApplicationController
       relacao.destroy
     }
 
-    if params[:tipo_conjunto] == "Equipe"
+    if @conjunto.tipo == "Equipe"
       texto_conjunto = "da equipe"
+    elsif @conjunto.tipo == "CoordenacaoEncontro"
+      texto_conjunto = ""
     else
-      texto_conjunto = "do #{params[:tipo_conjunto]}"
+      texto_conjunto = "do #{@conjunto.tipo_do_conjunto}"
     end
 
     if eh_casal
@@ -164,6 +198,8 @@ class ConjuntosPessoasController < ApplicationController
     if @conjunto.pessoas.count < (APP_CONFIG['items_per_page'] * (numero_pagina - 1) + 1)
       numero_pagina -= 1
     end
+
+    carregar_pessoas(@conjunto.pessoas)
 
     respond_to do |format|
       format.json { render json: {novaPagina: numero_pagina, msgSucesso: msg_sucesso}, status: :ok }
@@ -189,10 +225,36 @@ class ConjuntosPessoasController < ApplicationController
 
     if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&
         ((precisa_salvar_relacao_conjuge && relacao_conjuge.save) || !precisa_salvar_relacao_conjuge)
-      render :text => "ok"
+
+      if params[:eh_coordenador] == "true"
+        render :text => 1
+      else
+        render :text => params[:page]
+      end
+
     else
       render :text => "erro"
     end
+  end
+
+  def editar_coordenadores_de_encontro
+    @encontro = Encontro.find(params[:encontro_id])
+    @conjunto = @encontro.coordenacao_encontro
+
+    @titulo = "Coordenadores"
+    adicionar_breadcrumb @titulo, @conjunto, "conjunto"
+
+    carregar_pessoas(@conjunto.pessoas)
+
+    render action: 'edit'
+  end
+
+  def conjuntos_para_adicionar_pessoa
+    pessoa = Pessoa.find(params[:pessoa_id])
+
+    conjuntos = @encontro.conjuntos_que_poderia_adicionar_pessoa(pessoa)
+
+    render json: conjuntos
   end
 
   private

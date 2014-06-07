@@ -43,6 +43,7 @@ criar_cor("Roxo", "#8309eb", "#fff", false, true)
 criar_cor("Verde", "#39a233", "#fff", true, true)
 criar_cor("Vermelho", "#df0e0e", "#fff", true, true)
 criar_cor("Violeta", "#c572c5", "#fff", false, true)
+criar_cor("Lilás", "#C8A2C8", "#fff", false, true)
 
 (Cor.all - @@cores).each { |cor| cor.destroy }
 
@@ -53,7 +54,8 @@ if joao.nil?
       nome_usual: 'João',
       nome_facebook: 'João Paulo Ribeiro',
       url_facebook: 'https://www.facebook.com/joaopaulo.ribs',
-      url_foto_grande: 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/t1.0-1/c0.0.320.320/p320x320/1238716_803437719668628_1377999441330663131_n.jpg'
+      url_foto_grande: 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/t1.0-1/c0.0.320.320/p320x320/1238716_803437719668628_1377999441330663131_n.jpg',
+      eh_super_admin: true
   })
 
   joao.save

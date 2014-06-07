@@ -3,8 +3,8 @@
 <script>
     var listaPessoas;
 
-    function recarregar() {
-        listaPessoas.carregar();
+    function recarregar(numeroPagina) {
+        listaPessoas.carregar(numeroPagina);
     }
 
     $(function () {
@@ -17,19 +17,21 @@
                                                 $(".checkbox_coordenador").on("click", function(e) {
                                                     var pessoa_id = $(this).data("pessoa_id");
                                                     var eh_coordenador = $(this).is(":checked");
+                                                    var page = $(this).data("page");
 
                                                     $.post("<%= setar_coordenador_de_grupo_url %>",
                                                             {
                                                                 "pessoa_id": pessoa_id,
                                                                 "grupo_id": <%= @grupo.id %>,
-                                                                "eh_coordenador": eh_coordenador
+                                                                "eh_coordenador": eh_coordenador,
+                                                                "page": page
                                                             },
                                                             function(response) {
-                                                                if (response != "ok") {
+                                                                if (response == "erro") {
                                                                     alert("Erro ao setar coordenador");
                                                                 }
                                                                 else {
-                                                                    recarregar();
+                                                                    recarregar(response);
                                                                 }
                                                             }
                                                     );
@@ -37,11 +39,7 @@
                                             <% end %>
                                         });
         listaPessoas.inicializar();
-    });
-</script>
 
-<script>
-    $(function () {
         listaPessoas.carregar();
     });
 </script>
@@ -50,7 +48,15 @@
 
 <h1><%= @grupo.nome %></h1>
 
-<%= link_to "Encontros de #{@grupo.nome}", grupo_encontros_url(@grupo), class: "link_encontros" %>
+<% if @grupo.tem_encontros? %>
+    <%= link_to "Encontros de #{@grupo.nome}", grupo_encontros_url(@grupo), class: "link_encontros" %>
+    <br/>
+<% end %>
+
+<% if @grupo.ex_participantes.count > 0 %>
+    <%= link_to "Ex-participantes de #{@grupo.nome}", grupo_ex_participantes_url(@grupo), class: "link_ex_participantes" %>
+<% end %>
+
 <p/>
 
 <% if @usuario_logado.eh_super_admin? %>

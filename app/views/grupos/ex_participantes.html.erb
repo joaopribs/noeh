@@ -1,0 +1,28 @@
+<script src="<%= lista_pessoas_js_url %>"></script>
+
+<script>
+    var listaPessoas;
+
+    function recarregar(numeroPagina) {
+        listaPessoas.carregar(numeroPagina);
+    }
+
+    $(function () {
+        listaPessoas = new ListaPessoas($("#ex_participantes_de_grupo"),
+                "ex_participantes_de_grupo",
+                "grupo_id",
+                <%= @grupo.id %>);
+
+        listaPessoas.inicializar();
+
+        listaPessoas.carregar();
+    });
+</script>
+
+<%= render_breadcrumbs "ex_participantes" %>
+
+<h1>Ex-participantes de <%= @grupo.nome %></h1>
+
+<%= render 'shared/notificacao' %>
+
+<div id="ex_participantes_de_grupo"></div>

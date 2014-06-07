@@ -4,6 +4,39 @@
             e.preventDefault();
             $(this).closest("form").submit();
         });
+
+        $('#link_excluir_grupo').on('click', function (evento) {
+            evento.preventDefault();
+
+            var idGrupo = $(this).data("id-grupo");
+            var nome = $(this).data("nome-grupo");
+
+            $("#dialog_conteudo").html("Tem certeza que deseja excluir o grupo <em>" + nome + "</em> do sistema?<p/>");
+            $("#dialog_conteudo").append("<a href='#' class='confirmar_excluir_grupo dialog_link_confirmar' data-id-grupo='" + idGrupo + "'>Confirmar</a>")
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            });
+
+            <% if !@grupo.new_record? %>
+                $(".confirmar_excluir_grupo").on("click", function (evento) {
+                    var idGrupo = $(this).data("id-grupo");
+                    var page = $(this).data("page");
+
+                    $.ajax({url: "<%= grupo_url(@grupo) %>.json",
+                                type: "delete",
+                                success: function (response) {
+                                    window.location.href = "<%= grupos_url %>";
+                                }
+                            }
+                    );
+                });
+            <% end %>
+
+        });
     });
 </script>
 
@@ -15,10 +48,13 @@
     </div>
 
     <div class="field">
-        <%= f.label "Super grupo?*", :for => "eh_super_grupo" %><br>
-        <div class="erro_form"><%= @grupo.errors[:eh_super_grupo].first %></div>
-        <%= f.check_box :eh_super_grupo %>
+        <%= f.label "Tem encontros?*", :for => "tem_encontros" %><br>
+        <div class="erro_form"><%= @grupo.errors[:tem_encontros].first %></div>
+        <%= f.check_box :tem_encontros %>
     </div>
 
     <a href="#" id="link_enviar" class="link_submeter">Salvar</a>
+    <% if !@grupo.new_record? %>
+        <%= link_to 'Excluir', '#', data: { nome_grupo: @grupo.nome, id_grupo: @grupo.id }, class: 'link_excluir', id: 'link_excluir_grupo', style: 'margin-left: 10px;' %>
+    <% end %>
 <% end %>

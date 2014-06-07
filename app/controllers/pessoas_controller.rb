@@ -1,18 +1,14 @@
 #encoding: utf-8
 
 class PessoasController < ApplicationController
-  before_action :set_pessoa, only: [:show, :edit, :update, :destroy]
-  before_action :adicionar_breadcrumbs_controller
-
-  def adicionar_breadcrumbs_controller
-    adicionar_breadcrumb "Pessoas", pessoas_url, "pessoas"
-  end
+  before_action :set_entidades, :adicionar_breadcrumbs_entidades
 
   # GET /pessoas
   # GET /pessoas.json
   def index
     precisa_ser_super_admin
-    session[:pessoas] = Pessoa.all
+
+    carregar_pessoas(Pessoa.all)
     @tipo_pagina = "lista_pessoas"
   end
 
@@ -21,35 +17,18 @@ class PessoasController < ApplicationController
   def show
     precisa_poder_ver_pessoa @pessoa
 
-    @nome_usual = @pessoa.nome_usual
+    adicionar_breadcrumb_de_ver_pessoa
+
+    @participacoes = (@pessoa.conjuntos_permanentes + @pessoa.equipes).select{|c| pode_ver_participacao(c, @pessoa)}
+
     if @pessoa.conjuge.present?
-      @nome_usual += " / #{@pessoa.conjuge.nome_usual}"
+      @participacoes_conjuge = (@pessoa.conjuge.conjuntos_permanentes + @pessoa.conjuge.equipes).select{|c| pode_ver_participacao(c, @pessoa.conjuge)}
     end
-
-    if params.has_key?(:grupo_id)
-      iniciar_breadcrumbs
-      adicionar_breadcrumb "Grupos", grupos_url, "grupos"
-
-      @grupo = Grupo.friendly.find(params[:grupo_id])
-      adicionar_breadcrumb @grupo.nome, @grupo, "editar"
-    end
-
-    adicionar_breadcrumb @nome_usual, pessoa_url(@pessoa), "ver"
-
-    @conjuge = @pessoa.conjuge
-
   end
 
   # GET /pessoas/new
   def new
     precisa_poder_criar_pessoas
-
-    if params.has_key?(:grupo_id)
-      iniciar_breadcrumbs
-      adicionar_breadcrumb "Grupos", grupos_url, "grupos"
-      @grupo = Grupo.friendly.find(params[:grupo_id])
-      adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
-    end
 
     adicionar_breadcrumb "Criar nova pessoa", new_pessoa_url, "criar"
 
@@ -63,11 +42,6 @@ class PessoasController < ApplicationController
 
     @eh_casal = @pessoa.conjuge.present?
 
-    @nome_usual = @pessoa.nome_usual
-    if @pessoa.conjuge.present?
-      @nome_usual += " / #{@pessoa.conjuge.nome_usual}"
-    end
-
     if @eh_casal
       precisa_poder_editar_pessoa @pessoa.conjuge
       @conjuge = @pessoa.conjuge
@@ -76,17 +50,7 @@ class PessoasController < ApplicationController
       @conjuge = Pessoa.new
     end
 
-    if params.has_key?(:grupo_id)
-      iniciar_breadcrumbs
-      adicionar_breadcrumb "Grupos", grupos_url, "grupos"
-
-      @grupo = Grupo.friendly.find(params[:grupo_id])
-      adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
-      adicionar_breadcrumb @nome_usual, grupo_pessoa_url(@grupo, @pessoa), "ver"
-    else
-      adicionar_breadcrumb @nome_usual, pessoa_url(@pessoa), "ver"
-    end
-
+    adicionar_breadcrumb_de_ver_pessoa
     adicionar_breadcrumb "Editar", edit_pessoa_url(@pessoa), "editar"
 
   end
@@ -95,13 +59,6 @@ class PessoasController < ApplicationController
   # POST /pessoas.json
   def create
     precisa_poder_criar_pessoas
-
-    if params.has_key?(:grupo_id)
-      iniciar_breadcrumbs
-      adicionar_breadcrumb "Grupos", grupos_url, "grupos"
-      @grupo = Grupo.find(params[:grupo_id])
-      adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
-    end
 
     adicionar_breadcrumb "Criar nova pessoa", new_pessoa_url, "criar"
 
@@ -144,13 +101,11 @@ class PessoasController < ApplicationController
       @conjuge = Pessoa.new
     end
 
-    pagina_retorno_sucesso = pessoas_path
-
     respond_to do |format|
       if (@eh_casal && casal_valido && @pessoa.save && @conjuge.save) ||
         (!@eh_casal && @pessoa.save)
 
-        if params.has_key?(:grupo_id)
+        if defined? @grupo
           relacao_pessoa = RelacaoPessoaGrupo.new({:pessoa_id => @pessoa.id, :grupo_id => params[:grupo_id]})
           relacao_pessoa.save
 
@@ -163,15 +118,51 @@ class PessoasController < ApplicationController
 
             relacao_conjuge.save
 
-            msg_sucesso = "Casal criado e adicionado a #{@grupo.nome} com sucesso"
+            msg_sucesso = "Casal criado e adicionado ao grupo #{@grupo.nome} com sucesso"
           else
-            msg_sucesso = "Pessoa criada e adicionada a #{@grupo.nome} com sucesso"
+            msg_sucesso = "Pessoa criada e adicionada ao grupo #{@grupo.nome} com sucesso"
           end
-
-          pagina_retorno_sucesso = @grupo
         end
 
-        format.html { redirect_to pagina_retorno_sucesso, notice: msg_sucesso }
+        if defined? @conjunto
+          if @conjunto.tipo == 'CoordenacaoEncontro'
+            texto_adicionado = "à coordenação do encontro #{@conjunto.encontro.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
+          elsif @conjunto.tipo == 'Equipe'
+            texto_adicionado = "à equipe #{@conjunto.nome} do encontro #{@conjunto.encontro.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
+          else
+            texto_adicionado = "a #{@conjunto.tipo_do_conjunto} #{@conjunto.nome} do encontro #{@conjunto.encontro.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
+          end
+
+          relacao_pessoa_conjunto = RelacaoPessoaConjunto.new({:pessoa_id => @pessoa.id, :conjunto_pessoas_id => @conjunto.id})
+          relacao_pessoa_conjunto.save
+
+          relacao_pessoa_grupo = RelacaoPessoaGrupo.new({:pessoa_id => @pessoa.id, :grupo_id => @conjunto.encontro.grupo.id})
+          relacao_pessoa_grupo.save
+
+          if @eh_casal
+            relacao_conjuge_conjunto = RelacaoPessoaConjunto.where({:pessoa_id => @conjuge.id, :conjunto_pessoas_id => @conjunto.id}).first
+
+            if relacao_conjuge_conjunto.nil?
+              relacao_conjuge_conjunto = RelacaoPessoaConjunto.new({:pessoa_id => @conjuge.id, :conjunto_pessoas_id => @conjunto.id})
+            end
+
+            relacao_conjuge_conjunto.save
+
+            relacao_conjuge_grupo = RelacaoPessoaGrupo.where({:pessoa_id => @conjuge.id, :grupo_id => @conjunto.encontro.grupo.id}).first
+
+            if relacao_conjuge_grupo.nil?
+              relacao_conjuge_grupo = RelacaoPessoaGrupo.new({:pessoa_id => @conjuge.id, :grupo_id => @conjunto.encontro.grupo.id})
+            end
+
+            relacao_conjuge_grupo.save
+
+            msg_sucesso = "Casal criado e adicionado #{texto_adicionado} com sucesso"
+          else
+            msg_sucesso = "Pessoa criada e adicionada #{texto_adicionado} com sucesso"
+          end
+        end
+
+        format.html { redirect_to pagina_retorno, notice: msg_sucesso }
         format.json { render action: 'show', status: :created, location: @pessoa }
       else
         format.html { render action: 'new' }
@@ -185,20 +176,7 @@ class PessoasController < ApplicationController
   def update
     precisa_poder_editar_pessoa @pessoa
 
-    if params.has_key?(:grupo_id)
-      iniciar_breadcrumbs
-      adicionar_breadcrumb "Grupos", grupos_url, "grupos"
-
-      @grupo = Grupo.find(params[:grupo_id])
-      adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
-    end
-
-    @nome_usual = @pessoa.nome_usual
-    if @pessoa.conjuge.present?
-      @nome_usual += " / #{@pessoa.conjuge.nome_usual}"
-    end
-
-    adicionar_breadcrumb @nome_usual, pessoa_url(@pessoa), "ver"
+    adicionar_breadcrumb_de_ver_pessoa
     adicionar_breadcrumb "Editar", edit_pessoa_url(@pessoa), "editar"
 
     tinha_facebook_antes = @pessoa.tem_informacoes_facebook
@@ -283,17 +261,11 @@ class PessoasController < ApplicationController
       msg_sucesso = "Pessoa editada com sucesso"
     end
 
-    pagina_retorno_sucesso = pessoas_path
-
-    if params.has_key?(:grupo_id)
-      pagina_retorno_sucesso = @grupo
-    end
-
     respond_to do |format|
       if ((precisa_salvar_pessoa && @pessoa.save) || !precisa_salvar_pessoa) &&
           ((precisa_salvar_conjuge && @conjuge.save) || !precisa_salvar_conjuge) &&
           ((precisa_salvar_velho_conjuge && @velho_conjuge.save) || !precisa_salvar_velho_conjuge)
-        format.html { redirect_to pagina_retorno_sucesso, notice: msg_sucesso }
+        format.html { redirect_to pagina_retorno, notice: msg_sucesso }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
@@ -309,10 +281,8 @@ class PessoasController < ApplicationController
       @pessoa.destroy
     end
 
-    numero_pagina = params[:page].to_i
-    if Pessoa.all.count < (APP_CONFIG['items_per_page'] * (numero_pagina - 1) + 1)
-      numero_pagina -= 1
-    end
+    carregar_pessoas(Pessoa.all)
+    numero_pagina = 1
 
     msg_sucesso = @pessoa.conjuge.present? ? 'Casal excluído com sucesso' : 'Pessoa excluída com sucesso'
 
@@ -340,12 +310,7 @@ class PessoasController < ApplicationController
 
     if params.has_key? :id_conjunto
       conjunto = ConjuntoPessoas.find(params[:id_conjunto])
-      encontro = conjunto.encontro
-
-      id_pessoas_ignorar.concat RelacaoPessoaConjunto.joins(:pessoa, :conjunto_pessoas).where("conjuntos_pessoas.encontro_id = #{encontro.id}").collect{|r| r.pessoa_id}
-
-      grupo = conjunto.encontro.grupo
-      id_pessoas_incluir.concat grupo.pessoas.collect{ |p| p.id }
+      id_pessoas_ignorar.concat conjunto.pessoas.collect{|p| p.id}
     end
 
     if params.has_key? :pessoa_ignorar
@@ -384,7 +349,21 @@ class PessoasController < ApplicationController
         conjuge = nil
       end
 
-      objetos << pessoa.attributes.merge({conjuge: conjuge})
+      pessoa_hash = pessoa.attributes
+
+      if params.has_key? :id_conjunto
+        conjunto = ConjuntoPessoas.find(params[:id_conjunto])
+        encontro = conjunto.encontro
+        
+        pessoa_hash = pessoa_hash.merge({equipes: pessoa.equipes.where(encontro: encontro)})
+        pessoa_hash = pessoa_hash.merge({conjuntos_permanentes: pessoa.conjuntos_permanentes.where(encontro: encontro)})
+        pessoa_hash = pessoa_hash.merge({denominacao_conjuntos_permanentes: encontro.denominacao_conjuntos_permanentes})
+        pessoa_hash = pessoa_hash.merge({grupos: pessoa.grupos.where("grupo_id != #{encontro.grupo.id}")})
+      else
+        pessoa_hash = pessoa_hash.merge({grupos: pessoa.grupos})
+      end
+
+      objetos << pessoa_hash.merge({conjuge: conjuge})
     }
 
     respond_to do |format|
@@ -395,11 +374,25 @@ class PessoasController < ApplicationController
   def lista_pessoas
     pessoas_total = session[:pessoas]
 
-    @pessoas = pessoas_total.page params[:page]
+    begin
+      @pessoas = pessoas_total.page params[:page]
+    rescue NoMethodError
+      @pessoas = Kaminari.paginate_array(pessoas_total).page params[:page]
+    end
     @total = pessoas_total.count
-    @numero_casais = pessoas_total.where("conjuge_id IS NOT NULL").count / 2
+    @numero_casais = pessoas_total.select{|p| p.conjuge != nil}.count / 2
 
     @tipo_pagina = params[:tipo_pagina]
+
+    if @tipo_pagina == 'lista_pessoas'
+      if @usuario_logado.eh_super_admin?
+        @link = {
+            texto: 'Criar nova pessoa',
+            path: new_pessoa_path,
+            classe: 'link_novo link_nova_pessoa'
+        }
+      end
+    end
 
     if params.has_key?(:grupo_id)
       @grupo = Grupo.find(params[:grupo_id])
@@ -409,16 +402,129 @@ class PessoasController < ApplicationController
       @conjunto = ConjuntoPessoas.find(params[:conjunto_id])
     end
 
+    if params.has_key?(:query)
+      @query = params[:query]
+    end
+
     render :layout => false
   end
 
   def lista_pessoas_js
   end
 
+  def filtrar_pessoas
+    limpar_filtro = params[:limpar_filtro]
+
+    if limpar_filtro
+      carregar_pessoas(session[:pessoas_antes_do_filtro])
+    else
+      pessoas = session[:pessoas_antes_do_filtro]
+
+      if pessoas.nil?
+        pessoas = session[:pessoas]
+        session[:pessoas_antes_do_filtro] = pessoas
+      end
+
+      query = ActiveSupport::Inflector.transliterate(params[:query].downcase)
+
+      if pessoas && query && query.length >= 3
+        session[:pessoas] = pessoas.select{|pessoa| ActiveSupport::Inflector.transliterate(pessoa.nome.downcase).include?(query) ||
+            ActiveSupport::Inflector.transliterate(pessoa.nome_usual.downcase).include?(query)}
+      end
+    end
+
+    render text: 'ok'
+  end
+
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_pessoa
-      @pessoa = Pessoa.find(params[:id])
+    def set_entidades
+      if params[:id]
+        @pessoa = Pessoa.find(params[:id])
+      end
+
+      if params[:grupo_id]
+        @grupo = Grupo.friendly.find(params[:grupo_id])
+      end
+
+      if params[:conjunto_id]
+        @conjunto = ConjuntoPessoas.find(params[:conjunto_id])
+        @encontro = @conjunto.encontro
+        @grupo = @encontro.grupo
+      end
+
+      if params[:encontro_id]
+        @encontro = Encontro.find(params[:encontro_id])
+        @conjunto = @encontro.coordenacao_encontro
+        @grupo = @encontro.grupo
+      end
+    end
+
+    def adicionar_breadcrumbs_entidades
+      if defined?(@grupo)
+        if @usuario_logado.eh_super_admin?
+          adicionar_breadcrumb "Grupos", grupos_url, "grupos"
+        end
+
+        if @usuario_logado.eh_super_admin? ||
+          @grupo.coordenadores.include?(@usuario_logado)
+          adicionar_breadcrumb @grupo.nome, @grupo, "grupo"
+        end
+      end
+
+      if defined?(@encontro)
+        if @usuario_logado.eh_super_admin? || @grupo.coordenadores.include?(@usuario_logado)
+          adicionar_breadcrumb "Encontros", grupo_encontros_path(@grupo), "encontros"
+        end
+
+        if @usuario_logado.eh_super_admin? ||
+            @grupo.coordenadores.include?(@usuario_logado) ||
+            @encontro.coordenadores.include?(@usuario_logado)
+          adicionar_breadcrumb @encontro.nome, @encontro, "encontro"
+        end
+      end
+
+      if defined?(@conjunto)
+        if @conjunto.tipo == 'CoordenacaoEncontro'
+          adicionar_breadcrumb 'Coordenação', encontro_editar_coordenadores_path(@encontro), "coordenacao"
+        elsif @conjunto.tipo == 'Equipe'
+          adicionar_breadcrumb "Equipe #{@conjunto.nome}", equipe_path(@conjunto), "equipe"
+        else
+          adicionar_breadcrumb "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}", circulo_path(@conjunto), "circulo"
+        end
+      end
+
+      if @grupo.nil? && @encontro.nil? && @conjunto.nil? && @usuario_logado.eh_super_admin?
+        adicionar_breadcrumb "Pessoas", pessoas_url, "pessoas"
+      end
+    end
+
+    def adicionar_breadcrumb_de_ver_pessoa
+
+      if defined? @encontro
+        link = encontro_coordenadores_pessoa_url(@encontro, @pessoa)
+      elsif defined? @grupo
+        link = grupo_pessoa_url(@grupo, @pessoa)
+      else
+        link = pessoa_url(@pessoa)
+      end
+
+      adicionar_breadcrumb @pessoa.label, link, "ver"
+    end
+
+    def pagina_retorno
+      if defined? @conjunto
+        if @conjunto.tipo == 'CoordenacaoEncontro'
+          return encontro_editar_coordenadores_path(@conjunto.encontro)
+        elsif @conjunto.tipo == 'Equipe'
+          return equipe_path(@conjunto)
+        else
+          return circulo_path(@conjunto)
+        end
+      elsif defined? @grupo
+        return grupo_path(@grupo)
+      else
+        return pessoas_path
+      end
     end
 
     def remover_facebook_se_necessario(pessoa, tinha_antes)
@@ -527,7 +633,10 @@ class PessoasController < ApplicationController
     end
 
     def pode_ver_pessoa pessoa
-      if @usuario_logado.eh_super_admin? || @usuario_logado.eh_coordenador_de_grupo_de(pessoa) || @usuario_logado == pessoa
+      if @usuario_logado.eh_super_admin? ||
+          @usuario_logado.eh_coordenador_de_grupo_de(pessoa) ||
+          @usuario_logado.eh_coordenador_de_encontro_de(pessoa) ||
+          @usuario_logado == pessoa
         return true
       end
 
@@ -550,6 +659,14 @@ class PessoasController < ApplicationController
       if !pode_ver_pessoa pessoa
         redirect_to root_url and return
       end
+    end
+
+    def pode_ver_participacao conjunto, pessoa
+      return @usuario_logado.eh_super_admin? ||
+          @usuario_logado.eh_coordenador_de_algum_grupo_que_tem_encontros ||
+          @usuario_logado.eh_coordenador_de_encontro_de(pessoa) ||
+          @usuario_logado.eh_coordenador_de_conjunto_permanente_de(pessoa) ||
+          @usuario_logado == pessoa
     end
 
 end

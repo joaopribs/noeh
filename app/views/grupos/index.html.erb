@@ -57,8 +57,7 @@ Total de <%= @total %> grupo<%= "s" if plural %>.
                 <th align="left">Nome</th>
                 <th align="left">Núm. pessoas</th>
                 <% if @usuario_logado.eh_super_admin? %>
-                    <th>Super grupo?</th>
-                    <th></th>
+                    <th>Tem encontros?</th>
                     <th></th>
                 <% end %>
             </tr>
@@ -73,8 +72,7 @@ Total de <%= @total %> grupo<%= "s" if plural %>.
                     <td><%= numero_pessoas %> pessoa<%= 's' unless numero_pessoas == 1 %></td>
 
                     <% if @usuario_logado.eh_super_admin? %>
-                        <td align="center"><%= grupo.eh_super_grupo? ? "Sim" : "Não" %></td>
-                        <td align="center"><%= link_to 'Editar', grupo, class: 'link_editar' %></td>
+                        <td align="center"><%= grupo.tem_encontros? ? "Sim" : "Não" %></td>
                         <td align="center"><%= link_to 'Excluir', '#', data: { nome_grupo: grupo.nome, id_grupo: grupo.id, page: @grupos.current_page }, class: 'link_excluir' %></td>
                     <% end %>
                 </tr>

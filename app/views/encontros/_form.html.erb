@@ -71,6 +71,18 @@
         $("input[name='data_liberacao']").datepicker(opcoesDatePicker);
         $("input[name='data_fechamento']").datepicker(opcoesDatePicker);
 
+        $("input[name='data_inicio']").on('change', function (evento) {
+            $("input[name='data_termino']").datepicker("option", "minDate", $(this).val());
+            $("input[name='data_termino']").datepicker("option", "defaultDate", $(this).val());
+            $("input[name='data_liberacao']").datepicker("option", "defaultDate", $(this).val());
+            $("input[name='data_fechamento']").datepicker("option", "defaultDate", $(this).val());
+        });
+
+        $("input[name='data_liberacao']").on('change', function (evento) {
+            $("input[name='data_fechamento']").datepicker("option", "minDate", $(this).val());
+            $("input[name='data_fechamento']").datepicker("option", "defaultDate", $(this).val());
+        });
+
         atualizarLinksPraRemoverEquipe();
         atualizarLinksPraRemoverConjuntoPermanente();
 
@@ -208,25 +220,33 @@
 
             feminino = true
 
+            array_equipes_e_conjuntos_permanentes = []
+
             texto_conjuntos_permanentes = ""
             qtd_conjuntos_permanentes_padrao = encontro.grupo.encontro_padrao.conjuntos_permanentes.count
-            if qtd_conjuntos_permanentes_padrao == 1
-                texto_conjuntos_permanentes = "1 #{encontro.denominacao_conjuntos_permanentes.downcase}"
-                feminino = false
-            elsif qtd_conjuntos_permanentes_padrao > 1
-                texto_conjuntos_permanentes = "#{qtd_conjuntos_permanentes_padrao} #{plural_conjuntos_permanentes}"
-                feminino = false
-            end
+            if qtd_conjuntos_permanentes_padrao > 0
+                if qtd_conjuntos_permanentes_padrao == 1
+                    texto_conjuntos_permanentes = "1 #{encontro.denominacao_conjuntos_permanentes.downcase}"
+                    feminino = false
+                elsif qtd_conjuntos_permanentes_padrao > 1
+                    texto_conjuntos_permanentes = "#{qtd_conjuntos_permanentes_padrao} #{plural_conjuntos_permanentes}"
+                    feminino = false
+                end
+                array_equipes_e_conjuntos_permanentes << texto_conjuntos_permanentes
+             end
 
             texto_equipes = ""
             qtd_equipes_padrao = encontro.grupo.encontro_padrao.equipes.count
-            if qtd_equipes_padrao == 1
-                texto_equipes = "1 equipe"
-            elsif qtd_equipes_padrao > 1
-                texto_equipes = "#{qtd_equipes_padrao} equipes"
+            if qtd_equipes_padrao > 0
+                if qtd_equipes_padrao == 1
+                    texto_equipes = "1 equipe"
+                elsif qtd_equipes_padrao > 1
+                    texto_equipes = "#{qtd_equipes_padrao} equipes"
+                end
+                array_equipes_e_conjuntos_permanentes << texto_equipes
             end
 
-            texto_equipes_e_conjuntos_permanentes = [texto_conjuntos_permanentes, texto_equipes].join(" e ")
+            texto_equipes_e_conjuntos_permanentes = array_equipes_e_conjuntos_permanentes.join(" e ")
         %>
 
         Serão criados os <%= plural_conjuntos_permanentes %> e equipes

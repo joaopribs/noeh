@@ -10,7 +10,7 @@ if(!Array.indexOf){
     };
 }
 
-function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerDosDetalhes, dadosExtra, funcaoExtra) {
+function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerDosDetalhes, mostrarConjuntos, dadosExtra, funcaoExtra) {
 
     var self = this;
 
@@ -31,6 +31,7 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
     this.containerDosDetalhes = containerDosDetalhes,
     this.dadosExtra = dadosExtra,
     this.funcaoExtra = funcaoExtra,
+    this.mostrarConjuntos = mostrarConjuntos,
 
     this.inicializar = function () {
         // 13 = enter
@@ -123,13 +124,15 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
 
                 if (descricao_quantidade == "nenhuma") {
                     resultados.push('<p class="conteudo_resultados_pesquisa">');
-                    resultados.push('Não foi encontrado nenhum pessoa');
+                    resultados.push('Não foi encontrado nenhuma pessoa');
                     resultados.push('</p>');
                 } else {
                     resultados.push('<ul class="conteudo_resultados_pesquisa">');
                     $(self.arrayResultados).each(function() {
                         resultados.push('<li>');
                         resultados.push('<a href="#">');
+                        resultados.push('<table class="resultado_pesquisa_pessoas">');
+                        resultados.push('<tr><td>');
 
                         var img_src = "";
                         if (this.url_foto_pequena != null && this.url_foto_pequena != "") {
@@ -157,6 +160,8 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
                             resultados.push('<img src="' + img_src_conjuge + '" class="imagem_fb_busca"/>');
                         }
 
+                        resultados.push('</td><td>');
+
                         var texto = "";
                         if (this.conjuge == null) {
                             texto = this.nome + " (" + this.nome_usual + ")";
@@ -165,7 +170,53 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
                             texto = this.nome_usual + " / " + this.conjuge.nome_usual;
                         }
 
-                        resultados.push('<span>' + texto + '</span>');
+                        resultados.push(texto);
+
+                        if (self.mostrarConjuntos) {
+                            var qtdEquipes = $(this.equipes).size();
+                            var qtdConjuntosPermanentes = $(this.conjuntos_permanentes).size();
+
+                            if (qtdEquipes + qtdConjuntosPermanentes > 0) {
+                                textoExtraArray = [];
+                                if (qtdEquipes > 0) {
+                                    var equipesArray = [];
+
+                                    $.each(this.equipes, function (indice, equipe) {
+                                        equipesArray.push(equipe.nome);
+                                    });
+
+                                    if (qtdEquipes == 1) {
+                                        textoExtraArray.push('Equipe ' + equipesArray.join(', '));
+                                    }
+                                    else {
+                                        textoExtraArray.push('Equipes ' + equipesArray.join(', '));
+                                    }
+                                }
+
+                                if (qtdConjuntosPermanentes > 0) {
+                                    var conjuntosPermanentesArray = [];
+                                    $.each(this.conjuntos_permanentes, function (indice, conjunto_permanente) {
+                                        conjuntosPermanentesArray.push(conjunto_permanente.nome);
+                                    });
+                                    textoExtraArray.push(this.denominacao_conjuntos_permanentes + ' ' + conjuntosPermanentesArray.join(', '));
+                                }
+
+                                textoExtra = textoExtraArray.join('; ');
+
+                                resultados.push('<br/><span class="outros_conjuntos">' + textoExtra + '</span>');
+                            }
+                        }
+
+                        var qtdGrupos = $(this.grupos).size();
+
+                        if (qtdGrupos > 0) {
+                            resultados.push('<br/>');
+                            $.each(this.grupos, function (indice, grupo) {
+                                resultados.push('<span class="nome_grupo">' + grupo.nome + '</span>');
+                            });
+                        }
+
+                        resultados.push('</td><tr></table>');
                         resultados.push('</a>');
                         resultados.push('</li>');
                     });
@@ -258,6 +309,55 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
                 $(this.containerDosDetalhes).find(".nome_detalhe_pesquisa").html(nomeUsual + " / " + nomeUsualConjuge);
                 $(this.containerDosDetalhes).find(".nome_usual_detalhe_pesquisa").html("")
                 $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa").last().show();
+            }
+
+            if (this.mostrarConjuntos) {
+                var qtdEquipes = $(pessoa.equipes).size();
+                var qtdConjuntosPermanentes = $(pessoa.conjuntos_permanentes).size();
+
+                if (qtdEquipes + qtdConjuntosPermanentes) {
+                    textoExtraArray = [];
+                    if (qtdEquipes > 0) {
+                        var equipesArray = [];
+
+                        $.each(pessoa.equipes, function (indice, equipe) {
+                            equipesArray.push(equipe.nome);
+                        });
+
+                        if (qtdEquipes == 1) {
+                            textoExtraArray.push('Equipe ' + equipesArray.join(', '));
+                        }
+                        else {
+                            textoExtraArray.push('Equipes ' + equipesArray.join(', '));
+                        }
+                    }
+
+                    if (qtdConjuntosPermanentes > 0) {
+                        var conjuntosPermanentesArray = [];
+                        $.each(pessoa.conjuntos_permanentes, function (indice, conjunto_permanente) {
+                            conjuntosPermanentesArray.push(conjunto_permanente.nome);
+                        });
+                        textoExtraArray.push(pessoa.denominacao_conjuntos_permanentes + ' ' + conjuntosPermanentesArray.join(', '));
+                    }
+
+                    $(this.containerDosDetalhes).find(".obs_detalhe_pesquisa").html("Já está participando de " + textoExtraArray.join("; "));
+                }
+                else {
+                    $(this.containerDosDetalhes).find(".obs_detalhe_pesquisa").html("");
+                }
+
+            }
+
+            var qtdGrupos = $(pessoa.grupos).size();
+
+            var containerGrupos = $(this.containerDosDetalhes).find(".grupos_pesquisa");
+
+            $(containerGrupos).html("");
+
+            if (qtdGrupos > 0) {
+                $.each(pessoa.grupos, function (indice, grupo) {
+                    $(containerGrupos).append('<span>' + grupo.nome + '</span>');
+                });
             }
 
             $(this.containerDosDetalhes).css("display", "inline-block");

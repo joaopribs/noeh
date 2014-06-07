@@ -69,7 +69,7 @@ class SessionsController < ApplicationController
 
       usuario.save
 
-      session[:usuario] = usuario
+      session[:id_usuario] = usuario.id
 
       msg = "ok"
     else
@@ -81,7 +81,7 @@ class SessionsController < ApplicationController
 
   def log_out
 
-    session[:usuario] = nil
+    session[:id_usuario] = nil
     redirect_to deslogado_url and return
 
   end

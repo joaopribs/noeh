@@ -94,26 +94,65 @@
 <div class="links_no_titulo">
   <h1><%= @encontro.nome %></h1>
   <%= link_to 'Editar', edit_encontro_path(@encontro), class: 'link_editar' %>
-  <%= link_to 'Excluir', '#', class: 'link_excluir link_excluir_encontro' %>
+
+  <% if pode_excluir_encontro @encontro %>
+    <%= link_to 'Excluir', '#', class: 'link_excluir link_excluir_encontro' %>
+  <% end %>
 </div>
 
 <%= render 'shared/notificacao' %>
 
-<b>Nome:</b> <%= @encontro.nome %><br/>
-<b>Tema:</b> <%= @encontro.tema %><br/>
-<b>Data de realização:</b> <%= @encontro.data %><br/>
-<b>Liberação do sistema:</b> <%= @encontro.data_liberacao.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
-<b>Fechamento do sistema:</b> <%= @encontro.data_fechamento.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
-
-<% qtd_encontreiros = @encontro.equipes.sum{|e| e.pessoas.count} %>
-<b>Encontreiros:</b> <%= qtd_encontreiros %> pessoa<%= "s" if qtd_encontreiros != 1 %>,
-em <%= @encontro.equipes.count %> equipes<br/>
-
-<% qtd_encontristas = @encontro.conjuntos_permanentes.sum{|c| c.relacoes_pessoa_conjunto.where(eh_coordenador: false).count} %>
-<b>Encontristas:</b> <%= qtd_encontristas %> pessoa<%= "s" if qtd_encontristas != 1 %>,
-em <%= @encontro.conjuntos_permanentes.count %> <%= denominacoes_conjuntos_permanentes.select{|d| d[:nome] == @encontro.denominacao_conjuntos_permanentes}[0][:plural].downcase %><br/>
-
 <table>
+  <tr valign="top">
+    <td width="50%">
+
+        <b>Nome:</b> <%= @encontro.nome %><br/>
+        <b>Tema:</b> <%= @encontro.tema %><br/>
+        <b>Data de realização:</b> <%= @encontro.data %><br/>
+        <b>Liberação do sistema:</b> <%= @encontro.data_liberacao.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
+        <b>Fechamento do sistema:</b> <%= @encontro.data_fechamento.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
+
+        <% qtd_encontreiros = @encontro.equipes.sum{|e| e.pessoas.count} %>
+        <b>Encontreiros:</b> <%= qtd_encontreiros %> pessoa<%= "s" if qtd_encontreiros != 1 %>,
+        em <%= @encontro.equipes.count %> equipes<br/>
+
+        <% qtd_encontristas = @encontro.conjuntos_permanentes.sum{|c| c.relacoes_pessoa_conjunto.where(eh_coordenador: false).count} %>
+        <b>Encontristas:</b> <%= qtd_encontristas %> pessoa<%= "s" if qtd_encontristas != 1 %>,
+        em <%= @encontro.conjuntos_permanentes.count %> <%= denominacoes_conjuntos_permanentes.select{|d| d[:nome] == @encontro.denominacao_conjuntos_permanentes}[0][:plural].downcase %><br/>
+
+    </td>
+    <td width="50%">
+      <h2 class="titulo_coordenadores">Coordenadores</h2>
+
+      <%= link_to "Editar coordenadores", encontro_editar_coordenadores_url(@encontro), :class => "link_editar editar_coordenadores" %>
+
+      <table class="zebra">
+        <tbody>
+        <% @encontro.coordenadores.sort_by{|a| [a.conjuge.nil? ? 0 : 1, a]}.each do |pessoa| %>
+            <tr>
+              <td>
+                <%= link_to encontro_coordenadores_pessoa_path(@encontro.id, pessoa) do %>
+                    <table class="informacoes_pessoa_lista">
+                      <tr valign="top">
+                        <td>
+                          <%= image_tag pessoa.url_imagem(30), class: 'imagem_pessoa_lista' %>
+                        </td>
+                        <td>
+                          <%= "#{pessoa.nome} (#{pessoa.nome_usual})" %>
+                          <div class="subtitulo_lista_pessoas">
+                            Tel.: <%= pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                <% end %>
+              </td>
+            </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </td>
+  </tr>
   <tr valign="top">
     <td width="50%">
 

@@ -26,7 +26,8 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
     this.tipoId = tipoId,
     this.idObjeto = idObjeto,
 
-    this.carregar = function (numeroPagina) {
+    this.carregar = function (numeroPagina, query) {
+        $(self.containerDaTabela).find('.overlay_carregando').show();
 
         var parametros = [];
         parametros.push("tipo_pagina=" + self.tipoPagina);
@@ -39,6 +40,10 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
             parametros.push(self.tipoId + "=" + self.idObjeto);
         }
 
+        if (query != null) {
+            parametros.push("query=" + query);
+        }
+
         parametros = parametros.join("&");
 
         $(self.containerDaTabela).load("<%= lista_pessoas_url %>?" + parametros, function () {
@@ -48,7 +53,7 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 self.carregar(numeroPagina);
             });
 
-            $(".link_excluir").on("click", function (evento) {
+            $(".link_excluir_pessoa").on("click", function (evento) {
                 evento.preventDefault();
 
                 var pessoaId = $(this).data("pessoa-id");
@@ -66,6 +71,8 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 });
 
                 $(".confirmar_excluir_pessoa").on("click", function (evento) {
+                    evento.preventDefault();
+
                     var pessoaId = $(this).data("pessoa-id");
                     var page = $(this).data("page");
 
@@ -142,11 +149,11 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 });
 
                 $(".dialog_link_confirmar").on("click", function (evento) {
+                    evento.preventDefault();
+
                     if ($(this).hasClass('dialog_link_desativado')) {
                         return;
                     }
-
-                    var valorDoRadio = $("input[name=tipo_remover]:radio:checked").val();
 
                     var pessoaId = $(this).data("pessoa-id");
                     var grupoId = $(this).data("grupo-id");
@@ -182,6 +189,56 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 });
             });
 
+            $(".link_remover_ex_do_grupo").on("click", function (evento) {
+                evento.preventDefault();
+
+                var grupoId = $(this).data("grupo-id");
+                var pessoaId = $(this).data("pessoa-id");
+                var page = $(this).data("page");
+                var nomePessoa = $(this).data("nome-pessoa");
+                var nomeGrupo = $(this).data("nome-grupo");
+
+                $("#dialog_conteudo").html("Tem certeza que deseja remover a participação de <em>" + nomePessoa + "</em> do grupo <em>" + nomeGrupo + "</em>?<br/>");
+                $("#dialog_conteudo").append("Não será guardado nenhum registro que essa pessoa participou do grupo.");
+                $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-grupo-id='" + grupoId + "' data-pessoa-id='" + pessoaId + "' data-page='" + page + "'>Confirmar</a>");
+                $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+                $("#dialog").show();
+
+                $(".dialog_link_confirmar").on("click", function (evento) {
+                    evento.preventDefault();
+
+                    var pessoaId = $(this).data("pessoa-id");
+                    var grupoId = $(this).data("grupo-id");
+                    var page = $(this).data("page");
+
+                    $.post(
+                            "<%= remover_pessoa_de_grupo_url %>",
+                            {
+                                id_grupo: grupoId,
+                                id_pessoa: pessoaId,
+                                tipo_remover: "acidente",
+                                page: page,
+                                ex_participante: true
+                            },
+                            function (response) {
+                                esconderDialog();
+
+                                var novaPagina = parseInt(response.novaPagina);
+                                self.carregar(novaPagina);
+
+                                mostrarNotificacao(response.msgSucesso);
+
+                                $("html, body").animate({scrollTop: 0}, 500);
+                            }
+                    );
+                });
+
+                $(".dialog_link_cancelar").on("click", function (evento) {
+                    evento.preventDefault();
+                    esconderDialog();
+                });
+            });
+
             $(".link_remover_do_conjunto").on("click", function (evento) {
                 evento.preventDefault();
 
@@ -196,8 +253,11 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 if (tipoConjunto == "Equipe") {
                     texto = "Tem certeza que deseja remover <em>" + nomePessoa + "</em> da equipe <em>" + nomeConjunto + "</em>?<p/>";
                 }
+                else if (tipoConjunto == "CoordenacaoEncontro") {
+                    texto = "Tem certeza que deseja remover <em>" + nomePessoa + "</em> da <em>coordenação</em>?<p/>";
+                }
                 else {
-                    texto = "Tem certeza que deseja remover <em>" + nomePessoa + "</em> do" +  tipoConjunto+ "<em>" + nomeConjunto + "</em>?<p/>";
+                    texto = "Tem certeza que deseja remover <em>" + nomePessoa + "</em> do " +  tipoConjunto + " <em>" + nomeConjunto + "</em>?<p/>";
                 }
 
                 $("#dialog_conteudo").html(texto);
@@ -206,6 +266,8 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 $("#dialog").show();
 
                 $(".dialog_link_confirmar").on("click", function (evento) {
+                    evento.preventDefault();
+
                     var pessoaId = $(this).data("pessoa-id");
                     var conjuntoId = $(this).data("conjunto-id");
                     var page = $(this).data("page");
@@ -236,6 +298,51 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 });
             });
 
+            $('#enviar_query_filtrar_pessoas').on('click', function (evento) {
+                evento.preventDefault();
+
+                var query = $('#query_filtrar_pessoas').val();
+
+                if (query.length < 3) {
+                    $("#dialog_conteudo").html('Seu critério de busca deve ter no mínimo <em>3 caracteres</em>');
+                    $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
+                    $("#dialog").show();
+
+                    $(".dialog_link_confirmar").on("click", function (evento) {
+                        evento.preventDefault();
+                        esconderDialog();
+                    });
+                }
+                else {
+                    $.post(
+                            "<%= filtrar_pessoas_url %>",
+                            {
+                                query: query
+                            },
+                            function (resposta) {
+                                if (resposta == "ok") {
+                                    listaPessoas.carregar(1, query);
+                                }
+                            }
+                    );
+                }
+            });
+
+            $('#limpar_filtro').on('click', function (evento) {
+                evento.preventDefault();
+                $.post(
+                        "<%= filtrar_pessoas_url %>",
+                        {
+                            limpar_filtro: true
+                        },
+                        function (resposta) {
+                            if (resposta == "ok") {
+                                listaPessoas.carregar();
+                            }
+                        }
+                );
+            });
+
             self.funcaoSucesso();
         });
 
@@ -244,4 +351,5 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
     this.inicializar = function () {
         self.carregar();
     }
+
 }

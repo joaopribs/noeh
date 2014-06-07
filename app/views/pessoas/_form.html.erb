@@ -172,7 +172,11 @@
 
 <%= form_tag form_url, method: form_method, id: "form_pessoa" do %>
 
-    <% if defined?(@grupo) %>
+    <% if defined?(@conjunto) %>
+        <input type="hidden" name="conjunto_id" value="<%= @conjunto.id %>" />
+    <% elsif defined?(@encontro) %>
+        <input type="hidden" name="encontro_id" value="<%= @encontro.id %>" />
+    <% elsif defined?(@grupo) %>
         <input type="hidden" name="grupo_id" value="<%= @grupo.id %>" />
     <% end %>
 
@@ -253,12 +257,6 @@
     <div class="actions faixa_horizontal_com_linha_separadora">
 
         <%
-            if @grupo.present? && modo == "criando"
-                texto_link = "Adicionar a #{@grupo.nome}"
-            else
-                texto_link = "Salvar"
-            end
-
             if @pessoa.conjuge.present?
               nome_dialog = "#{@pessoa.nome_usual} / #{@pessoa.conjuge.nome_usual}"
             else

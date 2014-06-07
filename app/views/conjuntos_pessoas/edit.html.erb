@@ -16,19 +16,21 @@
                     $(".checkbox_coordenador").on("click", function(e) {
                         var pessoa_id = $(this).data("pessoa_id");
                         var eh_coordenador = $(this).is(":checked");
+                        var page = $(this).data("page");
 
                         $.post("<%= setar_coordenador_de_conjunto_url %>",
                                 {
                                     "pessoa_id": pessoa_id,
                                     "conjunto_id": <%= @conjunto.id %>,
-                                    "eh_coordenador": eh_coordenador
+                                    "eh_coordenador": eh_coordenador,
+                                    "page": page
                                 },
                                 function(response) {
-                                    if (response != "ok") {
+                                    if (response == "ok") {
                                         alert("Erro ao setar coordenador");
                                     }
                                     else {
-                                        recarregar();
+                                        recarregar(response);
                                     }
                                 }
                         );
@@ -53,12 +55,40 @@
 
 <p/>
 
-<%= render 'form', conjunto: @conjunto %>
+<% if @conjunto.tipo != 'CoordenacaoEncontro' && pode_editar_conjunto(@conjunto) %>
+    <%= render 'form', conjunto: @conjunto %>
+<% end %>
 
 <%= render 'shared/notificacao' %>
 
 <div id="pessoas_no_conjunto"></div>
 
-<h2>Adicionar pessoa:</h2>
+<% if pode_editar_conjunto(@conjunto) %>
 
-<%= render 'pessoas/pesquisa_pessoas', tipo_pesquisa: "pesquisa_conjunto" %>
+    <% if pode_criar_pessoa_em_um_grupo @conjunto.encontro.grupo %>
+        <h2>Adicionar pessoa:</h2>
+
+        <%
+            if @conjunto.tipo == 'Equipe'
+              texto_link = "à equipe #{@conjunto.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
+              url_link = equipe_criar_pessoa_path(@conjunto)
+            elsif @conjunto.tipo == 'CoordenacaoEncontro'
+              texto_link = "à coordenação do #{@conjunto.encontro.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
+              url_link = encontro_coordenadores_criar_pessoa_path(@conjunto.encontro)
+            else
+              texto_link = "ao #{@conjunto.tipo_do_conjunto} #{@conjunto.encontro.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
+              url_link = circulo_criar_pessoa_path(@conjunto)
+            end
+        %>
+
+        <%= link_to "Criar nova pessoa e adicionar #{texto_link}", url_link, class: 'link_novo'  %>
+
+        <% titulo_busca = '...ou adicionar pessoa já cadastrada no sistema' %>
+    <% else %>
+        <% titulo_busca = 'Adicionar pessoa já cadastrada no sistema' %>
+    <% end %>
+
+    <h3><%= titulo_busca %></h3>
+
+    <%= render 'pessoas/pesquisa_pessoas', tipo_pesquisa: "pesquisa_conjunto" %>
+<% end %>

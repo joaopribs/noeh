@@ -5,13 +5,15 @@ class GruposController < ApplicationController
   before_action :adicionar_breadcrumbs_controller
 
   def adicionar_breadcrumbs_controller
-    adicionar_breadcrumb "Grupos", grupos_url, "grupos"
+    if @usuario_logado.eh_super_admin
+      adicionar_breadcrumb "Grupos", grupos_url, "grupos"
+    end
   end
 
   # GET /grupos
   # GET /grupos.json
   def index
-    precisa_poder_ver_grupos
+    precisa_ser_super_admin
 
     if @usuario_logado.eh_super_admin?
       @grupos = Grupo.all.page params[:page]
@@ -34,11 +36,11 @@ class GruposController < ApplicationController
 
   # GET /grupos/1
   def show
-    precisa_poder_gerenciar @grupo
+    precisa_poder_gerenciar_grupo @grupo
 
     adicionar_breadcrumb @grupo.nome, @grupo, "editar"
 
-    session[:pessoas] = @grupo.pessoas
+    carregar_pessoas(@grupo.pessoas)
     @tipo_pagina = "pessoas_no_grupo"
   end
 
@@ -122,7 +124,13 @@ class GruposController < ApplicationController
 
     if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&
         ((precisa_salvar_relacao_conjuge && relacao_conjuge.save) || !precisa_salvar_relacao_conjuge)
-      render :text => "ok"
+
+      if params[:eh_coordenador] == "true"
+        render :text => 1
+      else
+        render :text => params[:page]
+      end
+
     else
       render :text => "erro"
     end
@@ -134,7 +142,7 @@ class GruposController < ApplicationController
     @grupo = Grupo.find(params[:id_grupo])
     @pessoa = Pessoa.find(params[:id_pessoa])
 
-    precisa_poder_gerenciar @grupo
+    precisa_poder_gerenciar_grupo @grupo
 
     relacao_pessoa = RelacaoPessoaGrupo.where({:pessoa => @pessoa, :grupo_id => params[:id_grupo]}).first
 
@@ -158,9 +166,12 @@ class GruposController < ApplicationController
     respond_to do |format|
       if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&
           ((precisa_salvar_relacao_conjuge && relacao_conjuge.save) || !precisa_salvar_relacao_conjuge)
+        carregar_pessoas(@grupo.pessoas)
         format.json { render json: {msgSucesso: msg_sucesso}, status: :ok }
+        format.html { redirect_to pessoa_url(@pessoa), notice: msg_sucesso }
       else
         format.json { render json: @pessoa.errors, status: :unprocessable_entity }
+        format.html { redirect_to pessoa_url(@pessoa) }
       end
     end
   end
@@ -168,7 +179,7 @@ class GruposController < ApplicationController
   def remover_pessoa_de_grupo
     @grupo = Grupo.find(params[:id_grupo])
 
-    precisa_poder_gerenciar @grupo
+    precisa_poder_gerenciar_grupo @grupo
 
     condicoes = ["grupo_id = #{@grupo.id}"]
 
@@ -184,20 +195,47 @@ class GruposController < ApplicationController
     condicoes << condicoes_pessoas
     condicoes = condicoes.join(" AND ")
 
-    RelacaoPessoaGrupo.where(condicoes).each { |relacao|
+    if params[:ex_participante]
+      relacoes = RelacaoPessoaGrupo.unscoped.where(condicoes)
+    else
+      relacoes = RelacaoPessoaGrupo.where(condicoes)
+    end
+
+    relacoes.each do |relacao|
       if params[:tipo_remover] == 'acidente'
         relacao.destroy
+
+        conjuntos = []
+        @grupo.encontros.each do |encontro|
+          conjuntos += encontro.conjuntos.collect{|conjunto| conjunto.id}
+        end
+
+        condicoes_conjunto_array = []
+        if conjuntos.count > 0
+          condicoes_conjunto_array = ["conjunto_pessoas_id IN (#{conjuntos.join(", ")})"]
+        end
+
+        condicoes_conjunto_array << condicoes_pessoas
+
+        condicoes_conjunto = condicoes_conjunto_array.join(" AND ")
+
+        RelacaoPessoaConjunto.where(condicoes_conjunto).each do |relacao_conjunto|
+          relacao_conjunto.destroy
+        end
+
       elsif params[:tipo_remover] == 'saindo'
         relacao.deixou_de_participar_em = Date.strptime(params[:deixou_de_participar_em], '%d/%m/%Y')
         relacao.save
       end
-    }
+    end
 
     if eh_casal
       msg_sucesso = "Casal removido do grupo com sucesso"
     else
       msg_sucesso = "Pessoa removida do grupo com sucesso"
     end
+
+    carregar_pessoas(@grupo.pessoas)
 
     numero_pagina = params[:page].to_i
     if @grupo.pessoas.count < (APP_CONFIG['items_per_page'] * (numero_pagina - 1) + 1)
@@ -208,6 +246,27 @@ class GruposController < ApplicationController
       format.json { render json: {novaPagina: numero_pagina, msgSucesso: msg_sucesso}, status: :ok }
     end
 
+  end
+
+  def encontros_de_grupo
+    @grupo = Grupo.find(params[:id])
+    if @grupo
+      render json: @grupo.encontros
+    else
+      render json: []
+    end
+  end
+
+  def ex_participantes
+    @grupo = Grupo.friendly.find(params[:grupo_id])
+
+    precisa_poder_gerenciar_grupo @grupo
+
+    adicionar_breadcrumb @grupo.nome, @grupo, "editar"
+    adicionar_breadcrumb "Ex-participantes", grupo_ex_participantes_url(@grupo), "ex_participantes"
+
+    carregar_pessoas(@grupo.ex_participantes)
+    @tipo_pagina = "ex_participantes_de_grupo"
   end
 
   private
@@ -222,29 +281,20 @@ class GruposController < ApplicationController
       params_grupo = params[:grupo]
 
       hash = ActionController::Parameters.new(nome: params_grupo[:nome],
-                                              eh_super_grupo: params_grupo[:eh_super_grupo],
+                                              tem_encontros: params_grupo[:tem_encontros],
                                               slug: nil)
       hash.permit!
       return hash
     end
 
-    def pode_ver_grupos
-      return @usuario_logado.eh_super_admin? || @usuario_logado.grupos_que_coordena.count > 0
-    end
-
-    def precisa_poder_ver_grupos
-      if !pode_ver_grupos
-        redirect_to root_url and return
-      end
-    end
-
-    def pode_gerenciar grupo
+    def pode_gerenciar_grupo grupo
       return @usuario_logado.eh_super_admin? || grupo.coordenadores.include?(@usuario_logado)
     end
 
-    def precisa_poder_gerenciar grupo
-      if !pode_gerenciar(grupo)
+    def precisa_poder_gerenciar_grupo grupo
+      if !pode_gerenciar_grupo(grupo)
         redirect_to root_url and return
       end
     end
+
 end

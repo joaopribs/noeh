@@ -1,8 +1,16 @@
 <%= render_breadcrumbs "criar" %>
 
 <%
-    if @grupo.present?
-        titulo = "Adicionar pessoa a #{@grupo.nome}"
+    if @conjunto.present?
+        if @conjunto.tipo == 'Equipe'
+            titulo = "Adicionar pessoa à equipe #{@conjunto.nome} do encontro #{@conjunto.encontro.nome}"
+        elsif @conjunto.tipo == 'CoordenacaoEncontro'
+            titulo = "Adicionar pessoa à coordenação do encontro #{@conjunto.encontro.nome}"
+        else
+            titulo = "Adicionar pessoa ao #{@conjunto.tipo_do_conjunto} #{@conjunto.nome} do encontro #{@conjunto.encontro.nome}"
+        end
+    elsif @grupo.present?
+        titulo = "Adicionar pessoa ao grupo #{@grupo.nome}"
     else
         titulo = "Criar nova pessoa"
     end
@@ -10,4 +18,4 @@
 
 <h1><%= titulo %></h1>
 
-<%= render 'form', modo: "criando" %>
+<%= render 'form', modo: "criando", texto_link: titulo %>

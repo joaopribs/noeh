@@ -10,11 +10,15 @@ class Pessoa < ActiveRecord::Base
 
   attr_accessor :dia, :mes, :ano, :tem_facebook
 
-  has_many :relacoes_pessoa_grupo, class_name: 'RelacaoPessoaGrupo'
+  has_many :relacoes_pessoa_conjunto, class_name: 'RelacaoPessoaConjunto', dependent: :destroy
+  has_many :conjuntos_pessoas, through: :relacoes_pessoa_conjunto, source: 'conjunto_pessoas'
+  has_many :equipes, -> { where tipo: 'Equipe' }, through: :relacoes_pessoa_conjunto, source: 'conjunto_pessoas'
+  has_many :conjuntos_permanentes, -> { where tipo: 'ConjuntoPermanente' }, through: :relacoes_pessoa_conjunto, source: 'conjunto_pessoas'
+  has_many :relacoes_pessoa_grupo, class_name: 'RelacaoPessoaGrupo', dependent: :destroy
   has_many :grupos, through: :relacoes_pessoa_grupo
   has_many :telefones, dependent: :destroy
 
-  belongs_to :conjuge, class_name: 'Pessoa', foreign_key: :conjuge_id
+  belongs_to :conjuge, class_name: 'Pessoa', foreign_key: :conjuge_id, dependent: :destroy
 
   validates :nome, :presence => {:message => "Obrigatório"}
   validates :nome_usual, :presence => {:message => "Obrigatório"}
@@ -52,6 +56,15 @@ class Pessoa < ActiveRecord::Base
     return url
   end
 
+  def label
+    label = self.nome_usual
+    if self.conjuge.present?
+      label += " / #{self.conjuge.nome_usual}"
+    end
+
+    return label
+  end
+
   def tem_informacoes_facebook
     return self.url_facebook.present? || self.nome_facebook.present? || self.email_facebook.present?
   end
@@ -68,11 +81,37 @@ class Pessoa < ActiveRecord::Base
     return false
   end
 
-  def eh_coordenador_de_super_grupo_de(outra_pessoa)
-    relacoes = self.relacoes_pessoa_grupo.where(eh_coordenador: true).select{|r| r.grupo.eh_super_grupo}
+  def eh_coordenador_de_grupo_que_tem_encontros_de(outra_pessoa)
+    relacoes = self.relacoes_pessoa_grupo.where(eh_coordenador: true).select{|r| r.grupo.tem_encontros}
 
     relacoes.each do |relacao|
       if relacao.grupo.pessoas.include? outra_pessoa
+        return true
+      end
+    end
+
+    return false
+  end
+
+  def eh_coordenador_de_encontro_de(outra_pessoa)
+    relacoes = self.relacoes_pessoa_conjunto.joins(:conjunto_pessoas).where("conjuntos_pessoas.tipo = 'CoordenacaoEncontro'")
+
+    relacoes.each do |relacao|
+      relacao.conjunto_pessoas.encontro.conjuntos.each do |conjunto|
+        if conjunto.pessoas.include? outra_pessoa
+          return true
+        end
+      end
+    end
+
+    return false
+  end
+
+  def eh_coordenador_de_conjunto_permanente_de(outra_pessoa)
+    relacoes = self.relacoes_pessoa_conjunto.joins(:conjunto_pessoas).where('relacoes_pessoa_conjunto.eh_coordenador = true AND conjuntos_pessoas.tipo = "ConjuntoPermanente"')
+
+    relacoes.each do |relacao|
+      if relacao.conjunto_pessoas.pessoas.include? outra_pessoa
         return true
       end
     end
@@ -84,9 +123,58 @@ class Pessoa < ActiveRecord::Base
     return self.relacoes_pessoa_grupo.where(eh_coordenador: true).collect{|r| r.grupo}
   end
 
+  def grupos_que_tem_encontros_que_coordena
+    return self.relacoes_pessoa_grupo.joins(:grupo).where('relacoes_pessoa_grupo.eh_coordenador = true AND grupos.tem_encontros = true').collect{|r| r.grupo}
+  end
+
+  def equipes_em_que_esta_participando_agora
+    equipes = []
+    self.equipes.each do |equipe|
+      if equipe.encontro.data_liberacao.present? && equipe.encontro.data_fechamento.present?
+        if (equipe.encontro.data_liberacao.beginning_of_day..equipe.encontro.data_fechamento.end_of_day).cover?(Time.now)
+          equipes << equipe
+        end
+      end
+    end
+
+    return equipes
+  end
+
+  def encontros_que_esta_coordenando_agora
+    encontros = []
+
+    relacoes = self.relacoes_pessoa_conjunto.joins(:conjunto_pessoas).where("conjuntos_pessoas.tipo = 'CoordenacaoEncontro'")
+
+    relacoes.each do |relacao|
+      encontro = relacao.conjunto_pessoas.encontro
+
+      if encontro.data_liberacao.present? && encontro.data_fechamento.present?
+        if (encontro.data_liberacao.beginning_of_day..encontro.data_fechamento.end_of_day).cover?(Time.now)
+          encontros << encontro
+        end
+      end
+    end
+
+    return encontros
+  end
+
   def eh_coordenador_de_todos_os_grupos_de outra_pessoa
     grupos_que_coordena = self.grupos_que_coordena
     return outra_pessoa.grupos.count > 0 && (outra_pessoa.grupos - grupos_que_coordena).empty?
+  end
+
+  def grupos_em_que_pode_adicionar_outra_pessoa outra_pessoa
+    if self.eh_super_admin?
+      grupos = Grupo.all
+    else
+      grupos = self.grupos_que_coordena
+    end
+
+    return grupos - outra_pessoa.grupos
+  end
+
+  def participacoes
+
   end
 
   def endereco

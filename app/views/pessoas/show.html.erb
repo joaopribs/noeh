@@ -37,15 +37,21 @@
     });
 </script>
 
-<% if defined?(@grupo) || @usuario_logado.eh_super_admin? %>
-    <%= render_breadcrumbs "ver" %>
-<% end %>
+<%= render_breadcrumbs "ver" %>
 
 <div class="links_no_titulo">
-  <h1><%= @nome_usual %></h1>
+  <h1><%= @pessoa.label %></h1>
 
   <% if pode_editar_pessoa @pessoa %>
-      <% if defined?(@grupo) %>
+      <% if defined?(@conjunto) %>
+          <% if @conjunto.tipo == 'CoordenacaoEncontro' %>
+              <%= link_to 'Editar', encontro_coordenadores_pessoa_editar_path(@conjunto.encontro, @pessoa), class: 'link_editar' %>
+          <% elsif @conjunto.tipo == 'Equipe' %>
+              <%= link_to 'Editar', equipe_pessoa_editar_path(@conjunto, @pessoa), class: 'link_editar' %>
+          <% else %>
+              <%= link_to 'Editar', circulo_pessoa_editar_path(@conjunto, @pessoa), class: 'link_editar' %>
+          <% end %>
+      <% elsif defined?(@grupo) %>
           <%= link_to 'Editar', grupo_edit_pessoa_path(@grupo, @pessoa), class: 'link_editar' %>
       <% else %>
           <%= link_to 'Editar', edit_pessoa_path(@pessoa), class: 'link_editar' %>
@@ -58,12 +64,14 @@
   <% end %>
 </div>
 
+<%= render 'shared/notificacao' %>
+
 <% tem_conjuge = @pessoa.conjuge.present? %>
 
-<%= render 'informacoes_pessoa', pessoa: @pessoa, tem_conjuge: tem_conjuge %>
+<%= render 'informacoes_pessoa', pessoa: @pessoa, participacoes: @participacoes, tem_conjuge: tem_conjuge %>
 
 <% if tem_conjuge %>
-    <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, tem_conjuge: tem_conjuge %>
+    <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, participacoes: @participacoes_conjuge, tem_conjuge: tem_conjuge %>
 <% end %>
 
 <br style="clear: both;"/>

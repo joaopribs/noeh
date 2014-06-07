@@ -64,7 +64,12 @@ p.conteudo_resultados_pesquisa {
     text-decoration: none;
     color: #000;
     font-weight: normal;
-    line-height: 30px;
+    line-height: 80%;
+}
+
+.outros_conjuntos {
+    font-size: 0.75em;
+    color: #ff0000;
 }
 
 .conteudo_resultados_pesquisa a:hover,
@@ -85,10 +90,6 @@ p.conteudo_resultados_pesquisa {
 
 .conteudo_resultados_pesquisa li img.imagem_fb_busca:first-of-type {
     padding-left: 10px;
-}
-
-.conteudo_resultados_pesquisa span {
-    margin-left: 10px;
 }
 
 .container_dos_campos_de_pesquisa {
@@ -117,4 +118,47 @@ img.imagem_detalhe_pesquisa {
 .nome_detalhe_pesquisa {
     font-size: 18px;
     display: block;
+}
+
+.nome_usual_detalhe_pesquisa {
+    display: block;
+}
+
+.obs_detalhe_pesquisa {
+    color: #ff0000;
+}
+
+table.resultado_pesquisa_pessoas {
+    margin: 0;
+    padding: 3px 0;
+    border: 0;
+    display: inline-block;
+}
+
+table.resultado_pesquisa_pessoas td {
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+}
+
+table.resultado_pesquisa_pessoas td:first-of-type {
+    padding-right: 10px;
+}
+
+.nome_grupo {
+    font-size: 0.6em;
+    text-transform: uppercase;
+    background-color: #999;
+    color: #fff;
+    padding: 0 3px;
+    margin: 5px 5px 0 0;
+}
+
+.grupos_pesquisa > span {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    background-color: #999;
+    color: #fff;
+    padding: 0 3px;
+    margin: 5px 5px 0 0;
 }

@@ -6,11 +6,11 @@ class ConjuntoPessoas < ActiveRecord::Base
   self.inheritance_column = :tipo
 
   default_scope {
-    order(:nome)
+    includes(:encontro).order('encontros.data_inicio DESC, conjuntos_pessoas.nome ASC')
   }
 
   has_many :relacoes_pessoa_conjunto, class_name: 'RelacaoPessoaConjunto', dependent: :destroy
-  has_many :pessoas, through: :relacoes_pessoa_conjunto
+  has_many :pessoas, -> {reorder 'relacoes_pessoa_conjunto.eh_coordenador DESC, pessoas.nome ASC'}, through: :relacoes_pessoa_conjunto
 
   belongs_to :cor
   belongs_to :encontro
@@ -24,11 +24,19 @@ class ConjuntoPessoas < ActiveRecord::Base
   end
 
   def coordenadores
+    pessoas_retornar = []
+
     pessoas = self.relacoes_pessoa_conjunto.where(eh_coordenador: true).collect{|r| r.pessoa}
 
-    pessoas_retornar = pessoas.select{|p| p.conjuge.nil?} + pessoas.select{|p| p.conjuge.present?}
+    if pessoas.count > 0
+      pessoas_retornar = pessoas.select{|p| p.conjuge.nil?} + pessoas.select{|p| p.conjuge.present?}
+    end
 
     return pessoas_retornar
+  end
+
+  def as_json(options={})
+    super(options.merge({:methods => :tipo}))
   end
 
 end

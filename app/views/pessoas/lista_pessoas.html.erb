@@ -1,3 +1,15 @@
+<div class="overlay_carregando">
+  <div class="overlay_carregando_fundo"></div>
+  <div class="overlay_carregando_texto">
+    <%= image_tag 'spinner.gif', style: 'vertical-align: top;' %>
+    Carregando...
+  </div>
+</div>
+
+<% if defined?(@link) %>
+    <%= link_to @link[:texto], @link[:path], class: @link[:classe] %>
+<% end %>
+
 <% plural_pessoas = @total != 1 %>
 <%
    texto_casais = []
@@ -12,16 +24,21 @@
    texto_casais = texto_casais.join
 %>
 
-<% if @tipo_pagina == "lista_pessoas" %>
-    Total de <%= @total %> pessoa<%= "s" if plural_pessoas %> cadastrada<%= "s" if plural_pessoas %><%= texto_casais %>
-<% elsif @tipo_pagina == "pessoas_no_grupo" %>
-    Total de <%= @total %> pessoa<%= "s" if plural_pessoas %> no grupo<%= texto_casais %>
-<% elsif @tipo_pagina == "pessoas_no_conjunto" %>
-    <% if @conjunto.tipo == "Equipe" %>
-        Total de <%= @total %> pessoa<%= "s" if plural_pessoas %> na equipe<%= texto_casais %>
-    <% else %>
-        Total de <%= @total %> pessoa<%= "s" if plural_pessoas %> no <%= @conjunto.encontro.denominacao_conjuntos_permanentes %><%= texto_casais %>
+<% if @total > 0 || @query.present? %>
+    <input type="text" id="query_filtrar_pessoas" value="<%= @query %>" />
+    <a href="#" id="enviar_query_filtrar_pessoas" class="link_buscar">Buscar</a>
+
+    <% if @query %>
+        <a href="#" id="limpar_filtro" class="link_remover">Limpar busca</a>
     <% end %>
+
+    -
+<% end %>
+
+<% if @total > 0 %>
+    Total de <%= @total %> pessoa<%= "s" if plural_pessoas %><%= texto_casais %>
+<% else %>
+    Nenhuma pessoa
 <% end %>
 
 <% if @total > 0 %>
@@ -39,8 +56,13 @@
                 <th></th>
                 <th></th>
                 <th></th>
+            <% elsif @tipo_pagina == "ex_participantes_de_grupo" %>
+                <th>Data em que deixou de participar</th>
+                <th></th>
             <% elsif @tipo_pagina == "pessoas_no_conjunto" %>
-                <th>Coordenador</th>
+                <% if @conjunto.tipo != "CoordenacaoEncontro" %>
+                    <th>Coordenador</th>
+                <% end %>
                 <th></th>
             <% end %>
         </tr>
@@ -62,15 +84,17 @@
             <tr>
                 <td>
                     <%
-                        if @tipo_pagina == "lista_pessoas"
+                        if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo"
                             link_pessoa = pessoa
                         elsif @tipo_pagina == "pessoas_no_grupo"
                             link_pessoa = grupo_pessoa_path(@grupo, pessoa)
                         elsif @tipo_pagina == "pessoas_no_conjunto"
                             if @conjunto.tipo == "Equipe"
-                                link_pessoa = equipe_pessoa_path(conjunto_id: @conjunto.id, pessoa_id: pessoa.id)
+                                link_pessoa = equipe_pessoa_path(@conjunto, pessoa)
+                            elsif @conjunto.tipo == "CoordenacaoEncontro"
+                                link_pessoa = encontro_coordenadores_pessoa_path(@conjunto.encontro, pessoa)
                             else
-                                link_pessoa = circulo_pessoa_path(conjunto_id: @conjunto.id, pessoa_id: pessoa.id)
+                                link_pessoa = circulo_pessoa_path(@conjunto, pessoa)
                             end
                         end
                     %>
@@ -84,6 +108,9 @@
                               <%= "#{pessoa.nome} (#{pessoa.nome_usual})" %>
                               <div class="subtitulo_lista_pessoas">
                                 Tel.: <%= pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
+                                <% if defined?(@conjunto) %>
+                                    <%= pessoa_participando_de_outro_conjunto_em_encontro pessoa, @conjunto %>
+                                <% end %>
                               </div>
                             </td>
                           </tr>
@@ -93,16 +120,17 @@
                 <td>
                     <% if pessoa.conjuge.present? %>
                         <%
-
-                            if @tipo_pagina == "lista_pessoas"
+                            if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo"
                                 link_conjuge = pessoa.conjuge
                             elsif @tipo_pagina == "pessoas_no_grupo"
                                 link_conjuge = grupo_pessoa_path(@grupo, pessoa.conjuge)
                             elsif @tipo_pagina == "pessoas_no_conjunto"
                                 if @conjunto.tipo == "Equipe"
-                                    link_conjuge = equipe_pessoa_path(conjunto_id: @conjunto.id, pessoa_id: pessoa.conjuge.id)
+                                    link_conjuge = equipe_pessoa_path(@conjunto, pessoa)
+                                elsif @conjunto.tipo == "CoordenacaoEncontro"
+                                    link_conjuge = encontro_coordenadores_pessoa_path(@conjunto.encontro, pessoa.conjuge)
                                 else
-                                    link_conjuge = circulo_pessoa_path(conjunto_id: @conjunto.id, pessoa_id: pessoa.conjuge.id)
+                                    link_conjuge = circulo_pessoa_path(@conjunto.id, pessoa.conjuge)
                                 end
                             end
                         %>
@@ -117,6 +145,9 @@
                                 <%= "#{pessoa.conjuge.nome} (#{pessoa.conjuge.nome_usual})" %>
                                 <div class="subtitulo_lista_pessoas">
                                   Tel.: <%= pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
+                                  <% if defined?(@conjunto) %>
+                                      <%= pessoa_participando_de_outro_conjunto_em_encontro pessoa.conjuge, @conjunto %>
+                                  <% end %>
                                 </div>
                               </td>
                             </tr>
@@ -139,7 +170,7 @@
                         <%= link_to 'Editar', edit_pessoa_path(pessoa), class: 'link_editar'  if pode_editar_pessoa(pessoa) %>
                     </td>
                     <td align="center">
-                         <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir' if pode_excluir_pessoa(pessoa) %>
+                         <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir link_excluir_pessoa' if pode_excluir_pessoa(pessoa) %>
                     </td>
 
                 <% elsif @tipo_pagina == "pessoas_no_grupo" %>
@@ -148,7 +179,7 @@
                         <% if !@usuario_logado.eh_super_admin? %>
                             <%= eh_coordenador ? "Coordenador" : "" %>
                         <% else %>
-                            <input type="checkbox" name="eh_coordenador" <%= "checked" if eh_coordenador %> class="checkbox_coordenador" data-pessoa_id="<%= pessoa.id %>"/>
+                            <input type="checkbox" name="eh_coordenador" <%= "checked" if eh_coordenador %> class="checkbox_coordenador" data-pessoa_id="<%= pessoa.id %>" data-page="<%= @pessoas.current_page %>" />
                         <% end %>
                     </td>
 
@@ -168,30 +199,54 @@
                         <%= link_to 'Editar', grupo_edit_pessoa_path(@grupo, pessoa), class: 'link_editar' if pode_editar_pessoa(pessoa) %>
                     </td>
                     <td align="center">
-                      <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir' if pode_excluir_pessoa(pessoa) %>
+                      <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir link_excluir_pessoa' if pode_excluir_pessoa(pessoa) %>
                     </td>
 
-                <% elsif @tipo_pagina == "pessoas_no_conjunto" %>
+                <% elsif @tipo_pagina == "ex_participantes_de_grupo" %>
+
+                    <% relacao = RelacaoPessoaGrupo.unscoped.where(pessoa: pessoa, grupo: @grupo).first %>
 
                     <td align="center">
-                        <% if !@usuario_logado.eh_super_admin? %>
-                            <%= eh_coordenador ? "Coordenador" : "" %>
-                        <% else %>
-                            <input type="checkbox" name="eh_coordenador" <%= "checked" if eh_coordenador %> class="checkbox_coordenador" data-pessoa_id="<%= pessoa.id %>"/>
-                        <% end %>
+                      <%= relacao.deixou_de_participar_em.strftime('%d/%m/%Y') %>
                     </td>
 
                     <td align="center">
-                      <%= link_to 'Remover', '#', class: 'link_remover_do_conjunto link_remover',
+                      <%= link_to 'Excluir Participação', '#', class: 'link_remover_ex_do_grupo link_remover',
                                   data: {
-                                          conjunto_id: @conjunto.id,
+                                          grupo_id: @grupo.id,
                                           pessoa_id: pessoa.id,
-                                          nome_conjunto: @conjunto.nome,
-                                          tipo_conjunto: @conjunto.tipo_do_conjunto,
+                                          nome_grupo: @grupo.nome,
                                           nome_pessoa: nome_pra_dialog,
                                           page: @pessoas.current_page
                                   }
                       %>
+                    </td>
+
+                <% elsif @tipo_pagina == "pessoas_no_conjunto" %>
+
+                    <% if @conjunto.tipo != "CoordenacaoEncontro" %>
+                        <td align="center">
+                            <% if pode_editar_coordenador_de_conjunto @conjunto %>
+                                <input type="checkbox" name="eh_coordenador" <%= "checked" if eh_coordenador %> class="checkbox_coordenador" data-pessoa_id="<%= pessoa.id %>" data-page="<%= @pessoas.current_page %>"/>
+                            <% else %>
+                                <%= eh_coordenador ? "Coordenador" : "" %>
+                            <% end %>
+                        </td>
+                    <% end %>
+
+                    <td align="center">
+                      <% if pode_editar_conjunto(@conjunto) %>
+                          <%= link_to 'Remover', '#', class: 'link_remover_do_conjunto link_remover',
+                                      data: {
+                                              conjunto_id: @conjunto.id,
+                                              pessoa_id: pessoa.id,
+                                              nome_conjunto: @conjunto.nome,
+                                              tipo_conjunto: @conjunto.tipo_do_conjunto,
+                                              nome_pessoa: nome_pra_dialog,
+                                              page: @pessoas.current_page
+                                      }
+                          %>
+                      <% end %>
                     </td>
 
                 <% end %>

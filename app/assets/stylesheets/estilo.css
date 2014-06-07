@@ -43,6 +43,20 @@ td {
     padding: 4px 10px;
 }
 
+ul.bullets {
+    margin-top: 0;
+    padding-top: 0;
+    list-style: square;
+}
+
+ul.bullets li {
+    color: #ddd;
+}
+
+ul.bullets li span {
+    color: #000;
+}
+
 .faixa_horizontal_com_linha_separadora {
     width: 100%;
     text-align: center;
@@ -54,7 +68,7 @@ td {
     padding: 15px 0 15px 60px;
     border: 1px solid #57732f;
     color: #57732f;
-    background: url(/assets/notificacao.png) no-repeat #d4e9b6;
+    background: url(notificacao.png) no-repeat #d4e9b6;
     background-position: 20px center;
 }
 
@@ -84,7 +98,7 @@ form.espaco_embaixo {
     min-height: 50px;
     padding: 10px;
     padding-right: 70px;
-    background: url(/assets/facebook.png) no-repeat #425691;
+    background: url(facebook.png) no-repeat #425691;
     background-position: right 10px center;
 }
 
@@ -98,6 +112,34 @@ form.espaco_embaixo {
 
 .helper {
     color: #ccc;
+}
+
+.sem_espaco_embaixo {
+    margin-bottom: 0;
+}
+
+/* Carregando
+------------------------------------------------------------------------------*/
+
+.overlay_carregando {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    display: none;
+}
+
+.overlay_carregando_fundo {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    opacity: 0.9;
+    filter: alpha(opacity = 90);
+    z-index: 9998;
+}
+
+.overlay_carregando_texto {
+    position: absolute;
+    z-index: 9999;
 }
 
 /* Formulários
@@ -147,7 +189,7 @@ a.link_facebook:hover {
 a.link_novo {
     color: #008d14;
     padding-left: 20px;
-    background: url(/assets/novo.png) no-repeat;
+    background: url(novo.png) no-repeat;
     background-position: left center;
 }
 
@@ -158,7 +200,7 @@ a.link_novo:hover {
 a.link_editar {
     color: #634f24;
     padding-left: 20px;
-    background: url(/assets/editar.png) no-repeat;
+    background: url(editar.png) no-repeat;
     background-position: left center;
 }
 
@@ -169,7 +211,7 @@ a.link_editar:hover {
 a.link_excluir {
     color: #760000;
     padding-left: 15px;
-    background: url(/assets/excluir.png) no-repeat;
+    background: url(excluir.png) no-repeat;
     background-position: left center;
 }
 
@@ -177,21 +219,10 @@ a.link_excluir:hover {
     color: #d41111;
 }
 
-a.link_procurar_fb {
-    color: #3d5cb9;
-    padding-left: 20px;
-    background: url(/assets/procurar_fb.png) no-repeat;
-    background-position: left center;
-}
-
-a.link_procurar_fb:hover {
-    color: #4e78f6;
-}
-
 a.link_submeter {
     color: #008d14;
     padding-left: 20px;
-    background: url(/assets/check.png) no-repeat;
+    background: url(check.png) no-repeat;
     background-position: left center;
 }
 
@@ -202,7 +233,7 @@ a.link_submeter:hover {
 a.link_remover {
     color: #760000;
     padding-left: 20px;
-    background: url(/assets/cancelar.png) no-repeat;
+    background: url(cancelar.png) no-repeat;
     background-position: left center;
 }
 
@@ -212,14 +243,31 @@ a.link_remover:hover {
 
 a.link_encontros {
     padding-left: 22px;
-    background: url(/assets/encontros.png) no-repeat;
+    background: url(encontros.png) no-repeat;
     background-position: left center;
 }
 
 a.link_forma_padrao {
     padding-left: 20px;
-    background: url(/assets/estrutura.png) no-repeat;
+    background: url(estrutura.png) no-repeat;
     background-position: left center;
+}
+
+a.link_ex_participantes {
+    padding-left: 20px;
+    background: url(ex.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_buscar {
+    color: #3d5cb9;
+    padding-left: 20px;
+    background: url(procurar_azul.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_buscar:hover {
+    color: #4e78f6;
 }
 
 /* Paginação
@@ -539,11 +587,17 @@ a.link_forma_padrao {
     color: #777;
 }
 
+.subtitulo_lista_pessoas em {
+    color: #ff0000;
+    font-style: normal;
+}
+
 /* Página de listagem de pessoas
 ------------------------------------------------------------------------------*/
 
 .link_nova_pessoa {
     float: right;
+    margin-top: 10px;
 }
 
 table.informacoes_pessoa_lista {
@@ -567,7 +621,7 @@ table.informacoes_pessoa_lista td:first-of-type {
     float: left;
 }
 
-.informacoes_pessoa img {
+.informacoes_pessoa img.imagem_facebook_detalhe {
     width: 200px;
     margin: 0;
 }
@@ -630,7 +684,12 @@ table.informacoes_pessoa_lista td:first-of-type {
     font-weight: normal;
 }
 
-.link_novo_conjunto {
+.link_novo_conjunto,
+.editar_coordenadores {
     float: right;
     margin-top: -30px;
+}
+
+.titulo_coordenadores {
+    margin-top: 0;
 }

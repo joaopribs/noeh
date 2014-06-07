@@ -9,7 +9,13 @@ class ApplicationController < ActionController::Base
 
   def precisa_estar_logado
 
-    @usuario_logado = session[:usuario]
+    id_usuario_logado = session[:id_usuario]
+
+    if id_usuario_logado.nil?
+      redirect_to deslogado_url and return
+    end
+
+    @usuario_logado = Pessoa.find(id_usuario_logado)
 
     if @usuario_logado.nil?
       redirect_to deslogado_url and return
@@ -56,6 +62,11 @@ class ApplicationController < ActionController::Base
       flash[:notice] = session[:notificacao]
       session[:notificacao] = nil
     end
+  end
+
+  def carregar_pessoas pessoas
+    session[:pessoas] = pessoas
+    session[:pessoas_antes_do_filtro] = nil
   end
 
 end

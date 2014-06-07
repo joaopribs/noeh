@@ -1,3 +1,146 @@
+<script>
+  function preencherConjuntos(elemento, json, denominacao) {
+      $(elemento).empty();
+      $.each(json, function (index, conjunto) {
+          var nomeAExibir = '';
+
+          if (conjunto.tipo == 'Equipe') {
+              nomeAExibir += 'Equipe ';
+          }
+          else {
+              nomeAExibir += denominacao + ' ';
+          }
+
+          nomeAExibir += conjunto.nome
+
+          elemento.append('<option value="' + conjunto.id + '">' + nomeAExibir + '</option>');
+      });
+  }
+
+  $(function () {
+      $('.link_adicionar_a_grupo').on('click', function (evento) {
+          evento.preventDefault();
+          $(this).siblings('.adicionar_a_grupo').show();
+          $(this).hide();
+      });
+
+      $('.link_cancelar_adicionar_a_grupo').on('click', function (evento) {
+          evento.preventDefault();
+
+          var div = $(this).closest('.adicionar_a_grupo');
+
+          $(div).hide();
+          $(div).siblings('.link_adicionar_a_grupo').show();
+      });
+
+      $('.link_adicionar_participacao').on('click', function (evento) {
+          evento.preventDefault();
+          $(this).siblings('.adicionar_participacao').show();
+          $(this).hide();
+      });
+
+      $('.link_cancelar_adicionar_participacao').on('click', function (evento) {
+          evento.preventDefault();
+
+          var div = $(this).closest('.adicionar_participacao');
+
+          $(div).hide();
+          $(div).siblings('.link_adicionar_participacao').show();
+      });
+
+      $('.grupo_participacao').on('change', function (evento) {
+          var pessoaId = $(this).closest('.adicionar_participacao').find(".pessoa-id").val();
+          var denominacao = $(this).closest('.adicionar_participacao').find(".denominacao").val();
+          var selectEncontro = $(this).closest('.adicionar_participacao').find('.encontro_participacao');
+          var selectConjunto = $(this).closest('.adicionar_participacao').find('.conjunto_participacao');
+
+          $.get(
+                  "<%= encontros_de_grupo_url %>",
+                  {
+                      id: $(this).val()
+                  },
+                  function (resposta) {
+                      $(selectEncontro).empty();
+                      $(selectConjunto).empty();
+
+                      $.each(resposta, function (index, encontro) {
+                          selectEncontro.append('<option value="' + encontro.id + '">' + encontro.nome + '</option>');
+                          if (index == 0) {
+                              $.get(
+                                      "<%= conjuntos_para_adicionar_pessoa_url %>",
+                                      {
+                                          pessoa_id: pessoaId,
+                                          encontro_id: encontro.id
+                                      },
+                                      function (respostaConjuntos) {
+                                          preencherConjuntos(selectConjunto, respostaConjuntos, denominacao);
+                                      }
+                              );
+                          }
+                      });
+                  }
+          );
+      });
+
+      $('.encontro_participacao').on('change', function (evento) {
+          var pessoaId = $(this).closest('.adicionar_participacao').find(".pessoa-id").val();
+          var denominacao = $(this).closest('.adicionar_participacao').find(".denominacao").val();
+          var selectConjunto = $(this).closest('.adicionar_participacao').find('.conjunto_participacao');
+
+          $.get(
+                  "<%= conjuntos_para_adicionar_pessoa_url %>",
+                  {
+                      pessoa_id: pessoaId,
+                      encontro_id: $(this).val()
+                  },
+                  function (respostaConjuntos) {
+                      preencherConjuntos(selectConjunto, respostaConjuntos, denominacao);
+                  }
+          );
+      });
+
+      $('.link_submeter_adicionar_a_grupo').on('click', function (evento) {
+          evento.preventDefault();
+
+          var grupoEscolhido = $(this).closest('.adicionar_a_grupo').find('.grupo_a_adicionar').val();
+
+          if (grupoEscolhido == null || grupoEscolhido == '') {
+              $("#dialog_conteudo").html('Não foi selecionado <em>nenhum grupo</em> no qual adicionar a pessoa.');
+              $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
+              $("#dialog").show();
+
+              $(".dialog_link_confirmar").on("click", function (evento) {
+                  evento.preventDefault();
+                  esconderDialog();
+              });
+          }
+          else {
+              $(this).closest('form').submit();
+          }
+      });
+
+      $('.link_submeter_adicionar_participacao').on('click', function (evento) {
+          evento.preventDefault();
+
+          var conjuntoEscolhido = $(this).closest('.adicionar_participacao').find('.conjunto_participacao').val();
+
+          if (conjuntoEscolhido == null || conjuntoEscolhido == '') {
+              $("#dialog_conteudo").html('Não foi selecionada <em>nenhuma participação</em> na qual adicionar a pessoa.');
+              $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
+              $("#dialog").show();
+
+              $(".dialog_link_confirmar").on("click", function (evento) {
+                  evento.preventDefault();
+                  esconderDialog();
+              });
+          }
+          else {
+              $(this).closest('form').submit();
+          }
+      });
+  });
+</script>
+
 <table class="informacoes_pessoa <%= "tem_conjuge" if tem_conjuge %>">
   <tr>
     <td>
@@ -38,6 +181,123 @@
 
         <% if pessoa.ultimo_login.present? %>
             <p><b>Último login:</b> <%= pessoa.ultimo_login.strftime('%d/%m/%Y %H:%M:%S') %></p>
+        <% end %>
+
+        <% if @usuario_logado.grupos_em_que_pode_adicionar_outra_pessoa(pessoa).count + pessoa.grupos.count > 0 %>
+            <h2 class="sem_espaco_embaixo">Grupos</h2>
+            <% if pessoa.grupos.count > 0 %>
+                <ul class="bullets">
+                    <% pessoa.grupos.each do |grupo| %>
+                      <li><span>
+                        <% if pode_gerenciar_grupo grupo %>
+                            <%= link_to grupo.nome, grupo %>
+                        <% else %>
+                            <%= grupo.nome %>
+                        <% end %>
+                      </span></li>
+                    <% end %>
+                </ul>
+            <% end %>
+            <% if @usuario_logado.grupos_em_que_pode_adicionar_outra_pessoa(pessoa).count > 0 %>
+                <%= link_to 'Adicionar a um grupo', '#', class: 'link_novo link_adicionar_a_grupo' %>
+
+                <%= form_tag adicionar_pessoa_a_grupo_url, class: 'adicionar_a_grupo', style: 'display: none; margin-top: 10px; position: relative;' do %>
+                  <input type="hidden" name="id_pessoa" value="<%= pessoa.id %>"/>
+                  <div class="field">
+                    <label for="id_grupo">Grupo</label><br/>
+                    <%= select_tag 'id_grupo', options_for_select(@usuario_logado.grupos_em_que_pode_adicionar_outra_pessoa(pessoa).collect{|g| [g.nome, g.id]}), include_blank: false, class: 'grupo_a_adicionar' %>
+                  </div><br/>
+                  <a href="#" class="link_submeter_adicionar_a_grupo link_submeter" style="margin-right: 10px">Adicionar</a>
+                  <a href="#" class="link_cancelar_adicionar_a_grupo link_remover">Cancelar</a>
+                <% end %>
+            <% end %>
+        <% end %>
+
+        <% if @usuario_logado.eh_super_admin? ||
+                @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 ||
+                @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 ||
+                participacoes.count > 0 %>
+            <h2 class="sem_espaco_embaixo">Participações</h2>
+            <% if participacoes.count > 0 %>
+                <ul class="bullets">
+                    <% participacoes.each do |conjunto| %>
+                      <% cor = conjunto.cor.present? ? conjunto.cor.hex_cor : nil %>
+
+                      <li <% if cor.present? %>style="color: <%= cor %>;"<% end %>><span>
+                        <% coordenador = conjunto.coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+
+                        <% if conjunto.tipo == 'Equipe' %>
+                            <%= link_to "Equipe #{conjunto.nome}#{coordenador}", equipe_path(conjunto) %>
+                        <% else %>
+                            <%= link_to "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}", circulo_path(conjunto) %>
+                        <% end %>
+                        -
+                        <% if pode_ver_encontro(conjunto.encontro) %>
+                            <%= link_to conjunto.encontro.nome, encontro_path(conjunto.encontro) %>
+                        <% else %>
+                            <%= conjunto.encontro.nome %>
+                        <% end %>
+                      </span></li>
+                    <% end %>
+                </ul>
+            <% end %>
+            <% if @usuario_logado.eh_super_admin? ||
+                    @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 ||
+                    @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 %>
+                <%
+                   grupos = @usuario_logado.eh_super_admin? ? Grupo.all : @usuario_logado.grupos_que_tem_encontros_que_coordena
+                   primeiro_grupo = grupos.first
+
+                   if primeiro_grupo
+                     encontros = primeiro_grupo.encontros
+                     primeiro_encontro = encontros.first
+                   else
+                     encontros = []
+                     primeiro_encontro = nil
+                   end
+
+                   if primeiro_encontro
+                     conjuntos = primeiro_encontro.conjuntos_que_poderia_adicionar_pessoa(pessoa)
+                   else
+                     conjuntos = []
+                   end
+
+                %>
+
+                <%= link_to 'Adicionar participação', '#', class: 'link_novo link_adicionar_participacao' %>
+
+                <%= form_tag adicionar_pessoa_a_conjunto_url, class: 'adicionar_participacao', style: 'display: none; margin-top: 10px;' do %>
+                    <input type="hidden" name="id_pessoa" class="pessoa-id" value="<%= pessoa.id %>"/>
+                    <% if primeiro_encontro %>
+                        <input type="hidden" class="denominacao" value="<%= primeiro_encontro.denominacao_conjuntos_permanentes %>"/>
+                    <% end %>
+
+                    <div class="field">
+                        <label for="grupo">Grupo</label><br/>
+                        <%= select_tag 'grupo', options_for_select(grupos.collect{|g| [g.nome, g.id]}), include_blank: false, class: 'grupo_participacao' %>
+                    </div>
+
+                    <div class="field">
+                        <label for="grupo">Encontro</label><br/>
+                        <%= select_tag 'encontro', options_for_select(encontros.collect{|e| [e.nome, e.id]}), include_black: false, class: 'encontro_participacao' %>
+                    </div>
+                    <br/>
+
+                    <div class="field">
+                        <label for="grupo">Participação</label><br/>
+                        <%= select_tag 'id_conjunto', options_for_select(conjuntos.collect{|c| ["#{c.tipo_do_conjunto} #{c.nome}", c.id]}), include_black: false, class: 'conjunto_participacao' %>
+                    </div>
+                    <br/>
+
+                    <div class="field">
+                      <label><input type="checkbox" name="eh_coordenador" value="true" /> Coordenador</label>
+                    </div>
+
+                    <br/>
+                    <a href="#" class="link_submeter_adicionar_participacao link_submeter" style="margin-right: 10px">Adicionar</a>
+                    <a href="#" class="link_cancelar_adicionar_participacao link_remover">Cancelar</a>
+                <% end %>
+            <% end %>
         <% end %>
     </td>
   </tr>
