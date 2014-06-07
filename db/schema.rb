@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140607004405) do
+ActiveRecord::Schema.define(version: 20140607221035) do
 
   create_table "conjuntos_pessoas", force: true do |t|
     t.integer  "encontro_id"
@@ -96,8 +96,8 @@ ActiveRecord::Schema.define(version: 20140607004405) do
   end
 
   create_table "sessions", force: true do |t|
-    t.string   "session_id", null: false
-    t.text     "data"
+    t.string   "session_id",                  null: false
+    t.text     "data",       limit: 16777215
     t.datetime "created_at"
     t.datetime "updated_at"
   end

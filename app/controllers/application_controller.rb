@@ -65,8 +65,8 @@ class ApplicationController < ActionController::Base
   end
 
   def carregar_pessoas pessoas
-    session[:pessoas] = pessoas
-    session[:pessoas_antes_do_filtro] = nil
+    session[:id_pessoas] = pessoas.collect{|pessoa| pessoa.id}
+    session[:id_pessoas_antes_do_filtro] = nil
   end
 
 end

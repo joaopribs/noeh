@@ -372,7 +372,7 @@ class PessoasController < ApplicationController
   end
 
   def lista_pessoas
-    pessoas_total = session[:pessoas]
+    pessoas_total = Pessoa.find(session[:id_pessoas])
 
     begin
       @pessoas = pessoas_total.page params[:page]
@@ -416,20 +416,25 @@ class PessoasController < ApplicationController
     limpar_filtro = params[:limpar_filtro]
 
     if limpar_filtro
-      carregar_pessoas(session[:pessoas_antes_do_filtro])
+      carregar_pessoas(Pessoa.find(session[:id_pessoas_antes_do_filtro]))
     else
-      pessoas = session[:pessoas_antes_do_filtro]
+      pessoas = nil
+
+      if session[:id_pessoas_antes_do_filtro] && !session[:id_pessoas_antes_do_filtro].empty?
+        pessoas = Pessoa.find(session[:id_pessoas_antes_do_filtro])
+      end
 
       if pessoas.nil?
-        pessoas = session[:pessoas]
-        session[:pessoas_antes_do_filtro] = pessoas
+        pessoas = Pessoa.find(session[:id_pessoas])
+        session[:id_pessoas_antes_do_filtro] = pessoas.collect{|pessoa| pessoa.id}
       end
 
       query = ActiveSupport::Inflector.transliterate(params[:query].downcase)
 
       if pessoas && query && query.length >= 3
-        session[:pessoas] = pessoas.select{|pessoa| ActiveSupport::Inflector.transliterate(pessoa.nome.downcase).include?(query) ||
+        session[:id_pessoas] = pessoas.select{|pessoa| ActiveSupport::Inflector.transliterate(pessoa.nome.downcase).include?(query) ||
             ActiveSupport::Inflector.transliterate(pessoa.nome_usual.downcase).include?(query)}
+          .collect{|pessoa| pessoa.id}
       end
     end
 
