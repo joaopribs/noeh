@@ -61,7 +61,15 @@
 
 <%= render 'shared/notificacao' %>
 
-<div id="pessoas_no_conjunto" style="position: relative;"></div>
+<div id="pessoas_no_conjunto" style="position: relative;">
+  <div class="overlay_carregando" style="display: block;">
+    <div class="overlay_carregando_fundo"></div>
+    <div class="overlay_carregando_texto">
+      <span id="img_spinner"></span>
+      Carregando...
+    </div>
+  </div>
+</div>
 
 <% if pode_editar_conjunto(@conjunto) %>
 
