@@ -82,7 +82,7 @@ class SessionsController < ApplicationController
   def log_out
 
     # session[:id_usuario] = nil
-    session = nil
+    reset_session
     redirect_to deslogado_url and return
 
   end
