@@ -27,8 +27,6 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
     this.idObjeto = idObjeto,
 
     this.carregar = function (numeroPagina, query) {
-        $(self.containerDaTabela).find('.overlay_carregando').show();
-
         var parametros = [];
         parametros.push("tipo_pagina=" + self.tipoPagina);
 
@@ -73,6 +71,9 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 $(".confirmar_excluir_pessoa").on("click", function (evento) {
                     evento.preventDefault();
 
+                    esconderDialog();
+                    $(self.containerDaTabela).find('.overlay_carregando').show();
+
                     var pessoaId = $(this).data("pessoa-id");
                     var page = $(this).data("page");
 
@@ -82,8 +83,6 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                                 "page": page
                             },
                             success: function (response) {
-                                esconderDialog();
-
                                 var novaPagina = parseInt(response.novaPagina);
                                 self.carregar(novaPagina);
 
@@ -155,6 +154,9 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                         return;
                     }
 
+                    esconderDialog();
+                    $(self.containerDaTabela).find('.overlay_carregando').show();
+
                     var pessoaId = $(this).data("pessoa-id");
                     var grupoId = $(this).data("grupo-id");
                     var tipoRemover = $("input[name=tipo_remover]:radio:checked").val();
@@ -171,8 +173,6 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                             deixou_de_participar_em: deixouDeParticiparEm
                         },
                         function (response) {
-                            esconderDialog();
-
                             var novaPagina = parseInt(response.novaPagina);
                             self.carregar(novaPagina);
 
@@ -207,6 +207,9 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 $(".dialog_link_confirmar").on("click", function (evento) {
                     evento.preventDefault();
 
+                    esconderDialog();
+                    $(self.containerDaTabela).find('.overlay_carregando').show();
+
                     var pessoaId = $(this).data("pessoa-id");
                     var grupoId = $(this).data("grupo-id");
                     var page = $(this).data("page");
@@ -221,8 +224,6 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                                 ex_participante: true
                             },
                             function (response) {
-                                esconderDialog();
-
                                 var novaPagina = parseInt(response.novaPagina);
                                 self.carregar(novaPagina);
 
@@ -268,6 +269,9 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 $(".dialog_link_confirmar").on("click", function (evento) {
                     evento.preventDefault();
 
+                    esconderDialog();
+                    $(self.containerDaTabela).find('.overlay_carregando').show();
+
                     var pessoaId = $(this).data("pessoa-id");
                     var conjuntoId = $(this).data("conjunto-id");
                     var page = $(this).data("page");
@@ -280,8 +284,6 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                                 page: page,
                             },
                             function (response) {
-                                esconderDialog();
-
                                 var novaPagina = parseInt(response.novaPagina);
                                 self.carregar(novaPagina);
 
@@ -314,6 +316,8 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                     });
                 }
                 else {
+                    $(self.containerDaTabela).find('.overlay_carregando').show();
+
                     $.post(
                             "<%= filtrar_pessoas_url %>",
                             {
@@ -330,6 +334,9 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
 
             $('#limpar_filtro').on('click', function (evento) {
                 evento.preventDefault();
+
+                $(self.containerDaTabela).find('.overlay_carregando').show();
+
                 $.post(
                         "<%= filtrar_pessoas_url %>",
                         {
