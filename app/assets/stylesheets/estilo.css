@@ -128,6 +128,12 @@ form.espaco_embaixo {
     display: none;
 }
 
+.overlay_carregando_aparecer_logo {
+    display: block !important;
+    height: 40px;
+    position: relative;
+}
+
 .overlay_carregando_fundo {
     height: 100%;
     width: 100%;

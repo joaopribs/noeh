@@ -152,18 +152,18 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 $(".dialog_link_confirmar").on("click", function (evento) {
                     evento.preventDefault();
 
+                    var pessoaId = $(this).data("pessoa-id");
+                    var grupoId = $(this).data("grupo-id");
+                    var tipoRemover = $("input[name=tipo_remover]:radio:checked").val();
+                    var page = $(this).data("page");
+                    var deixouDeParticiparEm = $("#data_saindo").val();
+
                     if ($(this).hasClass('dialog_link_desativado')) {
                         return;
                     }
 
                     esconderDialog();
                     $(self.containerDaTabela).find('.overlay_carregando').show();
-
-                    var pessoaId = $(this).data("pessoa-id");
-                    var grupoId = $(this).data("grupo-id");
-                    var tipoRemover = $("input[name=tipo_remover]:radio:checked").val();
-                    var page = $(this).data("page");
-                    var deixouDeParticiparEm = $("#data_saindo").val();
 
                     $.post(
                         "<%= remover_pessoa_de_grupo_url %>",
