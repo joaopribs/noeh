@@ -146,6 +146,7 @@ form.espaco_embaixo {
 .overlay_carregando_texto {
     position: absolute;
     z-index: 9999;
+    padding: 5px;
 }
 
 #img_spinner {

@@ -32,9 +32,13 @@ class Pessoa < ActiveRecord::Base
 
   def self.pegar_pessoas array_ids
     pessoas = []
-    array_ids.each do |id|
-      pessoas << Pessoa.find(id)
+
+    if array_ids.present? && array_ids.count > 0
+      array_ids.each do |id|
+        pessoas << Pessoa.find(id)
+      end
     end
+
     return pessoas
   end
 

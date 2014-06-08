@@ -416,18 +416,24 @@ class PessoasController < ApplicationController
     limpar_filtro = params[:limpar_filtro]
 
     if limpar_filtro
-      carregar_pessoas(Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro]))
+      session[:id_pessoas] = session[:id_pessoas_antes_do_filtro]
     else
-      pessoas = nil
+      # pessoas = nil
+      #
+      # if session[:id_pessoas_antes_do_filtro] && !session[:id_pessoas_antes_do_filtro].empty?
+      #   pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
+      # end
+      #
+      # if pessoas.nil?
+      #   pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
+      #   session[:id_pessoas_antes_do_filtro] = pessoas.collect{|pessoa| pessoa.id}
+      # end
 
-      if session[:id_pessoas_antes_do_filtro] && !session[:id_pessoas_antes_do_filtro].empty?
-        pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
+      if session[:id_pessoas_antes_do_filtro].nil? || session[:id_pessoas_antes_do_filtro].empty?
+        session[:id_pessoas_antes_do_filtro] = session[:id_pessoas]
       end
 
-      if pessoas.nil?
-        pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
-        session[:id_pessoas_antes_do_filtro] = pessoas.collect{|pessoa| pessoa.id}
-      end
+      pessoas = Pessoa.pegar_pessoas(session[:id_pessoas])
 
       query = ActiveSupport::Inflector.transliterate(params[:query].downcase)
 
