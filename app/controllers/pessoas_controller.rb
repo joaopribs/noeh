@@ -372,7 +372,7 @@ class PessoasController < ApplicationController
   end
 
   def lista_pessoas
-    pessoas_total = Pessoa.find(session[:id_pessoas])
+    pessoas_total = Pessoa.pegar_pessoas(session[:id_pessoas])
 
     begin
       @pessoas = pessoas_total.page params[:page]
@@ -416,16 +416,16 @@ class PessoasController < ApplicationController
     limpar_filtro = params[:limpar_filtro]
 
     if limpar_filtro
-      carregar_pessoas(Pessoa.find(session[:id_pessoas_antes_do_filtro]))
+      carregar_pessoas(Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro]))
     else
       pessoas = nil
 
       if session[:id_pessoas_antes_do_filtro] && !session[:id_pessoas_antes_do_filtro].empty?
-        pessoas = Pessoa.find(session[:id_pessoas_antes_do_filtro])
+        pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
       end
 
       if pessoas.nil?
-        pessoas = Pessoa.find(session[:id_pessoas])
+        pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
         session[:id_pessoas_antes_do_filtro] = pessoas.collect{|pessoa| pessoa.id}
       end
 

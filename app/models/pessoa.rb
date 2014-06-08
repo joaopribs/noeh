@@ -30,6 +30,14 @@ class Pessoa < ActiveRecord::Base
   validate :validate_email
   validate :validate_cep
 
+  def self.pegar_pessoas array_ids
+    pessoas = []
+    array_ids.each do |id|
+      pessoas << Pessoa.find(id)
+    end
+    return pessoas
+  end
+
   def self.url_imagem_sem_imagem tamanho
     if tamanho > 120
       url = "/assets/semfoto200.png"
