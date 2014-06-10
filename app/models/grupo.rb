@@ -33,4 +33,16 @@ class Grupo < ActiveRecord::Base
   def ex_participantes
     return self.relacoes_pessoa_grupo.unscoped.where('deixou_de_participar_em IS NOT NULL').collect{|r| r.pessoa}
   end
+
+  def pegar_pessoas array_ids
+    pessoas = []
+
+    if array_ids.present? && array_ids.count > 0
+      array_ids.each do |id|
+        pessoas << Pessoa.find(id)
+      end
+    end
+
+    return pessoas
+  end
 end

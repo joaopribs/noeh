@@ -111,6 +111,7 @@ class GruposController < ApplicationController
     precisa_salvar_relacao_conjuge = false
 
     pessoa = Pessoa.find(params[:pessoa_id])
+    grupo = Grupo.find(params[:grupo_id])
 
     relacao_pessoa = RelacaoPessoaGrupo.where({:pessoa_id => pessoa.id, :grupo_id => params[:grupo_id]}).first
     relacao_pessoa.eh_coordenador = params[:eh_coordenador]
@@ -124,7 +125,7 @@ class GruposController < ApplicationController
 
     if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&
         ((precisa_salvar_relacao_conjuge && relacao_conjuge.save) || !precisa_salvar_relacao_conjuge)
-
+      carregar_pessoas(grupo.pessoas)
       if params[:eh_coordenador] == "true"
         render :text => 1
       else

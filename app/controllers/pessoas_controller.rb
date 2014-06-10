@@ -406,7 +406,7 @@ class PessoasController < ApplicationController
       @conjunto = ConjuntoPessoas.find(params[:conjunto_id])
     end
 
-    if params.has_key?(:query)
+    if params.has_key?(:query) && !params[:query].blank?
       @query = params[:query]
     end
 

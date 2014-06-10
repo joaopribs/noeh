@@ -1,3 +1,10 @@
+function getParameterByName(name, string) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(string);
+    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
 function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSucesso) {
 
     var self = this;
@@ -49,8 +56,9 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
         $(self.containerDaTabela).load("<%= lista_pessoas_url %>?" + parametros, function () {
             $(".pagination a").on("click", function (e) {
                 e.preventDefault();
+                var query = getParameterByName('query', $(this).attr('href'));
                 var numeroPagina = $(this).data("numero_pagina");
-                self.carregar(numeroPagina);
+                self.carregar(numeroPagina, query);
             });
 
             $(".link_excluir_pessoa").on("click", function (evento) {
