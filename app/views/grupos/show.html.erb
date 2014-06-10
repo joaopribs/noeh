@@ -52,7 +52,17 @@
                                                                     alert("Erro ao setar coordenador");
                                                                 }
                                                                 else {
-                                                                    recarregar(response);
+                                                                    $.post(
+                                                                            "<%= filtrar_pessoas_url %>",
+                                                                            {
+                                                                                limpar_filtro: true
+                                                                            },
+                                                                            function (resposta) {
+                                                                                if (resposta == "ok") {
+                                                                                    listaPessoas.carregar();
+                                                                                }
+                                                                            }
+                                                                    );
                                                                 }
                                                             }
                                                     );

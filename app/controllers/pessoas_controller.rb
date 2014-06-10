@@ -372,6 +372,10 @@ class PessoasController < ApplicationController
   end
 
   def lista_pessoas
+    if session[:id_pessoas_antes_do_filtro].nil? || session[:id_pessoas_antes_do_filtro].empty?
+      session[:id_pessoas_antes_do_filtro] = session[:id_pessoas]
+    end
+
     pessoas_total = Pessoa.pegar_pessoas(session[:id_pessoas])
 
     begin
@@ -418,22 +422,11 @@ class PessoasController < ApplicationController
     if limpar_filtro
       session[:id_pessoas] = session[:id_pessoas_antes_do_filtro]
     else
-      # pessoas = nil
-      #
-      # if session[:id_pessoas_antes_do_filtro] && !session[:id_pessoas_antes_do_filtro].empty?
-      #   pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
-      # end
-      #
-      # if pessoas.nil?
-      #   pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
-      #   session[:id_pessoas_antes_do_filtro] = pessoas.collect{|pessoa| pessoa.id}
-      # end
-
       if session[:id_pessoas_antes_do_filtro].nil? || session[:id_pessoas_antes_do_filtro].empty?
         session[:id_pessoas_antes_do_filtro] = session[:id_pessoas]
       end
 
-      pessoas = Pessoa.pegar_pessoas(session[:id_pessoas])
+      pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
 
       query = ActiveSupport::Inflector.transliterate(params[:query].downcase)
 
