@@ -217,7 +217,7 @@
                 @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 ||
                 @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 ||
                 participacoes.count > 0 %>
-            <h2 class="sem_espaco_embaixo">Participações</h2>
+            <h2 class="sem_espaco_embaixo">Participações em encontros</h2>
             <% if participacoes.count > 0 %>
                 <ul class="bullets">
                     <% participacoes.each do |conjunto| %>
