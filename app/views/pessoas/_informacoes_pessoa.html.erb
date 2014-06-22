@@ -153,6 +153,7 @@
         <b>Gênero:</b> <%= (pessoa.eh_homem? ? "Homem" : "Mulher") %><br/>
         <b>Data de nascimento:</b> <%= pessoa.nascimento.strftime("%d/%m/%Y") unless pessoa.nascimento.blank? %><br/>
         <b>Email:</b> <%= link_to pessoa.email, "mailto:#{pessoa.email}", target: '_blank' unless pessoa.email.blank? %><br/>
+        <b>Endereço:</b> <%= pessoa.endereco %><br/>
 
         <%
             if pessoa.telefones.count > 1
@@ -177,7 +178,7 @@
 
         <b><%= titulo_telefones %>:</b><%= raw separador_telefones %><%= raw string_telefones %><br/>
 
-        <b>Endereço:</b> <%= pessoa.endereco %>
+        <b>Habilidades musicais:</b> <%= pessoa.instrumentos.collect{|instrumento| instrumento.nome}.join(", ") %><br/>
 
         <% if pessoa.ultimo_login.present? %>
             <p><b>Último login:</b> <%= pessoa.ultimo_login.strftime('%d/%m/%Y %H:%M:%S') %></p>

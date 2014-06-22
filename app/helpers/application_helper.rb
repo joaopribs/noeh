@@ -110,6 +110,10 @@ module ApplicationHelper
     return ['Fixo', 'Claro', 'Nextel', 'Oi', 'Tim', 'Vivo']
   end
 
+  def instrumentos
+    return ['Canto', 'Baixo', 'Bateria', 'Guitarra', 'Percussão', 'Sanfona', 'Saxofone', 'Teclado', 'Violão']
+  end
+
   def denominacoes_conjuntos_permanentes
     return [
       {

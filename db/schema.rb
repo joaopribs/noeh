@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140607221035) do
+ActiveRecord::Schema.define(version: 20140622211932) do
 
   create_table "conjuntos_pessoas", force: true do |t|
     t.integer  "encontro_id"
@@ -51,6 +51,11 @@ ActiveRecord::Schema.define(version: 20140607221035) do
     t.datetime "updated_at"
     t.boolean  "tem_encontros", default: false
     t.string   "slug"
+  end
+
+  create_table "instrumentos", force: true do |t|
+    t.string  "nome"
+    t.integer "pessoa_id"
   end
 
   create_table "pessoas", force: true do |t|

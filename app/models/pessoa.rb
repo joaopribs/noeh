@@ -17,6 +17,7 @@ class Pessoa < ActiveRecord::Base
   has_many :relacoes_pessoa_grupo, class_name: 'RelacaoPessoaGrupo', dependent: :destroy
   has_many :grupos, through: :relacoes_pessoa_grupo
   has_many :telefones, dependent: :destroy
+  has_many :instrumentos, dependent: :destroy
 
   belongs_to :conjuge, class_name: 'Pessoa', foreign_key: :conjuge_id, dependent: :destroy
 

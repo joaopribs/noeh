@@ -79,8 +79,18 @@
             atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
         });
 
-        atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
+        $('#novo_instrumento_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
 
+            $('#instrumentos_<%= tipo_pessoa %>').append(
+                '<%= raw (render 'form_instrumento', instrumento: Instrumento.new, tipo_pessoa: tipo_pessoa).gsub("\n", "") %>'
+            );
+
+            atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
+        });
+
+        atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
+        atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
     });
 
     function carregarImagem<%= tipo_pessoa %>(url) {
@@ -106,6 +116,14 @@
                 placeholder: '(__) ____-____'
             }
         );
+    }
+
+    function atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>() {
+        $('.remover_instrumento_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
+
+            $(this).closest('.campos_instrumento').remove();
+        });
     }
 </script>
 
@@ -211,35 +229,6 @@
 
       <br style="clear: right;" />
 
-      <div class="field">
-        <%= label_tag 'Telefones' %><br/>
-
-        <span id="telefones_<%= tipo_pessoa %>">
-            <%
-               telefones = pessoa.telefones
-               telefones.each do |telefone|
-            %>
-                <div class="campos_telefone">
-                    <div class="field">
-                        <label for="telefone_<%= tipo_pessoa %>">Número</label><br/>
-                        <div class="erro_form"><%= telefone.errors[:telefone].first %></div>
-                        <input type="text" name="telefones_<%= tipo_pessoa %>[]" value="<%= telefone.telefone %>" class="mascara_telefone" size="30" />
-                    </div>
-                    <div class="field">
-                        <label for="telefone_<%= tipo_pessoa %>">Operadora</label><br/>
-                        <div class="erro_form"><%= telefone.errors[:operadora].first %></div>
-                        <%= select_tag "operadoras_#{tipo_pessoa}[]", options_for_select(operadoras_telefone, telefone.operadora) %>
-                        <a href="#" class="link_remover remover_telefone_<%= tipo_pessoa %>">Remover telefone</a>
-                    </div>
-                </div>
-            <% end %>
-        </span>
-
-        <a href="#" id="novo_telefone_<%= tipo_pessoa %>" class="link_novo">Adicionar telefone</a>
-      </div>
-
-      <br style="clear: right;" />
-
       <% if tipo_pessoa != 'conjuge' %>
 
           <div class="field">
@@ -295,6 +284,48 @@
             <%= text_field_tag "cep1_#{tipo_pessoa}", cep1, size: 5, maxlength: 5 %>-<%= text_field_tag "cep2_#{tipo_pessoa}", cep2, size: 3, maxlength: 3 %>
           </div>
       <% end %>
+
+      <br style="clear: right;" />
+
+      <div class="field">
+        <%= label_tag 'Telefones' %><br/>
+
+        <span id="telefones_<%= tipo_pessoa %>">
+            <% pessoa.telefones.each do |telefone| %>
+                <div class="campos_telefone">
+                    <div class="field">
+                        <label for="telefone_<%= tipo_pessoa %>">Número</label><br/>
+                        <div class="erro_form"><%= telefone.errors[:telefone].first %></div>
+                        <input type="text" name="telefones_<%= tipo_pessoa %>[]" value="<%= telefone.telefone %>" class="mascara_telefone" size="30" />
+                    </div>
+                    <div class="field">
+                        <label for="telefone_<%= tipo_pessoa %>">Operadora</label><br/>
+                        <div class="erro_form"><%= telefone.errors[:operadora].first %></div>
+                        <%= select_tag "operadoras_#{tipo_pessoa}[]", options_for_select(operadoras_telefone, telefone.operadora) %>
+                        <a href="#" class="link_remover remover_telefone_<%= tipo_pessoa %>">Remover telefone</a>
+                    </div>
+                </div>
+            <% end %>
+        </span>
+
+        <a href="#" id="novo_telefone_<%= tipo_pessoa %>" class="link_novo">Adicionar telefone</a>
+      </div>
+
+      <br style="clear: right;" />
+
+      <div class="field">
+        <%= label_tag 'Habilidades Musicais' %><br/>
+
+        <span id="instrumentos_<%= tipo_pessoa %>">
+            <% pessoa.instrumentos.each do |instrumento| %>
+                <%= render 'form_instrumento', instrumento: instrumento, tipo_pessoa: tipo_pessoa %>
+            <% end %>
+        </span>
+
+        <a href="#" id="novo_instrumento_<%= tipo_pessoa %>" class="link_novo">Adicionar habilidade musical</a>
+      </div>
+
+
     </td>
   </tr>
 </table>

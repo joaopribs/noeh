@@ -550,6 +550,7 @@ class PessoasController < ApplicationController
       end
 
       telefones = pegar_telefones(params[:telefones_pessoa], params[:operadoras_pessoa])
+      instrumentos = pegar_instrumentos(params[:instrumentos_pessoa])
 
       hash = ActionController::Parameters.new(nome: params[:nome_pessoa],
                                               nome_usual: params[:nome_usual_pessoa],
@@ -568,7 +569,8 @@ class PessoasController < ApplicationController
                                               nome_facebook: params[:nome_facebook_pessoa].gsub(/\s+/, " ").strip,
                                               url_facebook: params[:url_facebook_pessoa].strip.split("?")[0],
                                               url_foto_grande: params[:imagem_facebook_pessoa].strip,
-                                              telefones: telefones)
+                                              telefones: telefones,
+                                              instrumentos: instrumentos)
       hash.permit!
       return hash
     end
@@ -576,6 +578,7 @@ class PessoasController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def conjuge_params
       telefones = pegar_telefones(params[:telefones_conjuge], params[:operadoras_conjuge])
+      instrumentos = pegar_instrumentos(params[:instrumentos_conjuge])
 
       hash = ActionController::Parameters.new(nome: params[:nome_conjuge],
                                               nome_usual: params[:nome_usual_conjuge],
@@ -588,7 +591,8 @@ class PessoasController < ApplicationController
                                               nome_facebook: params[:nome_facebook_conjuge].gsub(/\s+/, " ").strip,
                                               url_facebook: params[:url_facebook_conjuge].strip.split("?")[0],
                                               url_foto_grande: params[:imagem_facebook_conjuge].strip,
-                                              telefones: telefones)
+                                              telefones: telefones,
+                                              instrumentos: instrumentos)
       hash.permit!
       return hash
     end
@@ -608,6 +612,18 @@ class PessoasController < ApplicationController
 
       return telefones
     end
+
+  def pegar_instrumentos(nomes_instrumentos)
+    instrumentos = []
+
+    if nomes_instrumentos.present?
+      nomes_instrumentos.uniq.each do |nome_instrumento|
+        instrumentos << Instrumento.new(nome: nome_instrumento)
+      end
+    end
+
+    return instrumentos
+  end
 
     def pode_excluir_pessoa pessoa
       if @usuario_logado.eh_super_admin? || (@usuario_logado.eh_coordenador_de_grupo_de(pessoa) && !pessoa.eh_super_admin?)
