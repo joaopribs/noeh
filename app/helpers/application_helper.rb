@@ -111,7 +111,7 @@ module ApplicationHelper
   end
 
   def instrumentos
-    return ['Canto', 'Baixo', 'Bateria', 'Guitarra', 'Percussão', 'Sanfona', 'Saxofone', 'Teclado', 'Violão']
+    return ['Vocal', 'Baixo', 'Bateria', 'Guitarra', 'Percussão', 'Sanfona', 'Saxofone', 'Teclado', 'Violão']
   end
 
   def denominacoes_conjuntos_permanentes
