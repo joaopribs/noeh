@@ -146,7 +146,7 @@
 </script>
 
 <%
-    pessoas = Pessoa.where("url_foto_grande != ''").sample(40)
+    pessoas = Pessoa.where("url_foto_grande != ''").sample(50)
 
     if pessoas.count > 0
         while pessoas.length < 50 do
