@@ -194,7 +194,7 @@
       %>
 
       <div class="field">
-        <%= label_tag "nome_#{tipo_pessoa}", 'Nome*' %><br>
+        <%= label_tag "nome_#{tipo_pessoa}", 'Nome Completo*' %><br>
         <div class="erro_form"><%= pessoa.errors[:nome].first %></div>
         <input type="text" name="nome_<%= tipo_pessoa %>" id="nome_<%= tipo_pessoa %>" value="<%= pessoa.nome %>" size="40" data-acompanhar="<%= acompanhar %>" />
       </div>

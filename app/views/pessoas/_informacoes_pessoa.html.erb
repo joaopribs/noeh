@@ -147,7 +147,7 @@
         <img src="<%= pessoa.url_imagem(200) %>" class="imagem_facebook_detalhe"/>
     </td>
     <td>
-        <b>Nome:</b> <%= pessoa.nome %><br/>
+        <b>Nome completo:</b> <%= pessoa.nome %><br/>
         <b>Nome usual:</b> <%= pessoa.nome_usual %><br/>
         <b>Facebook:</b> <%= link_to "Facebook", pessoa.url_facebook, target: '_blank', class: 'link_facebook' unless pessoa.url_facebook.blank? %><br/>
         <b>Gênero:</b> <%= (pessoa.eh_homem? ? "Homem" : "Mulher") %><br/>

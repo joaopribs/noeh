@@ -59,7 +59,6 @@ ActiveRecord::Schema.define(version: 20140622211932) do
   end
 
   create_table "pessoas", force: true do |t|
-    t.string   "nome_facebook"
     t.string   "nome"
     t.string   "nome_usual"
     t.date     "nascimento"
@@ -76,11 +75,12 @@ ActiveRecord::Schema.define(version: 20140622211932) do
     t.boolean  "eh_super_admin"
     t.integer  "conjuge_id"
     t.string   "complemento"
-    t.string   "email_facebook"
     t.string   "url_foto_grande"
     t.string   "url_facebook"
     t.string   "url_foto_pequena"
     t.datetime "ultimo_login"
+    t.string   "nome_facebook"
+    t.string   "email_facebook"
   end
 
   create_table "relacoes_pessoa_conjunto", force: true do |t|
