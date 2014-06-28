@@ -98,15 +98,19 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
         var tempoAEsperar = esperar ? 800 : 0;
 
         self.timer = setTimeout(function() {self.mandarBuscaAjax(query)}, tempoAEsperar);
+
+        if (query.length < 3) {
+            $(self.containerDosResultados).html('<ul class="conteudo_resultados_pesquisa"><li class="carregando">No mínimo 3 letras</li></ul>');
+        }
+        else {
+            $(self.containerDosResultados).html('<ul class="conteudo_resultados_pesquisa"><li class="carregando">Carregando...</li></ul>');
+        }
+        $(self.containerDosResultados).show();
     },
 
     this.mandarBuscaAjax = function (query) {
 
-        $(self.containerDosResultados).html('<ul class="conteudo_resultados_pesquisa"><li class="carregando">Carregando...</li></ul>');
-        $(self.containerDosResultados).show();
-
         if (query.length < 3) {
-            $(self.containerDosResultados).hide();
             return;
         }
 
