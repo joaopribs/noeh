@@ -186,26 +186,19 @@
 
         <% if @usuario_logado.grupos_em_que_pode_adicionar_outra_pessoa(pessoa).count + pessoa.grupos.count > 0 %>
             <h2 class="sem_espaco_embaixo">Grupos</h2>
-            <% if pessoa.grupos.count + pessoa.ex_grupos.count > 0 %>
+            <% if pessoa.participacoes_em_grupos.count > 0 %>
                 <ul class="bullets">
-                    <% pessoa.grupos.each do |grupo| %>
+                    <% pessoa.participacoes_em_grupos.each do |participacao| %>
                       <li><span>
-                        <% if pode_gerenciar_grupo grupo %>
-                            <%= link_to grupo.nome, grupo %>
+                        <% if pode_gerenciar_grupo participacao[:grupo] %>
+                            <%= link_to participacao[:grupo].nome, participacao[:grupo] %>
                         <% else %>
-                            <%= grupo.nome %>
+                            <%= participacao[:grupo].nome %>
                         <% end %>
-                      </span></li>
-                    <% end %>
 
-                    <% pessoa.ex_grupos.each do |grupo| %>
-                      <li><span>
-                        <% if pode_gerenciar_grupo grupo %>
-                            <%= link_to grupo.nome, grupo %>
-                        <% else %>
-                            <%= grupo.nome %>
+                        <% if !participacao[:ativo] %>
+                            (ex-participante)
                         <% end %>
-                        (ex-participante)
                       </span></li>
                     <% end %>
                 </ul>

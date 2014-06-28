@@ -266,7 +266,8 @@ class GruposController < ApplicationController
     adicionar_breadcrumb @grupo.nome, @grupo, "editar"
     adicionar_breadcrumb "Ex-participantes", grupo_ex_participantes_url(@grupo), "ex_participantes"
 
-    carregar_pessoas(@grupo.ex_participantes)
+    carregar_pessoas(@grupo.ex_relacoes.collect{|r| r.pessoa}.uniq)
+
     @tipo_pagina = "ex_participantes_de_grupo"
   end
 

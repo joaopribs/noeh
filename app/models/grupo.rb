@@ -30,8 +30,8 @@ class Grupo < ActiveRecord::Base
     return self.relacoes_pessoa_grupo.where(eh_coordenador: true).collect{|r| r.pessoa}
   end
 
-  def ex_participantes
-    return self.relacoes_pessoa_grupo.unscoped.where('deixou_de_participar_em IS NOT NULL').collect{|r| r.pessoa}
+  def ex_relacoes
+    return self.relacoes_pessoa_grupo.unscoped.where("grupo_id = #{self.id} AND deixou_de_participar_em IS NOT NULL").order('deixou_de_participar_em DESC')
   end
 
   def pegar_pessoas array_ids

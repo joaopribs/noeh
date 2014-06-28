@@ -208,8 +208,26 @@ class Pessoa < ActiveRecord::Base
     return elementos.join(" - ")
   end
 
-  def ex_grupos
-    return self.relacoes_pessoa_grupo.unscoped.where('deixou_de_participar_em IS NOT NULL').collect{|r| r.grupo}
+  def participacoes_em_grupos
+    participacoes = []
+
+    self.grupos.each do |grupo|
+      participacoes << {
+          grupo: grupo,
+          ativo: true
+      }
+    end
+
+    self.relacoes_pessoa_grupo.unscoped.where("pessoa_id = #{self.id} AND deixou_de_participar_em IS NOT NULL").collect{|r| r.grupo}.uniq.each do |grupo|
+      if !self.grupos.include? grupo
+        participacoes << {
+            grupo: grupo,
+            ativo: false
+        }
+      end
+    end
+
+    return participacoes
   end
 
   def validate_nascimento

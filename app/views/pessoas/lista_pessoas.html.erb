@@ -227,7 +227,7 @@
 
                 <% elsif @tipo_pagina == "ex_participantes_de_grupo" %>
 
-                    <% relacao = RelacaoPessoaGrupo.unscoped.where(pessoa: pessoa, grupo: @grupo).first %>
+                    <% relacao = @grupo.ex_relacoes.where(pessoa: pessoa).first %>
 
                     <td align="center">
                       <%= relacao.deixou_de_participar_em.strftime('%d/%m/%Y') %>
