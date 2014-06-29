@@ -55,12 +55,14 @@
                     <%= render 'layouts/navegacao' %>
                 </div>
 
-                <a id="link_usuario_logado" href="<%= pessoa_path(@usuario_logado) %>">
-                    Logado como <b><%= @usuario_logado.nome_usual %></b>
-                    <img src="<%= @usuario_logado.url_imagem(25) %>" />
-                </a>
+                <% if defined? @usuario_logado %>
+                    <a id="link_usuario_logado" href="<%= pessoa_path(@usuario_logado) %>">
+                        Logado como <b><%= @usuario_logado.nome_usual %></b>
+                        <img src="<%= @usuario_logado.url_imagem(25) %>" />
+                    </a>
 
-                <%= link_to "Sair", log_out_path, id: "sair_fb" %>
+                    <%= link_to "Sair", log_out_path, id: "sair_fb" %>
+                <% end %>
             </div>
         </div>
     </div>
@@ -73,7 +75,9 @@
 
     <div id="rodape">
       Desenvolvido por <a href="http://jpribeiro.com" target="_blank">João Paulo Ribeiro</a><br/>
-      <a href="http://jpribeiro.com" target="_blank">jpribeiro.com</a> | <a href="mailto: joao@jpribeiro.com">joao@jpribeiro.com</a>
+      <a href="http://jpribeiro.com" target="_blank">jpribeiro.com</a>
+      | <a href="mailto: joao@jpribeiro.com">joao@jpribeiro.com</a>
+      | <%= link_to 'Política de privacidade', privacidade_path %>
     </div>
 
     <div id="dialog">
