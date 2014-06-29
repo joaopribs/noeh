@@ -61,4 +61,8 @@ Noeh::Application.routes.draw do
   post '/adicionar_pessoa_a_conjunto', :to => 'conjuntos_pessoas#adicionar_pessoa_a_conjunto', :as => :adicionar_pessoa_a_conjunto
   post '/remover_pessoa_de_conjunto', :to => 'conjuntos_pessoas#remover_pessoa_de_conjunto', :as => :remover_pessoa_de_conjunto
 
+  get '/cadastrar', :to => 'pessoas#cadastrar_novo', :as => :cadastrar_novo
+
+  get '/privacidade', :to => 'homepage#privacidade', :as => :privacidade
+
 end

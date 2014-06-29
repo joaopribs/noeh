@@ -14,4 +14,7 @@ class HomepageController < ApplicationController
     render :text => "ok"
   end
 
+  def privacidade
+  end
+
 end
