@@ -463,11 +463,13 @@
               %>
               <%= render 'form_participacao_auto_inserir', tipo_pessoa: tipo_pessoa, grupo_id: grupo_id, encontro_id: encontro_id, sugestao: texto_sugestao, coordenador: coordenador %>
             <% end %>
-
-            <script>
-              atualizarFuncoesAutoInserir<%= tipo_pessoa %>();
-            </script>
+          <% else %>
+            <%= render 'form_participacao_auto_inserir', tipo_pessoa: tipo_pessoa, grupo_id: '-1', encontro_id: '-1', sugestao: '', coordenador: 'false' %>
           <% end %>
+
+          <script>
+              atualizarFuncoesAutoInserir<%= tipo_pessoa %>();
+          </script>
         </div>
 
         <%= link_to 'Adicionar participação', '#', class: 'link_novo', id: "link_adicionar_participacao_#{tipo_pessoa}" %>
