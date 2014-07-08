@@ -151,7 +151,8 @@
               id_conjunto = $(select_conjunto).val();
           }
 
-          var id_auto_sugestao = $(this).data('id-auto-sugestao')
+          var id_auto_sugestao = $(this).data('id-auto-sugestao');
+          var eh_coordenador = $(tr).find('.eh_coordenador').prop('checked');
 
           var msg = '';
 
@@ -183,7 +184,8 @@
                       "<%= confirmar_auto_sugestao_url %>",
                       {
                           id_auto_sugestao: id_auto_sugestao,
-                          id_conjunto: id_conjunto
+                          id_conjunto: id_conjunto,
+                          eh_coordenador: eh_coordenador
                       },
                       function (resposta) {
                           if (resposta == 'ok') {
@@ -301,10 +303,12 @@
                 <ul class="bullets">
                     <% pessoa.participacoes_em_grupos.each do |participacao| %>
                       <li><span>
+                        <% coordenador = participacao[:grupo].coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+
                         <% if pode_gerenciar_grupo participacao[:grupo] %>
-                            <%= link_to participacao[:grupo].nome, participacao[:grupo] %>
+                            <%= link_to "#{participacao[:grupo].nome}#{coordenador}", participacao[:grupo] %>
                         <% else %>
-                            <%= participacao[:grupo].nome %>
+                            <%= "#{participacao[:grupo].nome}#{coordenador}" %>
                         <% end %>
 
                         <% if !participacao[:ativo] %>
@@ -428,7 +432,7 @@
                       <th align="left">Participação</th>
                       <th align="left">Auto-Sugestão</th>
                       <th>Coord.</th>
-                      <th>Adicionar</th>
+                      <th>Adicionar ao sistema</th>
                       <th></th>
                       <th></th>
                     </tr>
@@ -458,16 +462,14 @@
                                 <%= "#{encontro.nome} (#{encontro.data_inicio.year})" %>
                             <% end %>
                           </td>
-                          <td>
+                          <td class="sugestao">
                             <% if tipo == "grupo" %>
                                 -
                             <% else %>
-                                <span class="sugestao">
-                                  <%= auto_sugestao.sugestao %>
-                                </span>
+                              <%= auto_sugestao.sugestao %>
                             <% end %>
                           </td>
-                          <td align="center">
+                          <td align="center" class="sugestao">
                             <% if auto_sugestao.coordenador %>
                                 Coord.
                             <% end %>
@@ -475,8 +477,16 @@
                           <td align="center">
                             <% if tipo != "grupo" %>
                                 <%= select_tag 'conjunto', options_for_select(encontro.conjuntos_ordenados.collect{|c| ["#{c.tipo_do_conjunto} #{c.nome}", c.id]}), include_blank: false, class: 'conjunto' %>
+                                <label>
+                                  <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coord.
+                                </label>
                             <% else %>
-                                Adicionar ao grupo
+                                <select>
+                                  <option><%= auto_sugestao.grupo.nome %></option>
+                                </select>
+                                <label>
+                                    <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coord.
+                                </label>
                             <% end %>
                           </td>
                           <td align="center">

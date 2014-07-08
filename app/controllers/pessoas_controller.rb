@@ -520,7 +520,7 @@ class PessoasController < ApplicationController
       end
 
       if auto_sugestao.sugestao == 'so_grupo'
-        relacao_grupo.eh_coordenador = auto_sugestao.coordenador
+        relacao_grupo.eh_coordenador = params[:eh_coordenador] == "true"
       end
 
       relacao_grupo.save
@@ -536,7 +536,7 @@ class PessoasController < ApplicationController
           relacao_conjunto = RelacaoPessoaConjunto.new({pessoa: pessoa, conjunto_pessoas: conjunto})
         end
 
-        relacao_conjunto.eh_coordenador = auto_sugestao.coordenador
+        relacao_conjunto.eh_coordenador = params[:eh_coordenador] == "true"
         relacao_conjunto.save
       end
     end
