@@ -276,6 +276,10 @@ class Pessoa < ActiveRecord::Base
     return auto_sugestoes_ordenado
   end
 
+  def eh_coordenador_de_algum_grupo_que_tem_encontros
+    return self.grupos_que_coordena.select{|g| g.tem_encontros}.count > 0
+  end
+
   def validate_nascimento
     if !self.ano.blank? || !self.mes.blank? || !self.dia.blank?
       begin
