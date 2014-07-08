@@ -138,6 +138,115 @@
               $(this).closest('form').submit();
           }
       });
+
+      $('.confirmar_auto_sugestao').on('click', function (evento) {
+          evento.preventDefault();
+
+          var tipo = $(this).data('tipo');
+          var tr = $(this).closest('tr');
+          var select_conjunto = $(tr).find('.conjunto');
+
+          var id_conjunto = null;
+          if (tipo != 'grupo') {
+              id_conjunto = $(select_conjunto).val();
+          }
+
+          var id_auto_sugestao = $(this).data('id-auto-sugestao')
+
+          var msg = '';
+
+          if (tipo == 'grupo') {
+              var nome_grupo = $(this).data('nome-grupo');
+              msg = 'Tem certeza que deseja adicionar <em><%= pessoa.nome %></em> a <em>' + nome_grupo + '</em>?';
+          }
+          else {
+              var nome_encontro = $(this).data('nome-encontro');
+              var ano_encontro = $(this).data('ano-encontro');
+              var conjunto = $(select_conjunto).children(':selected').text();
+
+              msg = 'Tem certeza que deseja adicionar <em><%= pessoa.nome %></em> a <em>' + conjunto + ' - ' + nome_encontro + ' (' + ano_encontro + ')</em>?';
+          }
+
+          <% if pessoa.auto_inserido %>
+            msg += ' Essa pessoa ainda não tem acesso ao sistema, e ao adicioná-la, o acesso será liberado.'
+          <% end %>
+
+          $("#dialog_conteudo").html(msg);
+          $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
+          $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+          $("#dialog").show();
+
+          $(".dialog_link_confirmar").on("click", function (evento) {
+              evento.preventDefault();
+
+              $.post(
+                      "<%= confirmar_auto_sugestao_url %>",
+                      {
+                          id_auto_sugestao: id_auto_sugestao,
+                          id_conjunto: id_conjunto
+                      },
+                      function (resposta) {
+                          if (resposta == 'ok') {
+                              window.location.reload();
+                          }
+                      }
+              );
+          });
+
+          $(".dialog_link_cancelar").on("click", function (evento) {
+              evento.preventDefault();
+              esconderDialog();
+          });
+      });
+
+      $('.rejeitar_auto_sugestao').on('click', function (evento) {
+          evento.preventDefault();
+
+          var tipo = $(this).data('tipo');
+          var tr = $(this).closest('tr');
+          var select_conjunto = $(tr).find('.conjunto');
+          var id_auto_sugestao = $(this).data('id-auto-sugestao')
+
+          var msg = '';
+
+          if (tipo == 'grupo') {
+              var nome_grupo = $(this).data('nome-grupo');
+              msg = 'Tem certeza que deseja rejeitar a participação de <em><%= pessoa.nome %></em> em <em>' + nome_grupo + '</em>?';
+          }
+          else {
+              var nome_encontro = $(this).data('nome-encontro');
+              var ano_encontro = $(this).data('ano-encontro');
+              var conjunto = $(select_conjunto).children(':selected').text();
+
+              msg = 'Tem certeza que deseja rejeitar a participação de <em><%= pessoa.nome %></em> em <em>' + conjunto + ' - ' + nome_encontro + ' (' + ano_encontro + ')</em>?';
+          }
+
+          $("#dialog_conteudo").html(msg);
+          $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
+          $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+          $("#dialog").show();
+
+          $(".dialog_link_confirmar").on("click", function (evento) {
+              evento.preventDefault();
+
+              $.post(
+                      "<%= rejeitar_auto_sugestao_url %>",
+                      {
+                          id_auto_sugestao: id_auto_sugestao
+                      },
+                      function (resposta) {
+                          if (resposta == 'ok') {
+                              window.location.reload();
+                          }
+                      }
+              );
+          });
+
+          $(".dialog_link_cancelar").on("click", function (evento) {
+              evento.preventDefault();
+              esconderDialog();
+          });
+      });
   });
 </script>
 
@@ -181,10 +290,11 @@
         <b>Habilidades musicais:</b> <%= pessoa.instrumentos.collect{|instrumento| instrumento.nome}.join(", ") %><br/>
 
         <% if pessoa.ultimo_login.present? %>
-            <p><b>Último login:</b> <%= pessoa.ultimo_login.strftime('%d/%m/%Y %H:%M:%S') %></p>
+            <p><b>Último login:</b> <%= pessoa.ultimo_login.strftime('%d/%m/%Y às %H:%M:%S') %></p>
         <% end %>
 
-        <% if @usuario_logado.grupos_em_que_pode_adicionar_outra_pessoa(pessoa).count + pessoa.grupos.count > 0 %>
+        <% if @usuario_logado.grupos_em_que_pode_adicionar_outra_pessoa(pessoa).count + pessoa.grupos.count > 0 &&
+                pessoa.auto_inserido == false %>
             <h2 class="sem_espaco_embaixo">Grupos</h2>
             <% if pessoa.participacoes_em_grupos.count > 0 %>
                 <ul class="bullets">
@@ -218,10 +328,11 @@
             <% end %>
         <% end %>
 
-        <% if @usuario_logado.eh_super_admin? ||
+        <% if (@usuario_logado.eh_super_admin? ||
                 @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 ||
                 @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 ||
-                participacoes.count > 0 %>
+                participacoes.count > 0) &&
+                pessoa.auto_inserido == false %>
             <h2 class="sem_espaco_embaixo">Participações em encontros</h2>
             <% if participacoes.count > 0 %>
                 <ul class="bullets">
@@ -238,7 +349,7 @@
                         <% end %>
                         -
                         <% if pode_ver_encontro(conjunto.encontro) %>
-                            <%= link_to conjunto.encontro.nome, encontro_path(conjunto.encontro) %>
+                            <%= link_to "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})", encontro_path(conjunto.encontro) %>
                         <% else %>
                             <%= conjunto.encontro.nome %>
                         <% end %>
@@ -303,6 +414,97 @@
                     <a href="#" class="link_cancelar_adicionar_participacao link_remover">Cancelar</a>
                 <% end %>
             <% end %>
+        <% end %>
+
+        <% auto_sugestoes = @usuario_logado.auto_sugestoes_de_outra_pessoa(pessoa.id) %>
+
+        <% if auto_sugestoes.count > 0 %>
+            <h2 class="sem_espaco_embaixo">Participações a confirmar</h2>
+
+            <table class="zebra participacoes">
+                <thead>
+                    <tr>
+                      <th align="left">Participação</th>
+                      <th align="left">Auto-Sugestão</th>
+                      <th>Coord.</th>
+                      <th>Adicionar</th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% auto_sugestoes.each do |auto_sugestao| %>
+                        <%
+                           tipo = auto_sugestao.sugestao == 'so_grupo' ? 'grupo' : 'conjunto'
+
+                           nome_grupo = auto_sugestao.grupo.nome
+
+                           if tipo == 'conjunto'
+                             nome_encontro = auto_sugestao.encontro.nome
+                             ano_encontro = auto_sugestao.encontro.data_inicio.year
+                           else
+                             nome_encontro = nil
+                             ano_encontro = nil
+                           end
+                        %>
+
+                        <tr>
+                          <td>
+                            <% if tipo == "grupo" %>
+                                <%= auto_sugestao.grupo.nome %>
+                            <% else %>
+                                <% encontro = auto_sugestao.encontro %>
+                                <%= "#{encontro.nome} (#{encontro.data_inicio.year})" %>
+                            <% end %>
+                          </td>
+                          <td>
+                            <% if tipo == "grupo" %>
+                                -
+                            <% else %>
+                                <span class="sugestao">
+                                  <%= auto_sugestao.sugestao %>
+                                </span>
+                            <% end %>
+                          </td>
+                          <td align="center">
+                            <% if auto_sugestao.coordenador %>
+                                Coord.
+                            <% end %>
+                          </td>
+                          <td align="center">
+                            <% if tipo != "grupo" %>
+                                <%= select_tag 'conjunto', options_for_select(encontro.conjuntos_ordenados.collect{|c| ["#{c.tipo_do_conjunto} #{c.nome}", c.id]}), include_blank: false, class: 'conjunto' %>
+                            <% else %>
+                                Adicionar ao grupo
+                            <% end %>
+                          </td>
+                          <td align="center">
+                            <%= link_to '', '#', class: 'link_submeter confirmar_auto_sugestao',
+                                        data: {
+                                                id_auto_sugestao: auto_sugestao.id,
+                                                tipo: tipo,
+                                                nome_grupo: nome_grupo,
+                                                nome_encontro: nome_encontro,
+                                                ano_encontro: ano_encontro
+                                            }
+                            %>
+                          </td>
+                          <td align="center">
+                            <%= link_to '', '#', class: 'link_excluir rejeitar_auto_sugestao',
+                                        data: {
+                                                id_auto_sugestao: auto_sugestao.id,
+                                                tipo: tipo,
+                                                nome_grupo: nome_grupo,
+                                                nome_encontro: nome_encontro,
+                                                ano_encontro: ano_encontro
+                                        }
+                            %>
+                          </td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            </table>
+
         <% end %>
     </td>
   </tr>

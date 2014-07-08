@@ -91,7 +91,25 @@
 
             }
             else {
-                form.submit();
+                <% if modo == 'cadastrar_novo' %>
+                    $("#dialog_conteudo").html("Tem <em>certeza</em> de que as informações estão corretas? Você não poderá alterá-las até que algum coordenador confirme uma de suas participações, e informações erradas podem acarretar na rejeição de seu cadastro.");
+                    $("#dialog_conteudo").append("<p/>Deseja <em>continuar?</em>");
+                    $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>Confirmar</a>");
+                    $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+                    $("#dialog").show();
+
+                    $(".dialog_link_confirmar").on("click", function (evento) {
+                        evento.preventDefault();
+                        form.submit();
+                    });
+
+                    $(".dialog_link_cancelar").on("click", function (evento) {
+                        evento.preventDefault();
+                        esconderDialog();
+                    });
+                <% else %>
+                    form.submit();
+                <% end %>
             }
 
         });
@@ -122,7 +140,7 @@
             $("#form_novo_conjuge").show();
         });
 
-        $(".link_excluir").on("click", function (evento) {
+        $(".link_excluir_pessoa").on("click", function (evento) {
             evento.preventDefault();
 
             var pessoaId = $(this).data("pessoa-id");
@@ -167,10 +185,20 @@
     elsif modo == "editando"
         form_url = pessoa_url(@pessoa)
         form_method = :put
+    elsif modo == "cadastrar_novo"
+        form_url = pessoas_url
+        form_method = :post
     end
 %>
 
 <%= form_tag form_url, method: form_method, id: "form_pessoa" do %>
+
+    <% if defined?(modo) && modo == "cadastrar_novo" %>
+
+        <input type="hidden" name="auto_inserido" value="1" />
+
+    <% end %>
+
 
     <% if defined?(@conjunto) %>
         <input type="hidden" name="conjunto_id" value="<%= @conjunto.id %>" />
@@ -180,12 +208,13 @@
         <input type="hidden" name="grupo_id" value="<%= @grupo.id %>" />
     <% end %>
 
-    <div class="field campo_solteiro_ou_casado" <% if !pode_alterar_estado_civil_de(@pessoa) %>style="display: none;"<% end %>>
+    <div class="field campo_solteiro_ou_casado" <% if modo != "cadastrar_novo" && !pode_alterar_estado_civil_de(@pessoa) %>style="display: none;"<% end %>>
+      Estado civil:
       <label><%= radio_button_tag :casado_ou_solteiro, 'solteiro', (!@eh_casal) %>Solteiro</label>
       <label><%= radio_button_tag :casado_ou_solteiro, 'casado', (@eh_casal) %>Casado</label>
     </div>
 
-    <%= render 'form_pessoa', pessoa: @pessoa, tipo_pessoa: 'pessoa' %>
+    <%= render 'form_pessoa', pessoa: @pessoa, tipo_pessoa: 'pessoa', modo: modo %>
 
     <div class="campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>>
 
@@ -203,9 +232,15 @@
                 ativar_pesquisa_conjuge = true
                 tipo_de_conjuge_escolhido = "ja_cadastrado"
             end
+
+           if modo == 'cadastrar_novo'
+             ativar_form_conjuge = true
+             ativar_pesquisa_conjuge = false
+             tipo_de_conjuge_escolhido = 'novo'
+           end
         %>
 
-        <% if pode_alterar_tipo_de_conjuge(@pessoa) %>
+        <% if modo != 'cadastrar_novo' && pode_alterar_tipo_de_conjuge(@pessoa) %>
             <a href="#" id="novo_conjuge" <% if ativar_form_conjuge %>class="ativo"<% end %>>
                 <% if modo == 'editando' && @pessoa.conjuge.present? %>
                     Editar pessoa
@@ -235,7 +270,7 @@
            end
         %>
 
-        <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge' %>
+        <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge', modo: modo %>
 
       </div>
 
@@ -266,7 +301,7 @@
         <%= link_to texto_link, '#', id: 'link_enviar', class: 'link_submeter' %>
 
         <% if modo == "editando" && pode_excluir_pessoa(@pessoa) %>
-            <%= link_to 'Excluir', '#', data: {pessoa_id: @pessoa.id, nome_pessoa: nome_dialog}, class: 'link_excluir' %>
+            <%= link_to 'Excluir', '#', data: {pessoa_id: @pessoa.id, nome_pessoa: nome_dialog}, class: 'link_excluir link_excluir_pessoa' %>
         <% end %>
 
     </div>

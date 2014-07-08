@@ -12,6 +12,7 @@ class SessionsController < ApplicationController
     nascimento = params[:nascimento]
     url_foto_grande = params[:url_foto_grande]
     url_foto_pequena = params[:url_foto_pequena]
+    url_facebook = params[:url_facebook]
 
     usuario = nil
 
@@ -74,18 +75,22 @@ class SessionsController < ApplicationController
 
       msg = "ok"
     else
-      msg = "não autorizado"
+      session[:nome_facebook] = nome_facebook
+      session[:email_facebook] = email_facebook
+      session[:nascimento] = nascimento
+      session[:url_foto_grande] = url_foto_grande
+      session[:url_foto_pequena] = url_foto_pequena
+      session[:url_facebook] = url_facebook
+
+      msg = "não existe"
     end
 
     render :text => msg
   end
 
   def log_out
-
-    # session[:id_usuario] = nil
     reset_session
     redirect_to deslogado_url and return
-
   end
 
 end

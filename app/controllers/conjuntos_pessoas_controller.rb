@@ -68,7 +68,7 @@ class ConjuntosPessoasController < ApplicationController
         if @conjunto.tipo_do_conjunto == "Equipe"
           msg = "Equipe alterada com sucesso"
         else
-          msg = "#{@conjunto.tipo.capitalize} alterado com sucesso"
+          msg = "#{@conjunto.tipo_do_conjunto} alterado com sucesso"
         end
         format.html { redirect_to @conjunto.encontro, notice: msg }
         format.json { head :no_content }

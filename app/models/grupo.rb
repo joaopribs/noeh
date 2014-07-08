@@ -10,15 +10,14 @@ class Grupo < ActiveRecord::Base
     end
   }
 
-  default_scope {
-    order(:nome)
-  }
+  default_scope { order(:nome) }
 
   friendly_id :nome, use: :slugged
 
   has_many :relacoes_pessoa_grupo, class_name: 'RelacaoPessoaGrupo', dependent: :destroy
   has_many :pessoas,  -> {reorder 'relacoes_pessoa_grupo.eh_coordenador DESC, pessoas.nome ASC'}, through: :relacoes_pessoa_grupo
   has_many :encontros, -> { where padrao: false}, dependent: :destroy
+  has_many :auto_sugestoes, class_name: 'AutoSugestao', dependent: :destroy
 
   has_one :encontro_padrao, -> { where padrao: true}, class_name: 'Encontro', dependent: :destroy
 
@@ -44,5 +43,17 @@ class Grupo < ActiveRecord::Base
     end
 
     return pessoas
+  end
+
+  def ids_pessoas_a_confirmar
+    auto_sugestoes = self.auto_sugestoes
+
+    return auto_sugestoes.collect{|a| a.pessoa_id}.uniq
+  end
+
+  def auto_sugestoes_de_pessoa id_pessoa
+    auto_sugestoes = self.auto_sugestoes
+
+    return auto_sugestoes.select{|a| a.pessoa_id == id_pessoa}
   end
 end

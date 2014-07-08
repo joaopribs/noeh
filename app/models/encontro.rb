@@ -41,6 +41,10 @@ class Encontro < ActiveRecord::Base
     return nil
   end
 
+  def conjuntos_ordenados
+    return conjuntos.select{|c| c.tipo == 'Equipe'}.sort_by{|a| a.nome} + conjuntos.select{|c| c.tipo == 'ConjuntoPermanente'}.sort_by{|a| a.nome}
+  end
+
   def conjuntos_que_poderia_adicionar_pessoa pessoa
     conjuntos = (self.conjuntos - pessoa.conjuntos_pessoas).reject{|conjunto| conjunto.tipo == 'CoordenacaoEncontro'}
 

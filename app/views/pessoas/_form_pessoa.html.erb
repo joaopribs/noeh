@@ -1,4 +1,10 @@
 <script>
+    var grupos = <%= raw Grupo.all.to_json(include: {encontros: {include: [:conjuntos_permanentes, :equipes]}}) %>
+
+    var grupoEscolhido = null;
+
+    console.log(grupos);
+
     $(function () {
         $('#tem_facebook_<%= tipo_pessoa %>').on('change', function () {
             if ($(this).prop('checked')) {
@@ -89,6 +95,16 @@
             atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
         });
 
+        $('#link_adicionar_participacao_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
+
+            $('#participacoes_<%= tipo_pessoa %>').append(
+                '<%= raw (render 'form_participacao_auto_inserir', tipo_pessoa: tipo_pessoa, grupo_id: "-1", encontro_id: "-1", sugestao: "", coordenador: "false").gsub("\n", "") %>'
+            );
+
+            atualizarFuncoesAutoInserir<%= tipo_pessoa %>();
+        });
+
         atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
         atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
     });
@@ -125,6 +141,97 @@
             $(this).closest('.campos_instrumento').remove();
         });
     }
+
+    function atualizarFuncoesAutoInserir<%= tipo_pessoa %>() {
+        $('.grupo_participacao').on('change', function () {
+            var idEscolhido = $(this).val();
+
+            if (idEscolhido == '') {
+                grupoEscolhido = null;
+            }
+            else {
+                $.each(grupos, function (index, item) {
+                    if (item.id == idEscolhido) {
+                        grupoEscolhido = item;
+                    }
+                });
+            }
+
+            var fieldEncontros = $(this).parent().siblings('.wrapper_encontro_participacao');
+            var fieldParticipacoes = $(this).parent().siblings('.wrapper_participacao');
+
+            if (grupoEscolhido != null) {
+                if (grupoEscolhido.tem_encontros) {
+                    var primeiroEncontro = null;
+
+                    $(fieldEncontros).children('select').empty();
+                    $.each(grupoEscolhido.encontros, function (index, item) {
+                        if (primeiroEncontro == null) {
+                            primeiroEncontro = item;
+                        }
+
+                        var ano = item.data_inicio.substr(0, 4);
+
+                        $(fieldEncontros).children('select').append(
+                                        '<option value="' + item.id + '">' + item.nome + ' (' + ano + ')' + '</option>'
+                        );
+                    });
+
+                    $(fieldEncontros).show();
+
+                    if (primeiroEncontro != null) {
+                        $(fieldParticipacoes).children('.campo_texto_sugestao').val('');
+                        $(fieldParticipacoes).show();
+                    }
+                }
+                else {
+                    $(fieldEncontros).children('select').empty();
+                    $(fieldEncontros).children('select').append(
+                            '<option value="-1"></option>'
+                    );
+
+                    $(fieldParticipacoes).children('.campo_texto_sugestao').val('so_grupo');
+
+                    $(fieldEncontros).add(fieldParticipacoes).hide();
+                }
+            }
+            else {
+                $(fieldEncontros).children('select').empty();
+                $(fieldEncontros).children('select').append(
+                        '<option value="-1"></option>'
+                );
+
+                $(fieldParticipacoes).children('.campo_texto_sugestao').val('teste');
+
+                $(fieldEncontros).add(fieldParticipacoes).hide();
+            }
+        });
+
+        $('.encontro_participacao').on('change', function () {
+            var idEscolhido = $(this).val();
+
+            var encontro = null;
+            $.each(grupoEscolhido.encontros, function (index, item) {
+                if (item.id == idEscolhido) {
+                    encontro = item;
+                }
+            });
+        });
+
+        $('.remover_participacao').on('click', function (evento) {
+            evento.preventDefault();
+            $(this).parent().remove();
+        });
+
+        $('.checkbox_coordenador').on('change', function () {
+            if ($(this).prop('checked')) {
+                $(this).siblings('.hidden_coordenador').val("true");
+            }
+            else {
+                $(this).siblings('.hidden_coordenador').val("false");
+            }
+        });
+    }
 </script>
 
 <table border="0">
@@ -133,11 +240,19 @@
       <img src="<%= pessoa.url_imagem(120) %>" id="imagem_<%= tipo_pessoa %>" class="imagem_pessoa_form"/>
     </td>
     <td>
-      <% if pode_editar_facebook_de_pessoa(pessoa) %>
+      <% if defined?(modo) && modo == "cadastrar_novo" %>
+
+        <input type="hidden" name="tem_facebook_<%= tipo_pessoa %>" value="1" />
+        <input type="hidden" name="nome_facebook_<%= tipo_pessoa %>" value="<%= pessoa.nome_facebook %>" />
+        <input type="hidden" name="email_facebook_<%= tipo_pessoa %>" value="<%= pessoa.email_facebook %>" />
+        <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
+        <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_foto_grande %>" />
+        <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_foto_pequena %>" />
+
+      <% elsif pode_editar_facebook_de_pessoa(pessoa) %>
           <% if pessoa.tem_informacoes_facebook %>
               <input type="hidden" id="esta_tirando_facebook_<%= tipo_pessoa %>" value="0" />
           <% end %>
-
 
           <label class="label_tem_facebook">
             <input type="checkbox" id="tem_facebook_<%= tipo_pessoa %>" name="tem_facebook_<%= tipo_pessoa %>"
@@ -325,6 +440,39 @@
         <a href="#" id="novo_instrumento_<%= tipo_pessoa %>" class="link_novo">Adicionar habilidade musical</a>
       </div>
 
+      <% if defined?(modo) && modo == "cadastrar_novo" %>
+
+        <h2 class="sem_espaco_embaixo">Participações</h2>
+
+        <div class="erro_form"><%= pessoa.errors[:auto_inserir].first %></div>
+
+        <div id="participacoes_<%= tipo_pessoa %>">
+          <%
+             grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_#{tipo_pessoa}")
+             encontros_auto_inserir = instance_variable_get("@encontros_auto_inserir_#{tipo_pessoa}")
+             sugestoes_auto_inserir = instance_variable_get("@sugestoes_auto_inserir_#{tipo_pessoa}")
+             coordenadores_auto_inserir = instance_variable_get("@coordenadores_auto_inserir_#{tipo_pessoa}")
+          %>
+
+          <% if grupos_auto_inserir.present? %>
+            <% grupos_auto_inserir.each_with_index do |grupo_id, index| %>
+              <%
+                encontro_id = encontros_auto_inserir[index]
+                texto_sugestao = sugestoes_auto_inserir[index]
+                coordenador = coordenadores_auto_inserir[index]
+              %>
+              <%= render 'form_participacao_auto_inserir', tipo_pessoa: tipo_pessoa, grupo_id: grupo_id, encontro_id: encontro_id, sugestao: texto_sugestao, coordenador: coordenador %>
+            <% end %>
+
+            <script>
+              atualizarFuncoesAutoInserir<%= tipo_pessoa %>();
+            </script>
+          <% end %>
+        </div>
+
+        <%= link_to 'Adicionar participação', '#', class: 'link_novo', id: "link_adicionar_participacao_#{tipo_pessoa}" %>
+
+      <% end %>
 
     </td>
   </tr>

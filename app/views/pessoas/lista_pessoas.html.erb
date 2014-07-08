@@ -82,6 +82,8 @@
             <% elsif @tipo_pagina == "ex_participantes_de_grupo" %>
                 <th>Data em que deixou de participar</th>
                 <th></th>
+            <% elsif @tipo_pagina == "pessoas_a_confirmar" %>
+                <th>Data em que se inseriu</th>
             <% elsif @tipo_pagina == "pessoas_no_conjunto" %>
                 <% if @conjunto.tipo != "CoordenacaoEncontro" %>
                     <th>Coordenador</th>
@@ -107,7 +109,7 @@
             <tr>
                 <td>
                     <%
-                        if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo"
+                        if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar"
                             link_pessoa = pessoa
                         elsif @tipo_pagina == "pessoas_no_grupo"
                             link_pessoa = grupo_pessoa_path(@grupo, pessoa)
@@ -143,7 +145,7 @@
                 <td>
                     <% if pessoa.conjuge.present? %>
                         <%
-                            if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo"
+                            if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar"
                                 link_conjuge = pessoa.conjuge
                             elsif @tipo_pagina == "pessoas_no_grupo"
                                 link_conjuge = grupo_pessoa_path(@grupo, pessoa.conjuge)
@@ -243,6 +245,12 @@
                                           page: @pessoas.current_page
                                   }
                       %>
+                    </td>
+
+                <% elsif @tipo_pagina == "pessoas_a_confirmar" %>
+
+                    <td align="center">
+                        <%= pessoa.created_at.strftime('%d/%m/%Y às %H:%M') %>
                     </td>
 
                 <% elsif @tipo_pagina == "pessoas_no_conjunto" %>

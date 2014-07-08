@@ -23,31 +23,27 @@
             appId      : '<%= APP_CONFIG['id_app_facebook'] %>',
             status     : false, // check login status
             cookie     : true, // enable cookies to allow the server to access the session
-            xfbml      : true  // parse XFBML
+            xfbml      : true,  // parse XFBML
+            version    : 'v2.0'
         });
 
-        function checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande) {
-            console.log(nomeFacebook);
-            console.log(emailFacebook);
-            console.log(nascimento);
-            console.log(urlFotoPequena);
-            console.log(urlFotoGrande);
-
+        function checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado) {
             $.post("<%= log_in_url %>",
                     {
                         "nome_facebook": nomeFacebook,
                         "email_facebook": emailFacebook,
                         "nascimento": nascimento,
                         "url_foto_pequena": urlFotoPequena,
-                        "url_foto_grande": urlFotoGrande
+                        "url_foto_grande": urlFotoGrande,
+                        "url_facebook": urlFacebook,
+                        "casado": casado
                     },
                     function (resposta) {
                         if (resposta == "ok") {
                             window.location.href = "<%= root_url %>";
                         }
                         else {
-                            $("#erro_login").html("Você não está permitido a usar o sistema.");
-                            $("#link_fb").hide();
+                            window.location.href = "<%= cadastrar_novo_url %>";
                         }
                     }
             );
@@ -55,10 +51,18 @@
 
         function checarLoginFacebook(response) {
             if (response.status === 'connected') {
-                FB.api('/me?fields=email,picture,name,birthday', function (response) {
+                FB.api('/me?fields=email,picture,name,birthday,link,relationship_status,significant_other', function (response) {
+                    console.log(response);
+
                     var nomeFacebook = response.name;
                     var emailFacebook = response.email;
                     var nascimento = response.birthday;
+                    var urlFacebook = response.link;
+
+                    var casado = false;
+                    if (response.relationship_status == 'Married') {
+                        casado = true;
+                    }
 
                     var urlFotoGrande = null;
                     var urlFotoPequena = null;
@@ -68,11 +72,11 @@
 
                         FB.api('/me/picture?redirect=0&height=200&type=normal&width=200', function (response) {
                             urlFotoGrande = response.data.url;
-                            checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                            checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
                         });
                     }
                     else {
-                        checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                        checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
                     }
 
                 });
@@ -85,7 +89,7 @@
             }
         }
 
-        function atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande) {
+        function atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado) {
             $("#msg_principal").html("Entrar como " + nomeFacebook + "<br/>(usuário logado no Facebook no momento)");
 
             if (urlFotoPequena != null) {
@@ -95,7 +99,7 @@
 
             $("#link_fb").on("click", function (e) {
                 e.preventDefault();
-                checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
             });
         }
 
@@ -106,31 +110,41 @@
                 var nascimento = null;
                 var urlFotoPequena = null;
                 var urlFotoGrande = null;
+                var urlFacebook = null;
+                var casado = false;
 
-                FB.api('/me?fields=email,picture,name,birthday', function (response) {
+                FB.api('/me?fields=email,picture,name,birthday,link,relationship_status,significant_other', function (response) {
+                    console.log(response);
+
                     nomeFacebook = response.name;
                     emailFacebook = response.email;
                     nascimento = response.birthday;
+                    urlFacebook = response.link;
+
+                    if (response.relationship_status == 'Married') {
+                        casado = true;
+                    }
 
                     if (!response.picture.data.is_silhouette) {
                         urlFotoPequena = response.picture.data.url;
 
                         FB.api('/me/picture?redirect=0&height=200&type=normal&width=200', function (response) {
                             urlFotoGrande = response.data.url;
-                            atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                            atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
                         });
                     }
                     else {
-                        atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande);
+                        atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
                     }
                 });
             }
             else {
                 $("#link_fb").on("click", function (e) {
                     e.preventDefault();
+
                     FB.login(function(response) {
                         checarLoginFacebook(response);
-                    }, {scope: 'email,user_birthday'});
+                    }, {scope: 'email, user_birthday, user_relationships'});
                 });
             }
         });
@@ -140,7 +154,7 @@
     (function(d){
         var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
         js = d.createElement('script'); js.id = id; js.async = true;
-        js.src = "//connect.facebook.com/pt_BR/all.js";
+        js.src = "//connect.facebook.com/pt_BR/sdk.js";
         d.getElementsByTagName('head')[0].appendChild(js);
     }(document));
 </script>

@@ -1,7 +1,9 @@
 #encoding: utf-8
 
 class PessoasController < ApplicationController
+  skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao]
   before_action :set_entidades, :adicionar_breadcrumbs_entidades
+  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :cadastrar_novo_confirmacao]
 
   # GET /pessoas
   # GET /pessoas.json
@@ -58,11 +60,32 @@ class PessoasController < ApplicationController
   # POST /pessoas
   # POST /pessoas.json
   def create
-    precisa_poder_criar_pessoas
+    if !params.has_key?(:auto_inserido)
+      precisa_poder_criar_pessoas
+    end
 
     adicionar_breadcrumb "Criar nova pessoa", new_pessoa_url, "criar"
 
     @pessoa = Pessoa.new(pessoa_params)
+
+    pessoa_valida = @pessoa.valid?
+
+    if params.has_key?(:auto_inserido)
+      @pessoa.auto_inserido = true
+
+      if params[:grupos_auto_inserir_pessoa]
+        @grupos_auto_inserir_pessoa = params[:grupos_auto_inserir_pessoa].select{|item| item != '-1' && item != ''}
+      end
+      @encontros_auto_inserir_pessoa = params[:encontros_auto_inserir_pessoa]
+      @sugestoes_auto_inserir_pessoa = params[:sugestoes_auto_inserir_pessoa]
+      @coordenadores_auto_inserir_pessoa = params[:coordenadores_auto_inserir_pessoa]
+
+      if @grupos_auto_inserir_pessoa.nil? || @grupos_auto_inserir_pessoa.count == 0 ||
+        @sugestoes_auto_inserir_pessoa.select{|item| !item.empty?}.count == 0
+        @pessoa.errors[:auto_inserir] = 'É obrigatório inserir ao menos uma participação'
+        pessoa_valida = false
+      end
+    end
 
     @eh_casal = params[:casado_ou_solteiro] == 'casado'
 
@@ -79,7 +102,7 @@ class PessoasController < ApplicationController
         @tipo_conjuge = 'form'
       end
 
-      if @pessoa.valid?
+      if pessoa_valida
         @conjuge.rua = @pessoa.rua
         @conjuge.numero = @pessoa.numero
         @conjuge.bairro = @pessoa.bairro
@@ -88,9 +111,26 @@ class PessoasController < ApplicationController
         @conjuge.cep = @pessoa.cep
       end
 
-      @conjuge.valid?
+      conjuge_valido = @conjuge.valid?
 
-      casal_valido = @pessoa.valid? && @conjuge.valid?
+      if params.has_key?(:auto_inserido)
+        @conjuge.auto_inserido = true
+
+        if params[:grupos_auto_inserir_conjuge]
+          @grupos_auto_inserir_conjuge = params[:grupos_auto_inserir_conjuge].select{|item| item != '-1' && item != ''}
+        end
+        @encontros_auto_inserir_conjuge = params[:encontros_auto_inserir_conjuge]
+        @sugestoes_auto_inserir_conjuge = params[:sugestoes_auto_inserir_conjuge]
+        @coordenadores_auto_inserir_conjuge = params[:coordenadores_auto_inserir_conjuge]
+
+        if @grupos_auto_inserir_conjuge.nil? || @grupos_auto_inserir_conjuge.count == 0 ||
+            @sugestoes_auto_inserir_conjuge.select{|item| !item.empty?}.count == 0
+          @conjuge.errors[:auto_inserir] = 'É obrigatório inserir ao menos uma participação'
+          conjuge_valido = false
+        end
+      end
+
+      casal_valido = pessoa_valida && conjuge_valido
 
       if casal_valido
         @pessoa.conjuge = @conjuge
@@ -103,7 +143,11 @@ class PessoasController < ApplicationController
 
     respond_to do |format|
       if (@eh_casal && casal_valido && @pessoa.save && @conjuge.save) ||
-        (!@eh_casal && @pessoa.save)
+        (!@eh_casal && pessoa_valida && @pessoa.save)
+
+        if params.has_key?(:auto_inserido)
+          criar_relacoes_auto_inserir
+        end
 
         if defined? @grupo
           relacao_pessoa = RelacaoPessoaGrupo.new({:pessoa_id => @pessoa.id, :grupo_id => params[:grupo_id]})
@@ -165,8 +209,12 @@ class PessoasController < ApplicationController
         format.html { redirect_to pagina_retorno, notice: msg_sucesso }
         format.json { render action: 'show', status: :created, location: @pessoa }
       else
-        format.html { render action: 'new' }
-        format.json { render json: @pessoa.errors, status: :unprocessable_entity }
+        if params.has_key?(:auto_inserido)
+          format.html { render action: 'cadastrar_novo' }
+        else
+          format.html { render action: 'new' }
+          format.json { render json: @pessoa.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -292,6 +340,24 @@ class PessoasController < ApplicationController
       # format.html { redirect_to pessoas_url, notice: msg_sucesso, status: 303 } # Status 303 eh pq ta vindo de um method DELETE e redirecionando pra um GET
       format.json { render json: {novaPagina: numero_pagina, msgSucesso: msg_sucesso}, status: :ok }
     end
+  end
+
+  def cadastrar_novo
+    pessoa = Pessoa.unscoped.where(email_facebook: session[:email_facebook])
+
+    if pessoa.count > 0
+      redirect_to cadastrar_novo_confirmacao_url and return
+    end
+
+    @pessoa = Pessoa.new
+    @pessoa.url_foto_grande = session[:url_foto_grande]
+    @pessoa.url_foto_pequena = session[:url_foto_pequena]
+    @pessoa.nome_facebook = session[:nome_facebook]
+    @pessoa.email_facebook = session[:email_facebook]
+    @pessoa.url_facebook = session[:url_facebook]
+  end
+
+  def cadastrar_novo_confirmacao
   end
 
   def pesquisa_pessoas
@@ -440,10 +506,79 @@ class PessoasController < ApplicationController
     render text: 'ok'
   end
 
+  def confirmar_auto_sugestao
+    auto_sugestao = AutoSugestao.find(params[:id_auto_sugestao])
+
+    pessoa = Pessoa.unscoped.find(auto_sugestao.pessoa_id)
+
+    grupo = auto_sugestao.grupo
+    if grupo.present?
+      relacao_grupo = RelacaoPessoaGrupo.where({pessoa: pessoa, grupo: grupo}).first
+
+      if relacao_grupo.nil?
+        relacao_grupo = RelacaoPessoaGrupo.new({pessoa: pessoa, grupo: grupo})
+      end
+
+      if auto_sugestao.sugestao == 'so_grupo'
+        relacao_grupo.eh_coordenador = auto_sugestao.coordenador
+      end
+
+      relacao_grupo.save
+    end
+
+    if auto_sugestao.sugestao != 'so_grupo' && params[:id_conjunto]
+      conjunto = ConjuntoPessoas.find(params[:id_conjunto])
+
+      if conjunto.present?
+        relacao_conjunto = RelacaoPessoaConjunto.where({pessoa: pessoa, conjunto_pessoas: conjunto}).first
+
+        if relacao_conjunto.nil?
+          relacao_conjunto = RelacaoPessoaConjunto.new({pessoa: pessoa, conjunto_pessoas: conjunto})
+        end
+
+        relacao_conjunto.eh_coordenador = auto_sugestao.coordenador
+        relacao_conjunto.save
+      end
+    end
+
+    if pessoa.auto_inserido
+      pessoa.auto_inserido = false
+      pessoa.save
+    end
+
+    auto_sugestao.destroy
+
+    render text: 'ok'
+  end
+
+  def rejeitar_auto_sugestao
+    auto_sugestao = AutoSugestao.find(params[:id_auto_sugestao])
+
+    pessoa = Pessoa.unscoped.find(auto_sugestao.pessoa_id)
+
+    auto_sugestao.destroy
+
+    if pessoa.auto_inserido && pessoa.auto_sugestoes.count == 0
+      pessoa.destroy
+    end
+
+    render text: 'ok'
+  end
+
+  def pessoas_a_confirmar
+    adicionar_breadcrumb "Pessoas aguardando confirmação", pessoas_a_confirmar_url, "confirmar"
+
+    carregar_pessoas(@usuario_logado.pessoas_a_confirmar)
+  end
+
   private
     def set_entidades
       if params[:id]
-        @pessoa = Pessoa.find(params[:id])
+        begin
+          @pessoa = Pessoa.unscoped.find(params[:id])
+        rescue ActiveRecord::RecordNotFound
+          redirect_to root_url and return
+        end
       end
 
       if params[:grupo_id]
@@ -464,6 +599,10 @@ class PessoasController < ApplicationController
     end
 
     def adicionar_breadcrumbs_entidades
+      if params.has_key?(:auto_inserido)
+        return
+      end
+
       if defined?(@grupo)
         if @usuario_logado.eh_super_admin?
           adicionar_breadcrumb "Grupos", grupos_url, "grupos"
@@ -516,6 +655,10 @@ class PessoasController < ApplicationController
     end
 
     def pagina_retorno
+      if params.has_key?(:auto_inserido)
+        return cadastrar_novo_confirmacao_path
+      end
+
       if defined? @conjunto
         if @conjunto.tipo == 'CoordenacaoEncontro'
           return encontro_editar_coordenadores_path(@conjunto.encontro)
@@ -567,6 +710,7 @@ class PessoasController < ApplicationController
                                               cep: cep,
                                               tem_facebook: params[:tem_facebook_pessoa],
                                               nome_facebook: params[:nome_facebook_pessoa].gsub(/\s+/, " ").strip,
+                                              email_facebook: params[:email_facebook_pessoa],
                                               url_facebook: params[:url_facebook_pessoa].strip.split("?")[0],
                                               url_foto_grande: params[:imagem_facebook_pessoa].strip,
                                               telefones: telefones,
@@ -589,6 +733,7 @@ class PessoasController < ApplicationController
                                               email: params[:email_conjuge],
                                               tem_facebook: params[:tem_facebook_conjuge],
                                               nome_facebook: params[:nome_facebook_conjuge].gsub(/\s+/, " ").strip,
+                                              email_facebook: params[:email_facebook_conjuge],
                                               url_facebook: params[:url_facebook_conjuge].strip.split("?")[0],
                                               url_foto_grande: params[:imagem_facebook_conjuge].strip,
                                               telefones: telefones,
@@ -613,17 +758,54 @@ class PessoasController < ApplicationController
       return telefones
     end
 
-  def pegar_instrumentos(nomes_instrumentos)
-    instrumentos = []
+    def pegar_instrumentos(nomes_instrumentos)
+      instrumentos = []
 
-    if nomes_instrumentos.present?
-      nomes_instrumentos.uniq.each do |nome_instrumento|
-        instrumentos << Instrumento.new(nome: nome_instrumento)
+      if nomes_instrumentos.present?
+        nomes_instrumentos.uniq.each do |nome_instrumento|
+          instrumentos << Instrumento.new(nome: nome_instrumento)
+        end
       end
+
+      return instrumentos
     end
 
-    return instrumentos
-  end
+    def criar_relacoes_auto_inserir()
+      ['pessoa', 'conjuge'].each do |tipo_pessoa|
+        grupos = instance_variable_get("@grupos_auto_inserir_#{tipo_pessoa}")
+        coordenadores = instance_variable_get("@coordenadores_auto_inserir_#{tipo_pessoa}")
+        encontros = instance_variable_get("@encontros_auto_inserir_#{tipo_pessoa}")
+        sugestoes = instance_variable_get("@sugestoes_auto_inserir_#{tipo_pessoa}")
+
+        if grupos.present?
+          grupos.each_with_index do |grupo_id, indice|
+            eh_coordenador = coordenadores[indice] == "true"
+            texto_sugestao = sugestoes[indice]
+            encontro_id = encontros[indice]
+
+            if texto_sugestao != ''
+              auto_sugestao = nil
+              if texto_sugestao == 'so_grupo'
+                auto_sugestao = AutoSugestao.where({pessoa: @pessoa, grupo_id: grupo_id}).first
+              end
+
+              if auto_sugestao.nil?
+                auto_sugestao = AutoSugestao.new({pessoa: @pessoa, grupo_id: grupo_id})
+              end
+
+              if encontro_id != "-1"
+                auto_sugestao.encontro_id = encontro_id
+              end
+
+              auto_sugestao.sugestao = texto_sugestao
+              auto_sugestao.coordenador = eh_coordenador
+
+              auto_sugestao.save
+            end
+          end
+        end
+      end
+    end
 
     def pode_excluir_pessoa pessoa
       if @usuario_logado.eh_super_admin? || (@usuario_logado.eh_coordenador_de_grupo_de(pessoa) && !pessoa.eh_super_admin?)
@@ -656,6 +838,7 @@ class PessoasController < ApplicationController
       if @usuario_logado.eh_super_admin? ||
           @usuario_logado.eh_coordenador_de_grupo_de(pessoa) ||
           @usuario_logado.eh_coordenador_de_encontro_de(pessoa) ||
+          @usuario_logado.grupos_que_coordena.count > 0 ||
           @usuario_logado == pessoa
         return true
       end

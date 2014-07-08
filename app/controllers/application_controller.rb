@@ -39,9 +39,7 @@ class ApplicationController < ActionController::Base
       indice -= 23
     end
 
-    # @cor = cores[indice]
-
-    @cor = "preto"
+    @cor = cores[indice]
 
   end
 

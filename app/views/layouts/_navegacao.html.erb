@@ -1,20 +1,31 @@
-<% if @usuario_logado.eh_super_admin %>
-    <%= link_to "Grupos", grupos_path %>
-    <%= link_to "Pessoas", pessoas_path %>
-<% end %>
+<% if defined? @usuario_logado %>
 
-<% @usuario_logado.grupos_que_coordena.each do |grupo| %>
-    <%= link_to grupo.nome, grupo %>
-<% end %>
+    <% quantas_pessoas_a_confirmar = @usuario_logado.ids_pessoas_a_confirmar.count %>
+    <% if quantas_pessoas_a_confirmar > 0 %>
+        <%= link_to pessoas_a_confirmar_path, class: 'atencao' do %>
+            <%= quantas_pessoas_a_confirmar %> pessoa<%= "s" if quantas_pessoas_a_confirmar > 1 %> a confirmar
+        <% end %>
+    <% end %>
 
-<% @usuario_logado.equipes_em_que_esta_participando_agora.each do |equipe| %>
-    <%= link_to equipe.nome, equipe %>
-<% end %>
+    <% if @usuario_logado.eh_super_admin %>
+        <%= link_to "Grupos", grupos_path %>
+        <%= link_to "Pessoas", pessoas_path %>
+    <% else %>
+        <% @usuario_logado.grupos_que_coordena.each do |grupo| %>
+            <%= link_to grupo.nome, grupo %>
+        <% end %>
 
-<% @usuario_logado.conjuntos_permanentes.each do |conjunto_permanente| %>
-    <%= link_to "#{conjunto_permanente.encontro.denominacao_conjuntos_permanentes} #{conjunto_permanente.nome}", circulo_path(conjunto_permanente) %>
-<% end %>
+        <% @usuario_logado.equipes_em_que_esta_participando_agora.each do |equipe| %>
+            <%= link_to equipe.nome, equipe %>
+        <% end %>
 
-<% @usuario_logado.encontros_que_esta_coordenando_agora.each do |encontro| %>
-    <%= link_to encontro.nome, encontro %>
+        <% @usuario_logado.conjuntos_permanentes.each do |conjunto_permanente| %>
+            <%= link_to "#{conjunto_permanente.encontro.denominacao_conjuntos_permanentes} #{conjunto_permanente.nome}", circulo_path(conjunto_permanente) %>
+        <% end %>
+
+        <% @usuario_logado.encontros_que_esta_coordenando_agora.each do |encontro| %>
+            <%= link_to encontro.nome, encontro %>
+        <% end %>
+    <% end %>
+
 <% end %>

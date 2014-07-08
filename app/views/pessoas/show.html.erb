@@ -1,7 +1,7 @@
 <script>
 
     $(function () {
-        $(".link_excluir").on("click", function (evento) {
+        $(".link_excluir_pessoa").on("click", function (evento) {
             evento.preventDefault();
 
             var pessoaId = $(this).data("pessoa-id");
@@ -60,11 +60,21 @@
   <% end %>
 
   <% if pode_excluir_pessoa @pessoa %>
-      <%= link_to 'Excluir', '#', data: { pessoa_id: @pessoa.id, nome_pessoa: @pessoa.nome }, class: 'link_excluir' %>
+      <%= link_to 'Excluir', '#', data: { pessoa_id: @pessoa.id, nome_pessoa: @pessoa.nome }, class: 'link_excluir link_excluir_pessoa' %>
   <% end %>
 </div>
 
 <%= render 'shared/notificacao' %>
+
+<% if @usuario_logado.auto_sugestoes_de_outra_pessoa(@pessoa.id).count > 0 %>
+    <p class="notificacao_atencao">
+      <% if @pessoa.auto_inserido %>
+        Essa pessoa ainda não possui acesso. Seu acesso será liberado a partir do momento que algum coordenador confirmar alguma de suas participações.
+      <% else %>
+        Essa pessoa tem participações a serem revisadas.
+      <% end %>
+    </p>
+<% end %>
 
 <% tem_conjuge = @pessoa.conjuge.present? %>
 

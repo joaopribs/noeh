@@ -6,7 +6,8 @@ class Pessoa < ActiveRecord::Base
 
   before_save :atualizar_data
 
-  default_scope { order(:nome) }
+  default_scope {where('pessoas.auto_inserido IS NULL OR pessoas.auto_inserido = false')}
+  default_scope {order(:nome)}
 
   attr_accessor :dia, :mes, :ano, :tem_facebook
 
@@ -18,6 +19,7 @@ class Pessoa < ActiveRecord::Base
   has_many :grupos, through: :relacoes_pessoa_grupo
   has_many :telefones, dependent: :destroy
   has_many :instrumentos, dependent: :destroy
+  has_many :auto_sugestoes, class_name: 'AutoSugestao', dependent: :destroy
 
   belongs_to :conjuge, class_name: 'Pessoa', foreign_key: :conjuge_id, dependent: :destroy
 
@@ -36,7 +38,7 @@ class Pessoa < ActiveRecord::Base
 
     if array_ids.present? && array_ids.count > 0
       array_ids.each do |id|
-        pessoas << Pessoa.find(id)
+        pessoas << Pessoa.unscoped.find(id)
       end
     end
 
@@ -133,7 +135,11 @@ class Pessoa < ActiveRecord::Base
   end
 
   def grupos_que_coordena
-    return self.relacoes_pessoa_grupo.where(eh_coordenador: true).collect{|r| r.grupo}
+    if self.eh_super_admin
+      return Grupo.all
+    else
+      return self.relacoes_pessoa_grupo.where(eh_coordenador: true).collect{|r| r.grupo}
+    end
   end
 
   def grupos_que_tem_encontros_que_coordena
@@ -177,17 +183,9 @@ class Pessoa < ActiveRecord::Base
   end
 
   def grupos_em_que_pode_adicionar_outra_pessoa outra_pessoa
-    if self.eh_super_admin?
-      grupos = Grupo.all
-    else
-      grupos = self.grupos_que_coordena
-    end
+    grupos = self.grupos_que_coordena
 
     return grupos - outra_pessoa.grupos
-  end
-
-  def participacoes
-
   end
 
   def endereco
@@ -228,6 +226,54 @@ class Pessoa < ActiveRecord::Base
     end
 
     return participacoes
+  end
+
+  def auto_sugestoes_ordenadas
+    retorno = []
+
+    auto_sugestoes = self.auto_sugestoes
+
+    retorno = retorno.concat(auto_sugestoes.select{|a| a.encontro.nil?}.sort_by{|a| a.grupo.nome})
+    retorno = retorno.concat(auto_sugestoes.select{|a| !a.encontro.nil?}.sort_by{|a| [a.grupo.nome, a.encontro.data_inicio.year]})
+
+    return retorno
+  end
+
+  def ids_pessoas_a_confirmar
+    retorno = []
+
+    grupos = self.grupos_que_coordena
+
+    grupos.each do |grupo|
+      retorno = retorno.concat(grupo.ids_pessoas_a_confirmar)
+    end
+
+    return retorno.uniq
+  end
+
+  def pessoas_a_confirmar
+    ids = self.ids_pessoas_a_confirmar
+
+    pessoas = ids.collect{|id| Pessoa.unscoped.find(id)}.sort_by{|p| p.nome}
+
+    return pessoas
+  end
+
+  def auto_sugestoes_de_outra_pessoa id_outra_pessoa
+    auto_sugestoes = []
+
+    grupos = self.grupos_que_coordena
+
+    grupos.each do |grupo|
+      auto_sugestoes = auto_sugestoes.concat(grupo.auto_sugestoes_de_pessoa(id_outra_pessoa))
+    end
+
+    auto_sugestoes_ordenado = []
+
+    auto_sugestoes_ordenado = auto_sugestoes_ordenado.concat(auto_sugestoes.select{|a| a.encontro.nil?}.sort_by{|a| a.grupo.nome})
+    auto_sugestoes_ordenado = auto_sugestoes_ordenado.concat(auto_sugestoes.select{|a| !a.encontro.nil?}.sort_by{|a| [a.grupo.nome, a.encontro.data_inicio.year]})
+
+    return auto_sugestoes_ordenado
   end
 
   def validate_nascimento

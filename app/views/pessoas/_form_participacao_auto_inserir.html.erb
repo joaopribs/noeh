@@ -1,0 +1,43 @@
+<div>
+    <div class="field">
+        <label for="grupo">Grupo</label><br/>
+        <%= select_tag "grupos_auto_inserir_#{tipo_pessoa}[]", options_for_select(Grupo.all.collect{|g| [g.nome, g.id]}, grupo_id), include_blank: true, class: 'grupo_participacao' %>
+    </div>
+
+    <% grupo = grupo_id != "-1" ? Grupo.find(grupo_id) : nil %>
+
+    <% if grupo_id != "-1" && grupo.tem_encontros %>
+        <div class="field wrapper_encontro_participacao">
+          <label for="encontros">Encontro</label><br/>
+          <% grupo = Grupo.find(grupo_id) %>
+          <%= select_tag "encontros_auto_inserir_#{tipo_pessoa}[]", options_for_select(grupo.encontros.collect{|e| [e.nome, e.id]}, encontro_id), include_blank: false, class: 'encontro_participacao' %>
+        </div>
+    <% else %>
+        <div class="field wrapper_encontro_participacao" style="display: none;">
+            <label for="encontros">Encontro</label><br/>
+            <select name="encontros_auto_inserir_<%= tipo_pessoa %>[]" class="encontro_participacao">
+              <option value="-1"></option>
+            </select>
+        </div>
+    <% end %>
+
+
+    <div class="field wrapper_participacao"
+    <% if encontro_id == "-1" || !grupo.tem_encontros %>
+        style="display: none;"
+    <% end %>
+    >
+        <label for="participacao">Participação</label><br/>
+        <input type="text" name="sugestoes_auto_inserir_<%= tipo_pessoa %>[]" value="<%= sugestao %>" class="campo_texto_sugestao" />
+    </div>
+
+    <div class="field">
+        <label>
+            <input type="hidden" name="coordenadores_auto_inserir_<%= tipo_pessoa %>[]" value="<%= coordenador %>" class="hidden_coordenador" />
+            <%= check_box_tag "radio", "true", coordenador == "true", class: 'checkbox_coordenador' %>
+            Coordenador
+        </label>
+    </div>
+
+    <a href="#" class="link_remover remover_participacao">Remover</a>
+</div>

@@ -57,6 +57,12 @@ ul.bullets li span {
     color: #000;
 }
 
+hr {
+    border-top: 1px solid #f0f0f0;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 .faixa_horizontal_com_linha_separadora {
     width: 100%;
     text-align: center;
@@ -69,6 +75,14 @@ ul.bullets li span {
     border: 1px solid #57732f;
     color: #57732f;
     background: url(notificacao.png) no-repeat #d4e9b6;
+    background-position: 20px center;
+}
+
+.notificacao_atencao {
+    padding: 15px 0 15px 60px;
+    border: 1px solid #981e1e;
+    color: #981e1e;
+    background: url(atencao.png) no-repeat #f2a1a1;
     background-position: 20px center;
 }
 
@@ -262,13 +276,13 @@ a.link_encontros {
 }
 
 a.link_forma_padrao {
-    padding-left: 20px;
+    padding-left: 22px;
     background: url(estrutura.png) no-repeat;
     background-position: left center;
 }
 
 a.link_ex_participantes {
-    padding-left: 20px;
+    padding-left: 22px;
     background: url(ex.png) no-repeat;
     background-position: left center;
 }
@@ -564,6 +578,16 @@ a.link_buscar:hover {
     margin-left: 10px;
 }
 
+#navegacao a.atencao {
+    color: #fff;
+    background-color: #ff0000;
+    border: 1px solid #d41111;
+}
+
+#navegacao a.atencao:hover {
+    background-color: #d41111;
+}
+
 /* Conteúdo principal da página centralizado
 ------------------------------------------------------------------------------*/
 
@@ -653,6 +677,25 @@ table.informacoes_pessoa_lista td:first-of-type {
 
 .tem_conjuge {
     width: 50%;
+}
+
+table.participacoes td {
+    vertical-align: middle;
+}
+
+table.participacoes tr td:first-of-type {
+    padding-left: 10px;
+}
+
+table.participacoes tr td:not(:nth-of-type(1)),
+table.participacoes tr td:not(:nth-of-type(2)),
+table.participacoes tr th:not(:nth-of-type(1)),
+table.participacoes tr th:not(:nth-of-type(2)) {
+    width: 1px;
+}
+
+.sugestao {
+    color: #ff0000;
 }
 
 /* Página de listagem de grupos

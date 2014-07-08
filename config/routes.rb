@@ -62,7 +62,11 @@ Noeh::Application.routes.draw do
   post '/remover_pessoa_de_conjunto', :to => 'conjuntos_pessoas#remover_pessoa_de_conjunto', :as => :remover_pessoa_de_conjunto
 
   get '/cadastrar', :to => 'pessoas#cadastrar_novo', :as => :cadastrar_novo
+  get '/confirmacao_cadastro', :to => 'pessoas#cadastrar_novo_confirmacao', :as => :cadastrar_novo_confirmacao
 
   get '/privacidade', :to => 'homepage#privacidade', :as => :privacidade
 
+  post '/confirmar_participacao', :to => 'pessoas#confirmar_auto_sugestao', :as => :confirmar_auto_sugestao
+  post '/rejeitar_participacao', :to => 'pessoas#rejeitar_auto_sugestao', :as => :rejeitar_auto_sugestao
+  get '/pessoas_confirmar', :to => 'pessoas#pessoas_a_confirmar', :as => :pessoas_a_confirmar
 end
