@@ -205,7 +205,8 @@
           var tipo = $(this).data('tipo');
           var tr = $(this).closest('tr');
           var select_conjunto = $(tr).find('.conjunto');
-          var id_auto_sugestao = $(this).data('id-auto-sugestao')
+          var id_auto_sugestao = $(this).data('id-auto-sugestao');
+          var texto_sugestao = $(this).data('texto-sugestao')
 
           var msg = '';
 
@@ -218,7 +219,7 @@
               var ano_encontro = $(this).data('ano-encontro');
               var conjunto = $(select_conjunto).children(':selected').text();
 
-              msg = 'Tem certeza que deseja rejeitar a participação de <em><%= pessoa.nome %></em> em <em>' + conjunto + ' - ' + nome_encontro + ' (' + ano_encontro + ')</em>?';
+              msg = 'Tem certeza que deseja rejeitar a participação <em>"' + texto_sugestao + '"</em> de <em><%= pessoa.nome %></em> em <em>' + nome_encontro + ' (' + ano_encontro + ')</em>?';
           }
 
           $("#dialog_conteudo").html(msg);
@@ -496,7 +497,8 @@
                                                 tipo: tipo,
                                                 nome_grupo: nome_grupo,
                                                 nome_encontro: nome_encontro,
-                                                ano_encontro: ano_encontro
+                                                ano_encontro: ano_encontro,
+                                                texto_sugestao: auto_sugestao.sugestao
                                         }
                             %>
                           </td>
