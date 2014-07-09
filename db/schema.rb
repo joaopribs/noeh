@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140707195124) do
+ActiveRecord::Schema.define(version: 20140708234722) do
 
   create_table "auto_sugestao", force: true do |t|
     t.integer  "pessoa_id"
@@ -91,7 +91,7 @@ ActiveRecord::Schema.define(version: 20140707195124) do
     t.datetime "ultimo_login"
     t.string   "nome_facebook"
     t.string   "email_facebook"
-    t.boolean  "auto_inserido"
+    t.boolean  "auto_inserido",    default: false
   end
 
   create_table "relacoes_pessoa_conjunto", force: true do |t|

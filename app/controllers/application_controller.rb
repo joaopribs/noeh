@@ -5,17 +5,19 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  before_filter :precisa_estar_logado, :escolher_cor, :iniciar_breadcrumbs, :notificacao
+  before_filter :setar_super_admin, :precisa_estar_logado, :escolher_cor, :iniciar_breadcrumbs, :notificacao
 
-  def precisa_estar_logado
-
+  def setar_super_admin
     id_usuario_logado = session[:id_usuario]
 
     if id_usuario_logado.nil?
-      redirect_to deslogado_url and return
+      return nil
     end
 
     @usuario_logado = Pessoa.find(id_usuario_logado)
+  end
+
+  def precisa_estar_logado
 
     if @usuario_logado.nil?
       redirect_to deslogado_url and return

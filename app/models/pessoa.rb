@@ -325,6 +325,7 @@ class Pessoa < ActiveRecord::Base
   def default_values
     self.eh_homem = true if self.eh_homem.nil?
     self.eh_super_admin = false if self.eh_super_admin.nil?
+    self.auto_inserido = false if self.auto_inserido.nil?
 
     if !self.nascimento.blank? && (self.ano.blank? && self.mes.blank? && self.dia.blank?)
       self.ano = self.nascimento.year
