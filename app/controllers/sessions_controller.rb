@@ -10,34 +10,13 @@ class SessionsController < ApplicationController
     nome_facebook = params[:nome_facebook]
     email_facebook = params[:email_facebook]
     nascimento = params[:nascimento]
+    eh_homem = params[:eh_homem] == "true"
     url_foto_grande = params[:url_foto_grande]
     url_foto_pequena = params[:url_foto_pequena]
     url_facebook = params[:url_facebook]
+    casado = params[:casado] == "true"
 
-    usuario = nil
-
-    usuarios = []
-
-    if email_facebook.present?
-      usuarios = Pessoa.where(email_facebook: email_facebook)
-    end
-
-    if usuarios.count == 1
-      usuario = usuarios.first
-    elsif nome_facebook.present?
-      usuarios = Pessoa.where(nome_facebook: nome_facebook)
-
-      if usuarios.count == 1
-        usuario = usuarios.first
-      elsif usuarios.count > 1
-        usuarios = Pessoa.where(nome_facebook: nome_facebook, email_facebook: email_facebook)
-
-        if usuarios.count == 1
-          usuario = usuarios.first
-        end
-
-      end
-    end
+    usuario = pegar_usuario(params)
 
     if usuario.present?
       if nascimento.present? || email_facebook.present? || url_foto.present?
@@ -78,9 +57,41 @@ class SessionsController < ApplicationController
       session[:nome_facebook] = nome_facebook
       session[:email_facebook] = email_facebook
       session[:nascimento] = nascimento
+      session[:eh_homem] = eh_homem
       session[:url_foto_grande] = url_foto_grande
       session[:url_foto_pequena] = url_foto_pequena
       session[:url_facebook] = url_facebook
+      session[:casado] = casado
+
+      if casado
+        nome_facebook_conjuge = params[:nome_facebook_conjuge]
+        email_facebook_conjuge = params[:email_facebook_conjuge]
+        nascimento_conjuge = params[:nascimento_conjuge]
+        eh_homem_conjuge = params[:eh_homem_conjuge] == "true"
+        url_foto_grande_conjuge = params[:url_foto_grande_conjuge]
+        url_foto_pequena_conjuge = params[:url_foto_pequena_conjuge]
+        url_facebook_conjuge = params[:url_facebook_conjuge]
+
+        usuario_conjuge = pegar_usuario(
+            {
+              nome_facebook: nome_facebook_conjuge,
+              email_facebook: email_facebook_conjuge
+            }
+        )
+
+        if usuario_conjuge.present?
+          session[:id_usuario_conjuge] = usuario_conjuge.id
+        else
+          session[:nome_facebook_conjuge] = params[:nome_facebook_conjuge]
+          session[:email_facebook_conjuge] = params[:email_facebook_conjuge]
+          session[:nascimento_conjuge] = params[:nascimento_conjuge]
+          session[:eh_homem_conjuge] = params[:eh_homem_conjuge]
+          session[:url_foto_grande_conjuge] = params[:url_foto_grande_conjuge]
+          session[:url_foto_pequena_conjuge] = params[:url_foto_pequena_conjuge]
+          session[:url_facebook_conjuge] = params[:url_facebook_conjuge]
+        end
+
+      end
 
       msg = "não existe"
     end
@@ -91,6 +102,40 @@ class SessionsController < ApplicationController
   def log_out
     reset_session
     redirect_to deslogado_url and return
+  end
+
+  private
+
+  def pegar_usuario(params)
+    email_facebook = params[:email_facebook]
+    nome_facebook = params[:nome_facebook]
+
+    usuario = nil
+
+    usuarios = []
+
+    if email_facebook.present?
+      usuarios = Pessoa.where(email_facebook: email_facebook)
+    end
+
+    if usuarios.count == 1
+      usuario = usuarios.first
+    elsif nome_facebook.present?
+      usuarios = Pessoa.where(nome_facebook: nome_facebook)
+
+      if usuarios.count == 1
+        usuario = usuarios.first
+      elsif usuarios.count > 1
+        usuarios = Pessoa.where(nome_facebook: nome_facebook, email_facebook: email_facebook)
+
+        if usuarios.count == 1
+          usuario = usuarios.first
+        end
+
+      end
+    end
+
+    return usuario
   end
 
 end

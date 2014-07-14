@@ -66,22 +66,53 @@
 
 <%= render 'shared/notificacao' %>
 
-<% if @usuario_logado.auto_sugestoes_de_outra_pessoa(@pessoa.id).count > 0 %>
+<% tem_conjuge = @pessoa.conjuge.present? %>
+
+<%
+   auto_sugestoes_pessoa = @usuario_logado.auto_sugestoes_de_outra_pessoa(@pessoa.id).count
+   pessoa_foi_auto_inserida = @pessoa.auto_inserido
+
+   if tem_conjuge
+     auto_sugestoes_conjuge = @usuario_logado.auto_sugestoes_de_outra_pessoa(@pessoa.conjuge.id).count
+     if @pessoa.conjuge.tem_facebook
+       conjuge_foi_auto_inserido = @pessoa.conjuge.auto_inserido
+     else
+       conjuge_foi_auto_inserido = false
+     end
+   else
+     auto_sugestoes_conjuge = 0
+     conjuge_foi_auto_inserido = false
+   end
+%>
+
+<% tem_auto_sugestoes = false %>
+
+<% if auto_sugestoes_pessoa + auto_sugestoes_conjuge > 0 %>
+    <% tem_auto_sugestoes = true %>
+
     <p class="notificacao_atencao">
-      <% if @pessoa.auto_inserido %>
+      <% if pessoa_foi_auto_inserida && conjuge_foi_auto_inserido %>
+        Esse casal ainda não possui acesso. Seu acesso será liberado a partir do momento que algum coordenador confirmar alguma de suas participações.
+      <% elsif pessoa_foi_auto_inserida %>
         Essa pessoa ainda não possui acesso. Seu acesso será liberado a partir do momento que algum coordenador confirmar alguma de suas participações.
+      <% elsif conjuge_foi_auto_inserido %>
+        O cônjuge dessa pessoa ainda não possui acesso. Seu acesso será liberado a partir do momento que algum coordenador confirmar alguma de suas participações.
       <% else %>
-        Essa pessoa tem participações a serem revisadas.
+        <% if auto_sugestoes_pessoa > 0 && auto_sugestoes_conjuge > 0 %>
+          Esse casal tem participações a serem revisadas.
+        <% elsif auto_sugestoes_pessoa > 0 %>
+          Essa pessoa tem participações a serem revisadas.
+        <% else %>
+          O cônjuge dessa pessoa tem participações a serem revisadas.
+        <% end %>
       <% end %>
     </p>
 <% end %>
 
-<% tem_conjuge = @pessoa.conjuge.present? %>
-
-<%= render 'informacoes_pessoa', pessoa: @pessoa, participacoes: @participacoes, tem_conjuge: tem_conjuge %>
+<%= render 'informacoes_pessoa', pessoa: @pessoa, participacoes: @participacoes, tem_conjuge: tem_conjuge, tem_auto_sugestoes: tem_auto_sugestoes %>
 
 <% if tem_conjuge %>
-    <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, participacoes: @participacoes_conjuge, tem_conjuge: tem_conjuge %>
+    <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, participacoes: @participacoes_conjuge, tem_conjuge: tem_conjuge, tem_auto_sugestoes: tem_auto_sugestoes %>
 <% end %>
 
 <br style="clear: both;"/>

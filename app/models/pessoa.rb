@@ -33,6 +33,10 @@ class Pessoa < ActiveRecord::Base
   validate :validate_email
   validate :validate_cep
 
+  def conjuge
+    Pessoa.unscoped{ super }
+  end
+
   def self.pegar_pessoas array_ids
     pessoas = []
 

@@ -232,12 +232,6 @@
                 ativar_pesquisa_conjuge = true
                 tipo_de_conjuge_escolhido = "ja_cadastrado"
             end
-
-           if modo == 'cadastrar_novo'
-             ativar_form_conjuge = true
-             ativar_pesquisa_conjuge = false
-             tipo_de_conjuge_escolhido = 'novo'
-           end
         %>
 
         <% if modo != 'cadastrar_novo' && pode_alterar_tipo_de_conjuge(@pessoa) %>

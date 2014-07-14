@@ -27,16 +27,117 @@
             version    : 'v2.0'
         });
 
-        function checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado) {
+        function executar(atualizarBotao, nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                          nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
+            if (atualizarBotao) {
+                atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                        nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+            }
+            else {
+                fazerLoginNoSistema(nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                        nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+            }
+        }
+
+        function pegarDadosDoFacebookEConsultarNoSistema(atualizarBotao) {
+            FB.api('/me?fields=email,picture,name,gender,birthday,link,relationship_status,significant_other', function (response) {
+                var nomeFacebook = response.name;
+                var emailFacebook = response.email;
+                var nascimento = response.birthday;
+                var ehHomem = response.gender == 'male';
+                var urlFacebook = response.link;
+                var urlFotoGrande = null;
+                var urlFotoPequena = null;
+
+                var nomeFacebookConjuge = null;
+                var emailFacebookConjuge = null;
+                var nascimentoConjuge = null;
+                var ehHomemConjuge = null;
+                var urlFacebookConjuge = null;
+                var urlFotoGrandeConjuge = null;
+                var urlFotoPequenaConjuge = null;
+
+                var casado = false;
+                if (response.relationship_status == 'Married') {
+                    casado = true;
+                }
+
+                if (!response.picture.data.is_silhouette) {
+                    urlFotoPequena = response.picture.data.url;
+
+                    FB.api('/me/picture?redirect=0&height=200&type=normal&width=200', function (response) {
+                        urlFotoGrande = response.data.url;
+
+                        if (!casado) {
+                            executar(atualizarBotao, nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                                    nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                        }
+                    });
+                }
+                else {
+                    if (!casado) {
+                        executar(atualizarBotao, nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                                nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                    }
+                }
+
+                if (casado) {
+                    if (response.significant_other != null) {
+                        var idConjuge = response.significant_other.id;
+
+                        FB.api('/' + idConjuge + '?fields=email,picture,name,birthday,link,gender', function (response) {
+                            nomeFacebookConjuge = response.name;
+                            emailFacebookConjuge = response.email;
+                            nascimentoConjuge = response.birthday;
+                            ehHomemConjuge = response.gender == "male";
+                            urlFacebookConjuge = response.link;
+
+                            if (!response.picture.data.is_silhouette) {
+                                urlFotoPequenaConjuge = response.picture.data.url;
+
+                                FB.api('/' + idConjuge + '/picture?redirect=0&height=200&type=normal&width=200', function (response) {
+                                    urlFotoGrandeConjuge = response.data.url;
+
+                                    executar(atualizarBotao, nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                                            nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                                });
+                            }
+
+                            else {
+                                executar(atualizarBotao, nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                                        nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                            }
+                        });
+                    }
+                    else {
+                        executar(atualizarBotao, nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                                nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                    }
+                }
+
+
+            });
+        }
+
+        function fazerLoginNoSistema(nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                                     nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
             $.post("<%= log_in_url %>",
                     {
                         "nome_facebook": nomeFacebook,
                         "email_facebook": emailFacebook,
                         "nascimento": nascimento,
+                        "eh_homem": ehHomem,
                         "url_foto_pequena": urlFotoPequena,
                         "url_foto_grande": urlFotoGrande,
                         "url_facebook": urlFacebook,
-                        "casado": casado
+                        "casado": casado,
+                        "nome_facebook_conjuge": nomeFacebookConjuge,
+                        "email_facebook_conjuge": emailFacebookConjuge,
+                        "nascimento_conjuge": nascimentoConjuge,
+                        "eh_homem_conjuge": ehHomemConjuge,
+                        "url_facebook_conjuge": urlFacebookConjuge,
+                        "url_foto_grande_conjuge": urlFotoGrandeConjuge,
+                        "url_foto_pequena_conjuge": urlFotoPequenaConjuge
                     },
                     function (resposta) {
                         if (resposta == "ok") {
@@ -51,35 +152,7 @@
 
         function checarLoginFacebook(response) {
             if (response.status === 'connected') {
-                FB.api('/me?fields=email,picture,name,birthday,link,relationship_status,significant_other', function (response) {
-                    console.log(response);
-
-                    var nomeFacebook = response.name;
-                    var emailFacebook = response.email;
-                    var nascimento = response.birthday;
-                    var urlFacebook = response.link;
-
-                    var casado = false;
-                    if (response.relationship_status == 'Married') {
-                        casado = true;
-                    }
-
-                    var urlFotoGrande = null;
-                    var urlFotoPequena = null;
-
-                    if (!response.picture.data.is_silhouette) {
-                        urlFotoPequena = response.picture.data.url;
-
-                        FB.api('/me/picture?redirect=0&height=200&type=normal&width=200', function (response) {
-                            urlFotoGrande = response.data.url;
-                            checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
-                        });
-                    }
-                    else {
-                        checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
-                    }
-
-                });
+                pegarDadosDoFacebookEConsultarNoSistema(false);
             }
             else {
                 if (response.status === 'not_authorized') {
@@ -89,7 +162,8 @@
             }
         }
 
-        function atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado) {
+        function atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                                        nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
             $("#msg_principal").html("Entrar como " + nomeFacebook + "<br/>(usuário logado no Facebook no momento)");
 
             if (urlFotoPequena != null) {
@@ -99,46 +173,18 @@
 
             $("#link_fb").on("click", function (e) {
                 e.preventDefault();
-                checarLoginSistema(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
+                fazerLoginNoSistema(nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
+                        nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
             });
         }
 
         FB.getLoginStatus(function (response) {
             if (response.status === 'connected') {
-                var nomeFacebook = null;
-                var emailFacebook = null;
-                var nascimento = null;
-                var urlFotoPequena = null;
-                var urlFotoGrande = null;
-                var urlFacebook = null;
-                var casado = false;
-
-                FB.api('/me?fields=email,picture,name,birthday,link,relationship_status,significant_other', function (response) {
-                    console.log(response);
-
-                    nomeFacebook = response.name;
-                    emailFacebook = response.email;
-                    nascimento = response.birthday;
-                    urlFacebook = response.link;
-
-                    if (response.relationship_status == 'Married') {
-                        casado = true;
-                    }
-
-                    if (!response.picture.data.is_silhouette) {
-                        urlFotoPequena = response.picture.data.url;
-
-                        FB.api('/me/picture?redirect=0&height=200&type=normal&width=200', function (response) {
-                            urlFotoGrande = response.data.url;
-                            atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
-                        });
-                    }
-                    else {
-                        atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, urlFotoPequena, urlFotoGrande, urlFacebook, casado);
-                    }
-                });
+                pegarDadosDoFacebookEConsultarNoSistema(true);
             }
             else {
+                $("#msg_principal").html("Entre no sistema usando sua conta de Facebook");
+
                 $("#link_fb").on("click", function (e) {
                     e.preventDefault();
 
@@ -186,7 +232,7 @@
         <p/>
         <a class="link_entrar_pelo_facebook" id="link_fb" href="#">
             <img id="imagem_usuario_facebook" src="" class="imagem_usuario_facebook"/>
-            <span id="msg_principal">Entre no sistema usando sua conta de Facebook</span>
+            <span id="msg_principal">Carregando...</span>
         </a>
         <div id="erro_login" class="msg_erro erro_login"></div>
     </div>

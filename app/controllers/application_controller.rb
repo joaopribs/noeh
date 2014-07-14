@@ -14,7 +14,12 @@ class ApplicationController < ActionController::Base
       return nil
     end
 
-    @usuario_logado = Pessoa.find(id_usuario_logado)
+    begin
+      @usuario_logado = Pessoa.find(id_usuario_logado)
+    rescue ActiveRecord::RecordNotFound
+      reset_session
+      redirect_to deslogado_url and return
+    end
   end
 
   def precisa_estar_logado
@@ -41,9 +46,7 @@ class ApplicationController < ActionController::Base
       indice -= 23
     end
 
-    # @cor = cores[indice]
-
-    @cor = "preto"
+    @cor = cores[indice]
 
   end
 

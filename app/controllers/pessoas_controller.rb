@@ -350,11 +350,38 @@ class PessoasController < ApplicationController
     end
 
     @pessoa = Pessoa.new
+    @pessoa.eh_homem = session[:eh_homem]
     @pessoa.url_foto_grande = session[:url_foto_grande]
     @pessoa.url_foto_pequena = session[:url_foto_pequena]
     @pessoa.nome_facebook = session[:nome_facebook]
     @pessoa.email_facebook = session[:email_facebook]
     @pessoa.url_facebook = session[:url_facebook]
+
+    if session[:casado]
+      @eh_casal = true
+
+      if session[:id_usuario_conjuge]
+        @tipo_conjuge = 'ja_cadastrado'
+        @conjuge = Pessoa.where(session[:id_usuario_conjuge])
+      else
+        @tipo_conjuge = 'form'
+
+        @conjuge = Pessoa.new
+        @conjuge.eh_homem = session[:eh_homem_conjuge]
+        @conjuge.url_foto_grande = session[:url_foto_grande_conjuge]
+        @conjuge.url_foto_pequena = session[:url_foto_pequena_conjuge]
+        @conjuge.nome_facebook = session[:nome_facebook_conjuge]
+        @conjuge.email_facebook = session[:email_facebook_conjuge]
+        @conjuge.url_facebook = session[:url_facebook_conjuge]
+      end
+
+      @pessoa.conjuge = @conjuge
+    else
+      @eh_casal = false
+      @tipo_conjuge = 'form'
+      @conjuge = Pessoa.new
+      @conjuge.eh_homem = !@pessoa.eh_homem
+    end
   end
 
   def cadastrar_novo_confirmacao
@@ -772,6 +799,8 @@ class PessoasController < ApplicationController
 
     def criar_relacoes_auto_inserir()
       ['pessoa', 'conjuge'].each do |tipo_pessoa|
+        pessoa = instance_variable_get("@#{tipo_pessoa}")
+
         grupos = instance_variable_get("@grupos_auto_inserir_#{tipo_pessoa}")
         coordenadores = instance_variable_get("@coordenadores_auto_inserir_#{tipo_pessoa}")
         encontros = instance_variable_get("@encontros_auto_inserir_#{tipo_pessoa}")
@@ -786,11 +815,11 @@ class PessoasController < ApplicationController
             if texto_sugestao != ''
               auto_sugestao = nil
               if texto_sugestao == 'so_grupo'
-                auto_sugestao = AutoSugestao.where({pessoa: @pessoa, grupo_id: grupo_id}).first
+                auto_sugestao = AutoSugestao.where({pessoa: pessoa, grupo_id: grupo_id}).first
               end
 
               if auto_sugestao.nil?
-                auto_sugestao = AutoSugestao.new({pessoa: @pessoa, grupo_id: grupo_id})
+                auto_sugestao = AutoSugestao.new({pessoa: pessoa, grupo_id: grupo_id})
               end
 
               if encontro_id != "-1"

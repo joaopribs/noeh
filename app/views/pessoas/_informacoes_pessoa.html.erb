@@ -253,7 +253,7 @@
   });
 </script>
 
-<table class="informacoes_pessoa <%= "tem_conjuge" if tem_conjuge %>">
+<table class="informacoes_pessoa <%= "conjuge_50_50" if tem_conjuge && !tem_auto_sugestoes %>">
   <tr>
     <td>
         <img src="<%= pessoa.url_imagem(200) %>" class="imagem_facebook_detalhe"/>

@@ -240,7 +240,7 @@
       <img src="<%= pessoa.url_imagem(120) %>" id="imagem_<%= tipo_pessoa %>" class="imagem_pessoa_form"/>
     </td>
     <td>
-      <% if defined?(modo) && modo == "cadastrar_novo" %>
+      <% if defined?(modo) && modo == "cadastrar_novo" && pessoa.nome_facebook.present? %>
 
         <input type="hidden" name="tem_facebook_<%= tipo_pessoa %>" value="1" />
         <input type="hidden" name="nome_facebook_<%= tipo_pessoa %>" value="<%= pessoa.nome_facebook %>" />
@@ -249,7 +249,8 @@
         <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_foto_grande %>" />
         <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_foto_pequena %>" />
 
-      <% elsif pode_editar_facebook_de_pessoa(pessoa) %>
+      <% elsif (defined?(modo) && modo == "cadastrar_novo" && pessoa.nome_facebook.blank?) ||
+              pode_editar_facebook_de_pessoa(pessoa) %>
           <% if pessoa.tem_informacoes_facebook %>
               <input type="hidden" id="esta_tirando_facebook_<%= tipo_pessoa %>" value="0" />
           <% end %>
