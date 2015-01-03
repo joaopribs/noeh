@@ -1,3 +1,10 @@
 <% Cor.all.each do |cor| %>
+.<%= cor.classe_css %> {
+  color: <%= cor.hex_contraste %> !important;
+  background-color: <%= cor.hex_cor %> !important;
+}
 
+.<%= cor.classe_css %>:hover {
+  background-color: <%= cor.hex_cor_hover %> !important;
+}
 <% end %>
