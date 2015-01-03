@@ -2,38 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5c9b7b3-033f-4c47-81ad-f04a402dec0a" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/.generators" afterPath="$PROJECT_DIR$/.idea/.generators" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/.rakeTasks" afterPath="$PROJECT_DIR$/.idea/.rakeTasks" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Gemfile.lock" afterPath="$PROJECT_DIR$/Gemfile.lock" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Gemfile" afterPath="$PROJECT_DIR$/Gemfile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/_form.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/_form.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/_form_pessoa.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/_form_pessoa.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/_informacoes_pessoa.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/_informacoes_pessoa.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/layouts/_navegacao.html.erb" afterPath="$PROJECT_DIR$/app/views/layouts/_navegacao.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/layouts/application.html.erb" afterPath="$PROJECT_DIR$/app/views/layouts/application.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/assets/javascripts/application.js" afterPath="$PROJECT_DIR$/app/assets/javascripts/application.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/application_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/application_controller.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/helpers/application_helper.rb" afterPath="$PROJECT_DIR$/app/helpers/application_helper.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/cadastrar_novo.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/cadastrar_novo.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/conjunto_permanente.rb" afterPath="$PROJECT_DIR$/app/models/conjunto_permanente.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/conjuntos_pessoas_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/conjuntos_pessoas_controller.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/homepage/deslogado.html.erb" afterPath="$PROJECT_DIR$/app/views/homepage/deslogado.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/assets/stylesheets/dialog.css" afterPath="$PROJECT_DIR$/app/assets/stylesheets/dialog.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/conjuntos_pessoas/edit.html.erb" afterPath="$PROJECT_DIR$/app/views/conjuntos_pessoas/edit.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/equipe.rb" afterPath="$PROJECT_DIR$/app/models/equipe.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/assets/stylesheets/estilo.css" afterPath="$PROJECT_DIR$/app/assets/stylesheets/estilo.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/grupo.rb" afterPath="$PROJECT_DIR$/app/models/grupo.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/grupos_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/grupos_controller.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/index.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/index.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/lista_pessoas_js.js.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/lista_pessoas_js.js.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/pessoa.rb" afterPath="$PROJECT_DIR$/app/models/pessoa.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/pessoas_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/pessoas_controller.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/relacao_pessoa_grupo.rb" afterPath="$PROJECT_DIR$/app/models/relacao_pessoa_grupo.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/routes.rb" afterPath="$PROJECT_DIR$/config/routes.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schema.rb" afterPath="$PROJECT_DIR$/db/schema.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/seeds.rb" afterPath="$PROJECT_DIR$/db/seeds.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/sessions_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/sessions_controller.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/encontros/show.html.erb" afterPath="$PROJECT_DIR$/app/views/encontros/show.html.erb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/assets/stylesheets/cores.css.erb" afterPath="$PROJECT_DIR$/app/assets/stylesheets/cores.css.erb" />
     </list>
     <ignored path="sistema_igreja.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -107,11 +76,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="application_controller.rb" pinned="false" current-in-tab="true">
+      <file leaf-file-name="application_controller.rb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/controllers/application_controller.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.59152216" vertical-offset="443" max-vertical-offset="1305">
+            <state vertical-scroll-proportion="0.0" vertical-offset="443" max-vertical-offset="1305">
               <caret line="50" column="17" selection-start-line="50" selection-start-column="17" selection-end-line="50" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cores.css.erb" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/assets/stylesheets/cores.css.erb">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.030303031" vertical-offset="0" max-vertical-offset="495">
+              <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -169,7 +148,6 @@
         <option value="$PROJECT_DIR$/db/migrate/20150103164119_add_classe_css_to_cor.rb" />
         <option value="$PROJECT_DIR$/app/views/layouts/application.html.erb" />
         <option value="$PROJECT_DIR$/db/migrate/20150103165418_add_hex_cor_hover_to_cor.rb" />
-        <option value="$PROJECT_DIR$/app/assets/stylesheets/cores.css.erb" />
         <option value="$PROJECT_DIR$/app/views/layouts/_navegacao.html.erb" />
         <option value="$PROJECT_DIR$/app/views/encontros/show.html.erb" />
         <option value="$PROJECT_DIR$/db/seeds.rb" />
@@ -179,6 +157,7 @@
         <option value="$PROJECT_DIR$/app/assets/stylesheets/estilo.css" />
         <option value="$PROJECT_DIR$/app/views/pessoas/_form.html.erb" />
         <option value="$PROJECT_DIR$/app/controllers/application_controller.rb" />
+        <option value="$PROJECT_DIR$/app/assets/stylesheets/cores.css.erb" />
       </list>
     </option>
   </component>
@@ -1130,14 +1109,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/assets/stylesheets/cores.css.erb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-4.375" vertical-offset="0" max-vertical-offset="225">
-          <caret line="7" column="41" selection-start-line="7" selection-start-column="41" selection-end-line="7" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/db/seeds.rb">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.6087824" vertical-offset="295" max-vertical-offset="1050">
@@ -1241,8 +1212,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/controllers/application_controller.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.59152216" vertical-offset="443" max-vertical-offset="1305">
+        <state vertical-scroll-proportion="0.0" vertical-offset="443" max-vertical-offset="1305">
           <caret line="50" column="17" selection-start-line="50" selection-start-column="17" selection-end-line="50" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/assets/stylesheets/cores.css.erb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.030303031" vertical-offset="0" max-vertical-offset="495">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
           <folding />
         </state>
       </provider>
