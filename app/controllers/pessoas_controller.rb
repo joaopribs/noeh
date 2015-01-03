@@ -1,9 +1,11 @@
 #encoding: utf-8
+require "open-uri"
 
 class PessoasController < ApplicationController
-  skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao]
+  skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao, :teste]
   before_action :set_entidades, :adicionar_breadcrumbs_entidades
-  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :cadastrar_novo_confirmacao]
+  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :cadastrar_novo_confirmacao, :teste]
+  skip_before_action :verify_authenticity_token, only: [:lista_pessoas_js]
 
   # GET /pessoas
   # GET /pessoas.json
@@ -66,7 +68,7 @@ class PessoasController < ApplicationController
 
     adicionar_breadcrumb "Criar nova pessoa", new_pessoa_url, "criar"
 
-    @pessoa = Pessoa.new(pessoa_params)
+    @pessoa = criar_pessoa("pessoa")
 
     pessoa_valida = @pessoa.valid?
 
@@ -98,7 +100,7 @@ class PessoasController < ApplicationController
         @conjuge = Pessoa.find(params[:id_conjuge])
         @tipo_conjuge = 'ja_cadastrado'
       else
-        @conjuge = Pessoa.new(conjuge_params)
+        @conjuge = criar_pessoa("conjuge")
         @tipo_conjuge = 'form'
       end
 
@@ -229,7 +231,7 @@ class PessoasController < ApplicationController
 
     tinha_facebook_antes = @pessoa.tem_informacoes_facebook
 
-    @pessoa.assign_attributes(pessoa_params)
+    @pessoa = atualizar_pessoa(@pessoa, "pessoa")
 
     @pessoa = remover_facebook_se_necessario(@pessoa, tinha_facebook_antes)
 
@@ -264,9 +266,9 @@ class PessoasController < ApplicationController
 
         if @conjuge.present?
           precisa_poder_editar_pessoa @conjuge
-          @conjuge.assign_attributes(conjuge_params)
+          @conjuge = atualizar_pessoa(@conjuge, "conjuge")
         else
-          @conjuge = Pessoa.new(conjuge_params)
+          @conjuge = criar_pessoa("conjuge")
         end
 
         @conjuge = remover_facebook_se_necessario(@conjuge, @conjuge.tem_informacoes_facebook)
@@ -351,11 +353,12 @@ class PessoasController < ApplicationController
 
     @pessoa = Pessoa.new
     @pessoa.eh_homem = session[:eh_homem]
-    @pessoa.url_foto_grande = session[:url_foto_grande]
-    @pessoa.url_foto_pequena = session[:url_foto_pequena]
     @pessoa.nome_facebook = session[:nome_facebook]
     @pessoa.email_facebook = session[:email_facebook]
     @pessoa.url_facebook = session[:url_facebook]
+
+    @foto_grande_pessoa = session[:url_foto_grande]
+    @foto_pequena_pessoa = session[:url_foto_pequena]
 
     if session[:casado]
       @eh_casal = true
@@ -368,11 +371,14 @@ class PessoasController < ApplicationController
 
         @conjuge = Pessoa.new
         @conjuge.eh_homem = session[:eh_homem_conjuge]
-        @conjuge.url_foto_grande = session[:url_foto_grande_conjuge]
-        @conjuge.url_foto_pequena = session[:url_foto_pequena_conjuge]
+        @conjuge.foto_grande = open(session[:url_foto_grande_conjuge])
+        @conjuge.foto_pequena = open(session[:url_foto_pequena_conjuge])
         @conjuge.nome_facebook = session[:nome_facebook_conjuge]
         @conjuge.email_facebook = session[:email_facebook_conjuge]
         @conjuge.url_facebook = session[:url_facebook_conjuge]
+
+        @foto_grande_conjuge = session[:url_foto_grande_conjuge]
+        @foto_pequena_conjuge = session[:url_foto_pequena_conjuge]
       end
 
       @pessoa.conjuge = @conjuge
@@ -407,7 +413,7 @@ class PessoasController < ApplicationController
     end
 
     if params.has_key? :pessoa_ignorar
-      id_pessoas_ignorar.concat params[:pessoa_ignorar]
+      id_pessoas_ignorar.concat [params[:pessoa_ignorar]]
     end
 
     if id_pessoas_ignorar.count > 0
@@ -438,11 +444,27 @@ class PessoasController < ApplicationController
     pessoas[0..4].each { |pessoa|
       if pessoa.conjuge.present?
         conjuge = pessoa.conjuge.attributes
+
+        if pessoa.conjuge.foto_grande.present?
+          conjuge = conjuge.merge({url_foto_grande: pessoa.conjuge.foto_grande.url})
+        end
+
+        if pessoa.conjuge.foto_pequena.present?
+          conjuge = conjuge.merge({url_foto_pequena: pessoa.conjuge.foto_pequena.url})
+        end
       else
         conjuge = nil
       end
 
       pessoa_hash = pessoa.attributes
+
+      if pessoa.foto_grande.present?
+        pessoa_hash = pessoa_hash.merge({url_foto_grande: pessoa.foto_grande.url})
+      end
+
+      if pessoa.foto_pequena.present?
+        pessoa_hash = pessoa_hash.merge({url_foto_pequena: pessoa.foto_pequena.url})
+      end
 
       if params.has_key? :id_conjunto
         conjunto = ConjuntoPessoas.find(params[:id_conjunto])
@@ -701,13 +723,74 @@ class PessoasController < ApplicationController
       end
     end
 
+    def criar_pessoa(tipo_pessoa)
+      if tipo_pessoa == "pessoa"
+        pessoa = Pessoa.new(pessoa_params)
+      elsif tipo_pessoa == "conjuge"
+        pessoa = Pessoa.new(conjuge_params)
+      end
+
+      pessoa = atualizar_fotos(pessoa, tipo_pessoa)
+
+      return pessoa
+    end
+
+    def atualizar_pessoa(pessoa, tipo_pessoa)
+      if tipo_pessoa == "pessoa"
+        pessoa.assign_attributes(pessoa_params)
+      elsif tipo_pessoa == "conjuge"
+        pessoa.assign_attributes(conjuge_params)
+      end
+
+      pessoa = atualizar_fotos(pessoa, tipo_pessoa)
+
+      return pessoa
+    end
+
+    def atualizar_fotos(pessoa, tipo_pessoa)
+      if tipo_pessoa == "pessoa"
+        param_foto_grande = "imagem_facebook_pessoa"
+        param_foto_pequena = "url_foto_pequena_pessoa"
+      elsif tipo_pessoa == "conjuge"
+        param_foto_grande = "imagem_facebook_conjuge"
+        param_foto_pequena = "url_foto_pequena_conjuge"
+      end
+
+      if params[param_foto_grande].present?
+        nome_do_arquivo = URI::split(params[param_foto_grande])[5].split("/").last
+        if pessoa.foto_grande_file_name != nome_do_arquivo
+          begin
+            pessoa.foto_grande = open(params[param_foto_grande])
+          rescue
+          end
+          pessoa.foto_grande_file_name = nome_do_arquivo
+        end
+      else
+        pessoa.foto_grande.clear
+      end
+
+      if params[param_foto_pequena].present?
+        nome_do_arquivo = URI::split(params[param_foto_pequena])[5].split("/").last
+        if pessoa.foto_pequena_file_name != nome_do_arquivo
+          begin
+            foto_pequena = open(params[param_foto_pequena])
+          rescue
+          end
+          foto_pequena_file_name = nome_do_arquivo
+        end
+      else
+        pessoa.foto_pequena.clear
+      end
+
+      return pessoa
+    end
+
     def remover_facebook_se_necessario(pessoa, tinha_antes)
       if tinha_antes && (pessoa.tem_facebook.nil? || pessoa.tem_facebook == "off")
-        pessoa.url_foto_pequena = nil
-        pessoa.url_foto_grande = nil
         pessoa.nome_facebook = nil
         pessoa.url_facebook = nil
         pessoa.email_facebook = nil
+        pessoa.url_imagem_facebook = nil
       end
 
       return pessoa
@@ -722,7 +805,7 @@ class PessoasController < ApplicationController
       telefones = pegar_telefones(params[:telefones_pessoa], params[:operadoras_pessoa])
       instrumentos = pegar_instrumentos(params[:instrumentos_pessoa])
 
-      hash = ActionController::Parameters.new(nome: params[:nome_pessoa],
+      hash = ActionController::Parameters.new({nome: params[:nome_pessoa],
                                               nome_usual: params[:nome_usual_pessoa],
                                               dia: params[:dia_pessoa],
                                               mes: params[:mes_pessoa],
@@ -739,9 +822,9 @@ class PessoasController < ApplicationController
                                               nome_facebook: params[:nome_facebook_pessoa].gsub(/\s+/, " ").strip,
                                               email_facebook: params[:email_facebook_pessoa],
                                               url_facebook: params[:url_facebook_pessoa].strip.split("?")[0],
-                                              url_foto_grande: params[:imagem_facebook_pessoa].strip,
+                                              url_imagem_facebook: params[:imagem_facebook_pessoa].strip,
                                               telefones: telefones,
-                                              instrumentos: instrumentos)
+                                              instrumentos: instrumentos})
       hash.permit!
       return hash
     end
@@ -762,7 +845,7 @@ class PessoasController < ApplicationController
                                               nome_facebook: params[:nome_facebook_conjuge].gsub(/\s+/, " ").strip,
                                               email_facebook: params[:email_facebook_conjuge],
                                               url_facebook: params[:url_facebook_conjuge].strip.split("?")[0],
-                                              url_foto_grande: params[:imagem_facebook_conjuge].strip,
+                                              url_imagem_facebook: params[:imagem_facebook_conjuge].strip,
                                               telefones: telefones,
                                               instrumentos: instrumentos)
       hash.permit!

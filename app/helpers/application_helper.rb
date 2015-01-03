@@ -80,6 +80,11 @@ module ApplicationHelper
         conjunto.encontro.coordenadores.include?(@usuario_logado)
   end
 
+  def pode_editar_sugestoes conjunto
+    return @usuario_logado.eh_super_admin ||
+        conjunto.coordenadores.include?(@usuario_logado)
+  end
+
   def pode_criar_encontro_no_grupo grupo
     return @usuario_logado.eh_super_admin? || grupo.coordenadores.include?(@usuario_logado)
   end

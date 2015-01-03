@@ -7,6 +7,10 @@
         <% end %>
     <% end %>
 
+    <% if @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 %>
+        <%= link_to 'Pesquisar pessoas', '#' %>
+    <% end %>
+
     <% if @usuario_logado.eh_super_admin %>
         <%= link_to "Grupos", grupos_path %>
         <%= link_to "Pessoas", pessoas_path %>
@@ -20,7 +24,8 @@
         <% end %>
 
         <% @usuario_logado.conjuntos_permanentes.each do |conjunto_permanente| %>
-            <%= link_to "#{conjunto_permanente.encontro.denominacao_conjuntos_permanentes} #{conjunto_permanente.nome}", circulo_path(conjunto_permanente) %>
+            <% classe_css = conjunto_permanente.cor.present? ? conjunto_permanente.cor.classe_css : "" %>
+            <%= link_to "#{conjunto_permanente.encontro.denominacao_conjuntos_permanentes} #{conjunto_permanente.nome}", circulo_path(conjunto_permanente), class: "#{classe_css}" %>
         <% end %>
 
         <% @usuario_logado.encontros_que_esta_coordenando_agora.each do |encontro| %>

@@ -66,7 +66,7 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
 
                 var pessoaId = $(this).data("pessoa-id");
                 var page = $(this).data("page");
-                var nome = $(this).data("nome-pessoa")
+                var nome = $(this).data("nome-pessoa");
 
                 $("#dialog_conteudo").html("Tem certeza que deseja excluir <em>" + nome + "</em> do sistema?<p/>");
                 $("#dialog_conteudo").append("<a href='#' class='confirmar_excluir_pessoa dialog_link_confirmar' data-pessoa-id='" + pessoaId + "' data-page='" + page + "'>Confirmar</a>");
@@ -115,7 +115,7 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 var nomeGrupo = $(this).data("nome-grupo");
 
                 $("#dialog_conteudo").html("Tem certeza que deseja remover <em>" + nomePessoa + "</em> do grupo <em>" + nomeGrupo + "</em>?<p/>");
-                $("#dialog_conteudo").append("<label><input type='radio' name='tipo_remover' value='acidente' />Adicionado <em>por acidente</em> (não deveria fazer parte do grupo)</label><br/>");
+                $("#dialog_conteudo").append("<label><input type='radio' name='tipo_remover' value='acidente' />Adicionado <em>por acidente</em> (nunca fez parte do grupo)</label><br/>");
                 $("#dialog_conteudo").append("<label><input type='radio' name='tipo_remover' value='saindo' /><em>Já participou</em>, mas saiu do grupo na seguinte data:</label>");
                 $("#dialog_conteudo").append("<input id='data_saindo' type='text' readonly='true'/>")
 
@@ -209,7 +209,7 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                 var nomeGrupo = $(this).data("nome-grupo");
 
                 $("#dialog_conteudo").html("Tem certeza que deseja remover a participação de <em>" + nomePessoa + "</em> do grupo <em>" + nomeGrupo + "</em>?<br/>");
-                $("#dialog_conteudo").append("Não será guardado nenhum registro que essa pessoa participou do grupo.");
+                $("#dialog_conteudo").append("Não será guardado nenhum registro que essa pessoa já participou do grupo.");
                 $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-grupo-id='" + grupoId + "' data-pessoa-id='" + pessoaId + "' data-page='" + page + "'>Confirmar</a>");
                 $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
                 $("#dialog").show();
@@ -229,7 +229,7 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
                             {
                                 id_grupo: grupoId,
                                 id_pessoa: pessoaId,
-                                tipo_remover: "acidente",
+                                tipo_remover: "remover_ex",
                                 page: page,
                                 ex_participante: true
                             },
@@ -362,7 +362,7 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
 
             self.funcaoSucesso();
 
-            $(self.containerDaTabela).find('.overlay_carregando').hide();
+//            $(self.containerDaTabela).find('.overlay_carregando').hide();
         });
 
     },

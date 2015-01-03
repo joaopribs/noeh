@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.0.4'
+gem 'rails', '4.2.0'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.2'
@@ -32,3 +32,7 @@ gem 'activerecord-session_store', github: 'rails/activerecord-session_store'
 gem 'friendly_id'
 
 gem 'rails_12factor', group: :production
+
+gem "paperclip-dropbox", ">= 1.1.7"
+
+gem 'remotipart', '~> 1.2'

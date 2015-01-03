@@ -112,11 +112,11 @@
         <b>Liberação do sistema:</b> <%= @encontro.data_liberacao.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
         <b>Fechamento do sistema:</b> <%= @encontro.data_fechamento.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
 
-        <% qtd_encontreiros = @encontro.equipes.sum{|e| e.pessoas.count} %>
+        <% qtd_encontreiros = @encontro.equipes.inject(0) {|soma, equipe| equipe.pessoas.count} %>
         <b>Encontreiros:</b> <%= qtd_encontreiros %> pessoa<%= "s" if qtd_encontreiros != 1 %>,
         em <%= @encontro.equipes.count %> equipes<br/>
 
-        <% qtd_encontristas = @encontro.conjuntos_permanentes.sum{|c| c.relacoes_pessoa_conjunto.where(eh_coordenador: false).count} %>
+        <% qtd_encontristas = @encontro.conjuntos_permanentes.inject(0) {|soma, conjunto_permanente| conjunto_permanente.relacoes_pessoa_conjunto.where(eh_coordenador: false).count} %>
         <b>Encontristas:</b> <%= qtd_encontristas %> pessoa<%= "s" if qtd_encontristas != 1 %>,
         em <%= @encontro.conjuntos_permanentes.count %> <%= denominacoes_conjuntos_permanentes.select{|d| d[:nome] == @encontro.denominacao_conjuntos_permanentes}[0][:plural].downcase %><br/>
 
@@ -218,8 +218,7 @@
               </td>
               <td align="center">
                 <% if conjunto_permanente.cor.present? %>
-                    <% style = "background-color: #{conjunto_permanente.cor.hex_cor}; color: #{conjunto_permanente.cor.hex_contraste}" %>
-                    <%= link_to conjunto_permanente.cor.nome, circulo_url(conjunto_permanente), class: 'cor_conjunto_permanente', style: style %>
+                    <%= link_to conjunto_permanente.cor.nome, circulo_url(conjunto_permanente), class: "cor_conjunto_permanente #{conjunto_permanente.cor.classe_css}" %>
                 <% end %>
               </td>
               <td align="center">

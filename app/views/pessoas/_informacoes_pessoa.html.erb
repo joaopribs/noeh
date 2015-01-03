@@ -476,7 +476,7 @@
                           </td>
                           <td align="center">
                             <% if tipo != "grupo" %>
-                                <%= select_tag 'conjunto', options_for_select(encontro.conjuntos_ordenados.collect{|c| ["#{c.tipo_do_conjunto} #{c.nome}", c.id]}), include_blank: false, class: 'conjunto' %>
+                                <%= select_tag 'conjunto', options_for_select(encontro.conjuntos_ordenados.collect{|c| [c.nome_pra_auto_sugestao, c.id]}), include_blank: false, class: 'conjunto' %>
                                 <label>
                                   <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coord.
                                 </label>

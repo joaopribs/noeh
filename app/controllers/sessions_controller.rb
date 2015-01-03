@@ -1,4 +1,6 @@
 #encoding: utf-8
+require "open-uri"
+require "uri"
 
 class SessionsController < ApplicationController
   skip_before_filter :precisa_estar_logado, :only => [:log_in, :log_out]
@@ -19,7 +21,7 @@ class SessionsController < ApplicationController
     usuario = pegar_usuario(params)
 
     if usuario.present?
-      if nascimento.present? || email_facebook.present? || url_foto.present?
+      if nascimento.present? || email_facebook.present? || url_foto_grande.present? || url_foto_pequena.present?
         if nascimento.present? && usuario.nascimento.blank?
           elementos = nascimento.split('/')
           mes = elementos[0]
@@ -39,10 +41,21 @@ class SessionsController < ApplicationController
           usuario.email_facebook = email_facebook
         end
 
-        if (usuario.url_foto_grande.blank? || usuario.url_foto_pequena.blank?) &&
-            (url_foto_grande.present? || url_foto_pequena.present?)
-          usuario.url_foto_grande = url_foto_grande
-          usuario.url_foto_pequena = url_foto_pequena
+        if url_foto_grande.present?
+          nome_do_arquivo = URI::split(url_foto_grande)[5].split("/").last
+          if usuario.foto_grande_file_name != nome_do_arquivo
+            usuario.foto_grande = open(url_foto_grande)
+            usuario.foto_grande_file_name = nome_do_arquivo
+            usuario.url_imagem_facebook = url_foto_grande
+          end
+        end
+
+        if url_foto_pequena.present?
+          nome_do_arquivo = URI::split(url_foto_pequena)[5].split("/").last
+          if usuario.foto_pequena_file_name != nome_do_arquivo
+            usuario.foto_pequena = open(url_foto_pequena)
+            usuario.foto_pequena_file_name = nome_do_arquivo
+          end
         end
       end
 
@@ -109,32 +122,32 @@ class SessionsController < ApplicationController
   def pegar_usuario(params)
     email_facebook = params[:email_facebook]
     nome_facebook = params[:nome_facebook]
-
+    
     usuario = nil
-
+    
     usuarios = []
-
+    
     if email_facebook.present?
       usuarios = Pessoa.where(email_facebook: email_facebook)
     end
-
+    
     if usuarios.count == 1
       usuario = usuarios.first
     elsif nome_facebook.present?
       usuarios = Pessoa.where(nome_facebook: nome_facebook)
-
+    
       if usuarios.count == 1
         usuario = usuarios.first
       elsif usuarios.count > 1
         usuarios = Pessoa.where(nome_facebook: nome_facebook, email_facebook: email_facebook)
-
+    
         if usuarios.count == 1
           usuario = usuarios.first
         end
-
+    
       end
     end
-
+    
     return usuario
   end
 

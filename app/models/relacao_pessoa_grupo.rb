@@ -4,7 +4,7 @@ class RelacaoPessoaGrupo < ActiveRecord::Base
 
   self.table_name = "relacoes_pessoa_grupo"
 
-  default_scope { where({deixou_de_participar_em: nil}) }
+  # default_scope { where({deixou_de_participar_em: nil}) }
 
   after_initialize :default_values
 

@@ -203,7 +203,7 @@ class GruposController < ApplicationController
     end
 
     relacoes.each do |relacao|
-      if params[:tipo_remover] == 'acidente'
+      if params[:tipo_remover] == 'acidente' || params[:tipo_remover] == 'remover_ex'
         relacao.destroy
 
         conjuntos = []
@@ -236,7 +236,11 @@ class GruposController < ApplicationController
       msg_sucesso = "Pessoa removida do grupo com sucesso"
     end
 
-    carregar_pessoas(@grupo.pessoas)
+    if params[:tipo_remover] == 'remover_ex'
+      carregar_pessoas(@grupo.ex_relacoes.collect{|r| r.pessoa}.uniq)
+    else
+      carregar_pessoas(@grupo.pessoas)
+    end
 
     numero_pagina = params[:page].to_i
     if @grupo.pessoas.count < (APP_CONFIG['items_per_page'] * (numero_pagina - 1) + 1)

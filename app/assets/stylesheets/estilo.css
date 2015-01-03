@@ -163,7 +163,9 @@ form.espaco_embaixo {
     padding: 5px;
 }
 
-#img_spinner {
+#img_spinner,
+#img_spinner_upload_relatorio,
+#img_spinner_remover_relatorio {
     height: 23px;
     width: 23px;
     display: inline-block;
@@ -258,6 +260,17 @@ a.link_submeter:hover {
     color: #48e05e;
 }
 
+a.link_upload {
+    color: #008d14;
+    padding-left: 20px;
+    background: url(enviar.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_upload:hover {
+    color: #48e05e;
+}
+
 a.link_remover {
     color: #760000;
     padding-left: 20px;
@@ -296,6 +309,37 @@ a.link_buscar {
 
 a.link_buscar:hover {
     color: #4e78f6;
+}
+
+/* Tipos de arquivo
+------------------------------------------------------------------------------*/
+
+a.arquivo_word {
+    line-height: 30px;
+    display: inline-block;
+    padding-left: 35px;
+    background: url(word.png) no-repeat;
+    background-position: left center;
+    color: #2e5994;
+    margin: 10px;
+}
+
+a.arquivo_word:hover {
+    color: #0b68e7;
+}
+
+a.arquivo_pdf {
+    line-height: 30px;
+    display: inline-block;
+    padding-left: 35px;
+    background: url(pdf.png) no-repeat;
+    background-position: left center;
+    color: #dd6054;
+    margin: 10px;
+}
+
+a.arquivo_pdf:hover {
+    color: #cc3333;
 }
 
 /* Paginação
@@ -449,6 +493,47 @@ a.link_buscar:hover {
     margin-bottom: 10px;
 }
 
+.ajuda_form_facebook {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    background: url(ajuda.png) no-repeat #3d5cb9;
+    background-position: 15px 12px;
+    color: #fff;
+    width: 200px;
+    height: 70px;
+    padding: 10px;
+    padding-left: 40px;
+}
+
+.ajuda_form_facebook:hover {
+    cursor: pointer;
+    background-color: #4e78f6;
+}
+
+.ajuda_facebook {
+    font-size: 12pt;
+    color: #f0f0f0;
+    margin-top: 20px;
+}
+
+.dialog_ajuda_facebook {
+    padding-top: 70px !important;
+}
+
+.dialog_ajuda_facebook a:first-child {
+    margin-left: 20px;
+}
+
+.link_ajuda_facebook_hover,
+.link_ajuda_facebook_selecionado {
+    background-color: #fff;
+}
+
+.dialog_ajuda_facebook img {
+    margin-top: 10px;
+}
+
 /* Página deslogado
 ------------------------------------------------------------------------------*/
 
@@ -510,7 +595,7 @@ a.link_buscar:hover {
     left: 0;
     width: 100%;
     height: 40px;
-    z-index: 999999;
+    z-index: 99998;
 }
 
 #area_central_superior {

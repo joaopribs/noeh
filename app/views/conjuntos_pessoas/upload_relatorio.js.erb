@@ -1,0 +1,17 @@
+<%
+   if @conjunto.relatorio.present?
+     url_link = @conjunto.relatorio.url(download: true)
+     texto_link = @conjunto.relatorio_file_name
+     classe_link = "arquivo_#{@conjunto.tipo_de_arquivo}"
+   end
+%>
+
+$("#link_relatorio").attr("href", "<%= url_link %>");
+$("#link_relatorio").addClass("<%= classe_link %>");
+$("#link_relatorio").html("<%= texto_link %>");
+
+$("#informacoes_relatorio").show();
+
+$("#overlay_carregando_upload_relatorio").hide();
+
+$("#campo_upload_relatorio").hide();

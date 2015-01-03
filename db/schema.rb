@@ -11,108 +11,121 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140708234722) do
+ActiveRecord::Schema.define(version: 20150103165419) do
 
-  create_table "auto_sugestao", force: true do |t|
-    t.integer  "pessoa_id"
-    t.integer  "grupo_id"
-    t.string   "sugestao"
+  create_table "auto_sugestao", force: :cascade do |t|
+    t.integer  "pessoa_id",   limit: 4
+    t.integer  "grupo_id",    limit: 4
+    t.string   "sugestao",    limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "coordenador"
-    t.integer  "encontro_id"
+    t.boolean  "coordenador", limit: 1
+    t.integer  "encontro_id", limit: 4
   end
 
-  create_table "conjuntos_pessoas", force: true do |t|
-    t.integer  "encontro_id"
-    t.string   "nome"
+  create_table "conjuntos_pessoas", force: :cascade do |t|
+    t.integer  "encontro_id",            limit: 4
+    t.string   "nome",                   limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "tipo"
-    t.integer  "cor_id"
+    t.string   "tipo",                   limit: 255
+    t.integer  "cor_id",                 limit: 4
+    t.string   "relatorio_file_name",    limit: 255
+    t.string   "relatorio_content_type", limit: 255
+    t.integer  "relatorio_file_size",    limit: 4
+    t.datetime "relatorio_updated_at"
   end
 
-  create_table "cores", force: true do |t|
-    t.string  "hex_cor"
-    t.string  "hex_contraste"
-    t.boolean "de_equipe"
-    t.boolean "de_conjunto_permanente"
-    t.string  "nome"
+  create_table "cores", force: :cascade do |t|
+    t.string  "hex_cor",                limit: 255
+    t.string  "hex_contraste",          limit: 255
+    t.boolean "de_equipe",              limit: 1
+    t.boolean "de_conjunto_permanente", limit: 1
+    t.string  "nome",                   limit: 255
+    t.string  "classe_css",             limit: 255
+    t.string  "hex_cor_hover",          limit: 255
   end
 
-  create_table "encontros", force: true do |t|
+  create_table "encontros", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "grupo_id"
-    t.boolean  "padrao",                            default: false
-    t.string   "denominacao_conjuntos_permanentes", default: "Círculo"
-    t.string   "nome"
-    t.string   "local"
-    t.string   "tema"
+    t.integer  "grupo_id",                          limit: 4
+    t.boolean  "padrao",                            limit: 1,   default: false
+    t.string   "denominacao_conjuntos_permanentes", limit: 255, default: "Círculo"
+    t.string   "nome",                              limit: 255
+    t.string   "local",                             limit: 255
+    t.string   "tema",                              limit: 255
     t.date     "data_inicio"
     t.date     "data_termino"
     t.date     "data_liberacao"
     t.date     "data_fechamento"
   end
 
-  create_table "grupos", force: true do |t|
-    t.string   "nome"
+  create_table "grupos", force: :cascade do |t|
+    t.string   "nome",          limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "tem_encontros", default: false
-    t.string   "slug"
+    t.boolean  "tem_encontros", limit: 1,   default: false
+    t.string   "slug",          limit: 255
   end
 
-  create_table "instrumentos", force: true do |t|
-    t.string  "nome"
-    t.integer "pessoa_id"
+  create_table "instrumentos", force: :cascade do |t|
+    t.string  "nome",      limit: 255
+    t.integer "pessoa_id", limit: 4
   end
 
-  create_table "pessoas", force: true do |t|
-    t.string   "nome"
-    t.string   "nome_usual"
+  create_table "pessoas", force: :cascade do |t|
+    t.string   "nome_facebook",             limit: 255
+    t.string   "nome",                      limit: 255
+    t.string   "nome_usual",                limit: 255
     t.date     "nascimento"
-    t.string   "rua"
-    t.string   "numero"
-    t.string   "bairro"
-    t.string   "cidade"
-    t.string   "estado"
-    t.string   "cep"
-    t.boolean  "eh_homem"
-    t.string   "email"
+    t.string   "rua",                       limit: 255
+    t.string   "numero",                    limit: 255
+    t.string   "bairro",                    limit: 255
+    t.string   "cidade",                    limit: 255
+    t.string   "estado",                    limit: 255
+    t.string   "cep",                       limit: 255
+    t.boolean  "eh_homem",                  limit: 1
+    t.string   "email",                     limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "eh_super_admin"
-    t.integer  "conjuge_id"
-    t.string   "complemento"
-    t.string   "url_foto_grande"
-    t.string   "url_facebook"
-    t.string   "url_foto_pequena"
+    t.boolean  "eh_super_admin",            limit: 1
+    t.integer  "conjuge_id",                limit: 4
+    t.string   "complemento",               limit: 255
+    t.string   "email_facebook",            limit: 255
+    t.string   "url_facebook",              limit: 255
     t.datetime "ultimo_login"
-    t.string   "nome_facebook"
-    t.string   "email_facebook"
-    t.boolean  "auto_inserido",    default: false
+    t.boolean  "auto_inserido",             limit: 1,   default: false
+    t.string   "foto_grande_file_name",     limit: 255
+    t.string   "foto_grande_content_type",  limit: 255
+    t.integer  "foto_grande_file_size",     limit: 4
+    t.datetime "foto_grande_updated_at"
+    t.string   "foto_pequena_file_name",    limit: 255
+    t.string   "foto_pequena_content_type", limit: 255
+    t.integer  "foto_pequena_file_size",    limit: 4
+    t.datetime "foto_pequena_updated_at"
+    t.string   "url_imagem_facebook",       limit: 255
   end
 
-  create_table "relacoes_pessoa_conjunto", force: true do |t|
-    t.integer  "pessoa_id"
-    t.integer  "conjunto_pessoas_id"
-    t.boolean  "eh_coordenador"
+  create_table "relacoes_pessoa_conjunto", force: :cascade do |t|
+    t.integer  "pessoa_id",           limit: 4
+    t.integer  "conjunto_pessoas_id", limit: 4
+    t.boolean  "eh_coordenador",      limit: 1
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "relacoes_pessoa_grupo", force: true do |t|
-    t.boolean  "eh_coordenador"
-    t.integer  "pessoa_id"
+  create_table "relacoes_pessoa_grupo", force: :cascade do |t|
+    t.boolean  "eh_coordenador",          limit: 1
+    t.integer  "pessoa_id",               limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "grupo_id"
+    t.integer  "grupo_id",                limit: 4
     t.date     "deixou_de_participar_em"
   end
 
-  create_table "sessions", force: true do |t|
-    t.string   "session_id",                  null: false
+  create_table "sessions", force: :cascade do |t|
+    t.string   "session_id", limit: 255,      null: false
     t.text     "data",       limit: 16777215
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -121,10 +134,10 @@ ActiveRecord::Schema.define(version: 20140708234722) do
   add_index "sessions", ["session_id"], name: "index_sessions_on_session_id", unique: true, using: :btree
   add_index "sessions", ["updated_at"], name: "index_sessions_on_updated_at", using: :btree
 
-  create_table "telefones", force: true do |t|
-    t.string   "telefone"
-    t.string   "operadora"
-    t.integer  "pessoa_id"
+  create_table "telefones", force: :cascade do |t|
+    t.string   "telefone",   limit: 255
+    t.string   "operadora",  limit: 255
+    t.integer  "pessoa_id",  limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
   end

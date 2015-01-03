@@ -1,4 +1,5 @@
 #encoding: utf-8
+require "open-uri"
 
 class Pessoa < ActiveRecord::Base
 
@@ -33,6 +34,23 @@ class Pessoa < ActiveRecord::Base
   validate :validate_email
   validate :validate_cep
 
+  has_attached_file :foto_grande,
+    :default_url => "",
+    :storage => :dropbox, 
+    :dropbox_credentials => Rails.root.join("config/dropbox_publico.yml"),
+    :dropbox_visibility => 'public',
+    :path => "foto_grande/:filename"
+
+  has_attached_file :foto_pequena,
+    :default_url => "",
+    :storage => :dropbox, 
+    :dropbox_credentials => Rails.root.join("config/dropbox_publico.yml"),
+    :dropbox_visibility => 'public',
+    :path => "foto_pequena/:filename"
+
+  validates_attachment_content_type :foto_grande, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
+  validates_attachment_content_type :foto_pequena, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
+
   def conjuge
     Pessoa.unscoped{ super }
   end
@@ -62,11 +80,11 @@ class Pessoa < ActiveRecord::Base
   end
 
   def url_imagem tamanho
-    if self.url_foto_pequena.present? || self.url_foto_grande.present?
+    if self.foto_pequena.present? || self.foto_grande.present?
       if tamanho < 80
-        url = self.url_foto_pequena.present? ? self.url_foto_pequena : self.url_foto_grande
+        url = self.foto_pequena.present? ? self.foto_pequena.url : self.foto_grande.url
       else
-        url = self.url_foto_grande.present? ? self.url_foto_grande : self.url_foto_pequena
+        url = self.foto_grande.present? ? self.foto_grande.url : self.foto_pequena.url
       end
     else
       url = Pessoa.url_imagem_sem_imagem tamanho
@@ -147,7 +165,11 @@ class Pessoa < ActiveRecord::Base
   end
 
   def grupos_que_tem_encontros_que_coordena
-    return self.relacoes_pessoa_grupo.joins(:grupo).where('relacoes_pessoa_grupo.eh_coordenador = true AND grupos.tem_encontros = true').collect{|r| r.grupo}
+    if self.eh_super_admin
+      return Grupo.where(tem_encontros: true)
+    else
+      return self.relacoes_pessoa_grupo.joins(:grupo).where('relacoes_pessoa_grupo.eh_coordenador = true AND grupos.tem_encontros = true').collect{|r| r.grupo}
+    end
   end
 
   def equipes_em_que_esta_participando_agora
@@ -306,8 +328,14 @@ class Pessoa < ActiveRecord::Base
         errors.add(:url_facebook, "Já há outra pessoa com esse Facebook")
       end
 
-      if self.url_foto_grande.blank?
-        errors.add(:url_foto_grande, "Obrigatório para quem tem Facebook")
+      if self.url_imagem_facebook.blank?
+        errors.add(:url_imagem_facebook, "Obrigatório para quem tem Facebook")
+      else
+        begin
+          open(self.url_imagem_facebook)
+        rescue OpenURI::HTTPError
+          errors.add(:url_imagem_facebook, "A imagem não pôde ser carregada")
+        end
       end
     end
   end

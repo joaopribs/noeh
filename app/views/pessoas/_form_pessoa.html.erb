@@ -3,13 +3,11 @@
 
     var grupoEscolhido = null;
 
-    console.log(grupos);
-
     $(function () {
         $('#tem_facebook_<%= tipo_pessoa %>').on('change', function () {
             if ($(this).prop('checked')) {
                 $('#campos_de_facebook_<%= tipo_pessoa %>').show();
-                carregarImagem<%= tipo_pessoa %>();
+//                carregarImagem<%= tipo_pessoa %>();
 
                 if ($('#esta_tirando_facebook_<%= tipo_pessoa %>').size() > 0) {
                     $('#esta_tirando_facebook_<%= tipo_pessoa %>').val("0");
@@ -17,7 +15,7 @@
             }
             else {
                 $('#campos_de_facebook_<%= tipo_pessoa %>').hide();
-                carregarImagem<%= tipo_pessoa %>('<%= Pessoa.url_imagem_sem_imagem(120) %>');
+//                carregarImagem<%= tipo_pessoa %>('<%= Pessoa.url_imagem_sem_imagem(120) %>');
 
                 if ($('#esta_tirando_facebook_<%= tipo_pessoa %>').size() > 0) {
                     $('#esta_tirando_facebook_<%= tipo_pessoa %>').val("1");
@@ -201,8 +199,6 @@
                         '<option value="-1"></option>'
                 );
 
-                $(fieldParticipacoes).children('.campo_texto_sugestao').val('teste');
-
                 $(fieldEncontros).add(fieldParticipacoes).hide();
             }
         });
@@ -237,7 +233,14 @@
 <table border="0">
   <tr>
     <td class="imagem_form">
-      <img src="<%= pessoa.url_imagem(120) %>" id="imagem_<%= tipo_pessoa %>" class="imagem_pessoa_form"/>
+      <%
+         if foto_grande_pessoa.blank?
+           imagem_pessoa = Pessoa.url_imagem_sem_imagem(120)
+         else
+           imagem_pessoa = foto_grande_pessoa
+         end
+      %>
+      <img src="<%= imagem_pessoa %>" id="imagem_<%= tipo_pessoa %>" class="imagem_pessoa_form"/>
     </td>
     <td>
       <% if defined?(modo) && modo == "cadastrar_novo" && pessoa.nome_facebook.present? %>
@@ -246,8 +249,8 @@
         <input type="hidden" name="nome_facebook_<%= tipo_pessoa %>" value="<%= pessoa.nome_facebook %>" />
         <input type="hidden" name="email_facebook_<%= tipo_pessoa %>" value="<%= pessoa.email_facebook %>" />
         <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
-        <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_foto_grande %>" />
-        <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_foto_pequena %>" />
+        <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= foto_grande_pessoa %>" />
+        <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= foto_pequena_pessoa %>" />
 
       <% elsif (defined?(modo) && modo == "cadastrar_novo" && pessoa.nome_facebook.blank?) ||
               pode_editar_facebook_de_pessoa(pessoa) %>
@@ -268,12 +271,18 @@
                 style="display: none;"
             <% end %>
           >
-            <div class="field">
-              <label for="nome_facebook_<%= tipo_pessoa %>">
-                Nome no Facebook (IMPORTANTE: O nome deve ser <u>exatamente</u> como está no Facebook para que o usuário tenha acesso)
-              </label><br>
-              <span class="erro_form"><%= pessoa.errors[:nome_facebook].first %></span>
-              <input type="text" name="nome_facebook_<%= tipo_pessoa %>" id="nome_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.nome_facebook %>" />
+            <div style="position: relative;">
+                <div class="field">
+                  <label for="nome_facebook_<%= tipo_pessoa %>">
+                    Nome no Facebook (IMPORTANTE: O nome deve ser <u>exatamente</u> como está no Facebook para que o usuário tenha acesso)
+                  </label><br>
+                  <span class="erro_form"><%= pessoa.errors[:nome_facebook].first %></span>
+                  <input type="text" name="nome_facebook_<%= tipo_pessoa %>" id="nome_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.nome_facebook %>" />
+                </div>
+
+                <div class="ajuda_form_facebook">
+                  Ajuda: Como obter essas informações do Facebook?
+                </div>
             </div>
 
             <div class="field">
@@ -284,8 +293,8 @@
 
             <div class="field">
               <%= label_tag "imagem_facebook_#{tipo_pessoa}", 'Link para imagem do Facebook' %><br>
-              <span class="erro_form"><%= pessoa.errors[:url_foto_grande].first %></span>
-              <input type="text" name="imagem_facebook_<%= tipo_pessoa %>" id="imagem_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.url_foto_grande %>" />
+              <span class="erro_form"><%= pessoa.errors[:url_imagem_facebook].first %></span>
+              <input type="text" name="imagem_facebook_<%= tipo_pessoa %>" id="imagem_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.url_imagem_facebook %>" />
               <a href="#" class="link_procurar_fb" id="carregar_imagem_<%= tipo_pessoa %>">Carregar</a>
             </div>
           </div>
@@ -296,7 +305,8 @@
         %>
               <input type="hidden" name="nome_facebook_<%= tipo_pessoa %>" value="<%= pessoa.nome_facebook %>" />
               <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
-              <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_foto_grande %>" />
+              <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.foto_grande.url %>" />
+              <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.foto_pequena.url %>" />
         <%
             else
                 valor_tem_facebook = 'off'

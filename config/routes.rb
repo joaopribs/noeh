@@ -46,6 +46,8 @@ Noeh::Application.routes.draw do
   get '/equipe/:conjunto_id/pessoas/criar', :to => 'pessoas#new', :as => :equipe_criar_pessoa
   get '/equipe/:conjunto_id/pessoas/:id', :to => 'pessoas#show', :as => :equipe_pessoa
   get '/equipe/:conjunto_id/pessoas/:id/editar', :to => 'pessoas#edit', :as => :equipe_pessoa_editar
+  post '/equipe/:id/upload_relatorio', :to => 'conjuntos_pessoas#upload_relatorio', :as => :upload_relatorio
+  post '/equipe/:id/remover_relatorio', :to => 'conjuntos_pessoas#remover_relatorio', :as => :remover_relatorio
 
   get '/circulo/:id', :to => 'conjuntos_pessoas#edit', :as => :circulo
   post '/circulo/:id', :to => 'conjuntos_pessoas#update', :as => :circulo_post
@@ -69,4 +71,5 @@ Noeh::Application.routes.draw do
   post '/confirmar_participacao', :to => 'pessoas#confirmar_auto_sugestao', :as => :confirmar_auto_sugestao
   post '/rejeitar_participacao', :to => 'pessoas#rejeitar_auto_sugestao', :as => :rejeitar_auto_sugestao
   get '/pessoas_confirmar', :to => 'pessoas#pessoas_a_confirmar', :as => :pessoas_a_confirmar
+
 end

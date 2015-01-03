@@ -175,6 +175,53 @@
 
         });
 
+        $('.ajuda_form_facebook').on('click', function (evento) {
+            evento.preventDefault();
+
+            $("#dialog").addClass("dialog_ajuda_facebook");
+
+            $("#dialog_conteudo").html('Qual o seu navegador? ');
+            $("#dialog_conteudo").append('<a href="#" data-navegador="chrome"><em>Chrome</em></a>');
+            $("#dialog_conteudo").append('<a href="#" data-navegador="ie"><em>Internet Explorer</em></a>');
+            $("#dialog_conteudo").append('<a href="#" data-navegador="firefox"><em>Firefox</em></a>');
+
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Fechar</a>");
+
+            $("#dialog").show();
+
+            $(".dialog_ajuda_facebook a").hover(function () {
+              $(this).toggleClass("link_ajuda_facebook_hover");
+            });
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+
+                $("#dialog").removeClass("dialog_ajuda_facebook");
+            });
+
+            function mostrarAjuda(navegador) {
+                $('.ajuda_facebook').empty();
+
+                var html = "<div class='ajuda_facebook'>" +
+                "Entre no perfil do Facebook desejado e use as seguintes informações:<br/>" +
+                "<img src='/assets/ajuda" + navegador + ".jpg' />" +
+                "</div>";
+
+                $('#dialog_conteudo').append(html);
+            }
+
+            $(".dialog_ajuda_facebook a").on('click', function (evento) {
+                evento.preventDefault();
+
+                $(this).addClass("link_ajuda_facebook_selecionado");
+                $(".dialog_ajuda_facebook a").not(this).removeClass("link_ajuda_facebook_selecionado");
+
+                mostrarAjuda($(this).data('navegador'));
+            });
+
+        });
+
     });
 </script>
 
@@ -194,10 +241,17 @@
 <%= form_tag form_url, method: form_method, id: "form_pessoa" do %>
 
     <% if defined?(modo) && modo == "cadastrar_novo" %>
-
         <input type="hidden" name="auto_inserido" value="1" />
-
     <% end %>
+
+    <%
+       if !defined?(foto_grande_pessoa)
+         foto_grande_pessoa = @pessoa.url_imagem(120)
+       end
+       if !defined?(foto_pequena_pessoa)
+         foto_pequena_pessoa = @pessoa.url_imagem(50)
+       end
+    %>
 
 
     <% if defined?(@conjunto) %>
@@ -214,7 +268,7 @@
       <label><%= radio_button_tag :casado_ou_solteiro, 'casado', (@eh_casal) %>Casado</label>
     </div>
 
-    <%= render 'form_pessoa', pessoa: @pessoa, tipo_pessoa: 'pessoa', modo: modo %>
+    <%= render 'form_pessoa', pessoa: @pessoa, tipo_pessoa: 'pessoa', modo: modo, foto_grande_pessoa: foto_grande_pessoa, foto_pequena_pessoa: foto_pequena_pessoa %>
 
     <div class="campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>>
 
@@ -262,9 +316,16 @@
            else
              conjuge_mostrar = Pessoa.new
            end
+
+           if !defined?(foto_grande_conjuge)
+             foto_grande_conjuge = conjuge_mostrar.url_imagem(120)
+           end
+           if !defined?(foto_pequena_conjuge)
+             foto_pequena_conjuge = conjuge_mostrar.url_imagem(50)
+           end
         %>
 
-        <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge', modo: modo %>
+        <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge', modo: modo, foto_grande_pessoa: foto_grande_conjuge, foto_pequena_pessoa: foto_pequena_conjuge %>
 
       </div>
 

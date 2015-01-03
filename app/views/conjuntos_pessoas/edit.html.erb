@@ -8,6 +8,12 @@
     }
 
     $(function () {
+        $("#link_enviar_relatorio").on("click", function (e) {
+          e.preventDefault();
+          $("#overlay_carregando_upload_relatorio").show();
+          $(this).closest("form").submit();
+        });
+
         listaPessoas = new ListaPessoas($("#pessoas_no_conjunto"),
                 "pessoas_no_conjunto",
                 "conjunto_id",
@@ -26,7 +32,7 @@
                                     "page": page
                                 },
                                 function(response) {
-                                    if (response == "ok") {
+                                    if (response == "erro") {
                                         alert("Erro ao setar coordenador");
                                     }
                                     else {
@@ -37,6 +43,28 @@
                     });
                 });
         listaPessoas.inicializar();
+
+        $("#remover_relatorio").on("click", function (evento) {
+          evento.preventDefault();
+
+          $("#overlay_carregando_remover_relatorio").show();
+
+          $.post("<%= remover_relatorio_url %>",
+                  {
+                    "id": <%= @conjunto.id %>
+                  },
+                  function(response) {
+                    if (response == "ok") {
+                      $("#informacoes_relatorio").hide();
+                      $("#campo_upload_relatorio").show();
+                      $("#overlay_carregando_remover_relatorio").hide();
+                    }
+                    else {
+                      alert("Erro ao remover o relatório");
+                    }
+                  }
+          );
+        });
     });
 </script>
 
@@ -64,12 +92,22 @@
         var spinner = new Spinner(opts).spin(target);
 
         listaPessoas.carregar();
+
+        var targetUploadRelatorio = document.getElementById('img_spinner_upload_relatorio');
+        var spinnerUploadRelatorio = new Spinner(opts).spin(targetUploadRelatorio);
+
+        var targetRemoverRelatorio = document.getElementById('img_spinner_remover_relatorio');
+        var spinnerRemoverRelatorio = new Spinner(opts).spin(targetRemoverRelatorio);
     });
 </script>
 
 <%= render_breadcrumbs "conjunto" %>
 
 <h1><%= @titulo %></h1>
+
+<% if @conjunto.tipo == 'ConjuntoPermanente' && pode_editar_sugestoes(@conjunto) %>
+  -------------- COLOCAR AQUI O LINK PRA SUGESTÕES DE EQUIPE ---------------
+<% end %>
 
 <b>Encontro:</b> <%= @conjunto.encontro.nome %><br/>
 <b>Data:</b> <%= @conjunto.encontro.data %>
@@ -78,6 +116,54 @@
 
 <% if @conjunto.tipo != 'CoordenacaoEncontro' && pode_editar_conjunto(@conjunto) %>
     <%= render 'form', conjunto: @conjunto %>
+<% end %>
+
+<% if @conjunto.tipo == 'Equipe' %>
+
+  <%= form_tag(:upload_relatorio, :html => { :multipart => true }, :remote => true, class: 'espaco_embaixo') do %>
+
+    <input type="hidden" name="id" value="<%= @conjunto.id %>" />
+
+    <div class="field">
+      <%= label_tag "relatorio", "Relatório" %><br/>
+
+      <div id="informacoes_relatorio" style="position: relative; <% if !@conjunto.relatorio.exists? %>display: none<% end %>">
+        <div class="overlay_carregando" id="overlay_carregando_remover_relatorio" style="display: none;">
+          <div class="overlay_carregando_fundo"></div>
+          <div class="overlay_carregando_texto">
+            <span id="img_spinner_remover_relatorio"></span>
+            Carregando...
+          </div>
+          <br/>
+        </div>
+
+        <%
+           if @conjunto.relatorio.present?
+             url_link = @conjunto.relatorio.url(download: true)
+             texto_link = @conjunto.relatorio_file_name
+             classe_link = "arquivo_#{@conjunto.tipo_de_arquivo}"
+           end
+        %>
+        <a href="<%= url_link %>" id="link_relatorio" class="<%= classe_link %>"><%= texto_link %></a>
+        <a href="#" id="remover_relatorio" class="link_remover">Remover</a>
+      </div>
+
+      <div id="campo_upload_relatorio" style="position: relative; <% if @conjunto.relatorio.present? %>display: none<% end %>">
+        <div class="overlay_carregando" id="overlay_carregando_upload_relatorio" style="height: 40px; display: none;">
+          <div class="overlay_carregando_fundo"></div>
+          <div class="overlay_carregando_texto">
+            <span id="img_spinner_upload_relatorio"></span>
+            Enviando...
+          </div>
+          <br/>
+        </div>
+
+        <div class="erro_form"><%= @conjunto.errors[:relatorio].first %></div>
+        <%= file_field_tag :relatorio %>
+        <a href="#" id="link_enviar_relatorio" class="link_upload" style="margin-right: 10px">Enviar</a>
+      </div>
+    </div>
+  <% end %>
 <% end %>
 
 <%= render 'shared/notificacao' %>

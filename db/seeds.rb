@@ -10,21 +10,25 @@
 
 @@cores = []
 
-def self.criar_cor(nome, hex_cor, hex_contraste, de_equipe, de_conjunto_permanente)
+def self.criar_cor(nome, hex_cor, hex_cor_hover, hex_contraste, de_equipe, de_conjunto_permanente, classe_css)
   cor = Cor.where(nome: nome).first
 
   if cor
     cor.hex_cor = hex_cor
+    cor.hex_cor_hover = hex_cor_hover
     cor.hex_contraste = hex_contraste
     cor.de_equipe = de_equipe
     cor.de_conjunto_permanente = de_conjunto_permanente
+    cor.classe_css = classe_css
   else
     cor = Cor.new({
                       nome: nome,
                       hex_cor: hex_cor,
+                      hex_cor_hover: hex_cor_hover,
                       hex_contraste: hex_contraste,
                       de_equipe: de_equipe,
-                      de_conjunto_permanente: de_conjunto_permanente})
+                      de_conjunto_permanente: de_conjunto_permanente,
+                      classe_css: classe_css})
   end
 
   cor.save
@@ -32,18 +36,18 @@ def self.criar_cor(nome, hex_cor, hex_contraste, de_equipe, de_conjunto_permanen
   @@cores << cor
 end
 
-criar_cor("Amarelo", "#e3c800", "#000", true, true)
-criar_cor("Azul", "#004be3", "#fff", false, true)
-criar_cor("Branco", "#fff", "#000", false, true)
-criar_cor("Laranja", "#f86f05", "#fff", false, true)
-criar_cor("Marrom", "#6d4323", "#fff", false, true)
-criar_cor("Preto", "#000", "#fff", false, true)
-criar_cor("Rosa", "#ff6ebc", "#fff", false, true)
-criar_cor("Roxo", "#8309eb", "#fff", false, true)
-criar_cor("Verde", "#39a233", "#fff", true, true)
-criar_cor("Vermelho", "#df0e0e", "#fff", true, true)
-criar_cor("Violeta", "#c572c5", "#fff", false, true)
-criar_cor("Lilás", "#C8A2C8", "#fff", false, true)
+criar_cor("Amarelo", "#e3c800", "#ffe100", "#000", true, true, "link_amarelo_dinamico")
+criar_cor("Azul", "#004be3", "#0054ff", "#fff", false, true, "link_azul_dinamico")
+criar_cor("Branco", "#fff", "#d0d0d0", "#000", false, true, "link_branco_dinamico")
+criar_cor("Laranja", "#f86f05", "#ff9340", "#fff", false, true, "link_laranja_dinamico")
+criar_cor("Marrom", "#6d4323", "#a1602f", "#fff", false, true, "link_marrom_dinamico")
+criar_cor("Preto", "#000", "#494949", "#fff", false, true, "link_preto_dinamico")
+criar_cor("Rosa", "#ff6ebc", "#cd2b82", "#fff", false, true, "link_rosa_dinamico")
+criar_cor("Roxo", "#8309eb", "#5c02a8", "#fff", false, true, "link_roxo_dinamico")
+criar_cor("Verde", "#39a233", "#63df5c", "#fff", true, true, "link_verde_dinamico")
+criar_cor("Vermelho", "#df0e0e", "#ff6b6b", "#fff", true, true, "link_vermelho_dinamico")
+criar_cor("Violeta", "#c572c5", "#a566a5", "#fff", false, true, "link_violeta_dinamico")
+criar_cor("Lilás", "#C8A2C8", "#b590b5", "#fff", false, true, "link_lilas_dinamico")
 
 (Cor.all - @@cores).each { |cor| cor.destroy }
 
@@ -54,7 +58,6 @@ if joao.nil?
       nome_usual: 'João',
       nome_facebook: 'João Paulo Ribeiro',
       url_facebook: 'https://www.facebook.com/joaopaulo.ribs',
-      url_foto_grande: 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/t1.0-1/c0.0.320.320/p320x320/1238716_803437719668628_1377999441330663131_n.jpg',
       eh_super_admin: true
   })
 

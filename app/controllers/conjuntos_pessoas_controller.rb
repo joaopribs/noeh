@@ -258,6 +258,23 @@ class ConjuntosPessoasController < ApplicationController
     render json: conjuntos
   end
 
+  def upload_relatorio
+    @conjunto.relatorio = params[:relatorio]
+
+    respond_to do |format|
+      if @conjunto.save
+        format.js
+      end
+    end
+  end
+
+  def remover_relatorio
+    @conjunto.relatorio.clear
+    if @conjunto.save
+      render :text => "ok"
+    end
+  end
+
   private
 
     def set_encontro_grupo_e_conjunto
