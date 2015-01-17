@@ -16,8 +16,10 @@
 
         listaPessoas = new ListaPessoas($("#pessoas_no_conjunto"),
                 "pessoas_no_conjunto",
+                true,
                 "conjunto_id",
                 <%= @conjunto.id %>,
+                true,
                 function () {
                     $(".checkbox_coordenador").on("click", function(e) {
                         var pessoa_id = $(this).data("pessoa_id");
@@ -106,7 +108,8 @@
 <h1><%= @titulo %></h1>
 
 <% if @conjunto.tipo == 'ConjuntoPermanente' && pode_editar_sugestoes(@conjunto) %>
-  -------------- COLOCAR AQUI O LINK PRA SUGESTÕES DE EQUIPE ---------------
+  <%= link_to 'Recomendações do coordenador', recomendacoes_path(@conjunto), class: 'link_recomendacoes'  %>
+  <p/>
 <% end %>
 
 <b>Encontro:</b> <%= @conjunto.encontro.nome %><br/>

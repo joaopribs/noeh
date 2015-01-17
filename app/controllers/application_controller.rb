@@ -48,8 +48,6 @@ class ApplicationController < ActionController::Base
 
     @cor = cores[indice]
 
-    @cor = "preto"
-
   end
 
   def precisa_ser_super_admin

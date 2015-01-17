@@ -1,0 +1,79 @@
+<script src="<%= lista_pessoas_js_url %>"></script>
+
+<script>
+  var listaPessoas;
+
+  function recarregar() {
+    listaPessoas.carregar();
+  }
+
+  $(function () {
+    listaPessoas = new ListaPessoas($("#recomendacoes"),
+            "recomendacoes",
+            false,
+            "conjunto_id",
+            <%= @conjunto.id %>,
+            false,
+            function () {
+                $("#link_salvar_recomendacoes").show();
+            });
+    listaPessoas.inicializar();
+
+    $("#link_salvar_recomendacoes").on("click", function () {
+      $(this).closest("form").submit();
+    });
+  });
+</script>
+
+<script>
+  $(function () {
+    var opts = {
+      lines: 7, // The number of lines to draw
+      length: 4, // The length of each line
+      width: 3, // The line thickness
+      radius: 2, // The radius of the inner circle
+      corners: 0, // Corner roundness (0..1)
+      rotate: 0, // The rotation offset
+      direction: 1, // 1: clockwise, -1: counterclockwise
+      color: '#fff', // #rgb or #rrggbb or array of colors
+      speed: 1, // Rounds per second
+      trail: 60, // Afterglow percentage
+      shadow: false, // Whether to render a shadow
+      hwaccel: false, // Whether to use hardware acceleration
+      className: 'spinner', // The CSS class to assign to the spinner
+      zIndex: 2e9, // The z-index (defaults to 2000000000)
+      top: '12px', // Top position relative to parent
+      left: '12px' // Left position relative to parent
+    };
+    var target = document.getElementById('img_spinner');
+    var spinner = new Spinner(opts).spin(target);
+
+    listaPessoas.carregar();
+  });
+</script>
+
+<%= render_breadcrumbs "recomendacoes" %>
+
+<h1>Recomendações do Coordenador</h1>
+
+<p/>
+
+<%= form_tag :recomendacoes_post do %>
+
+    <div id="recomendacoes" style="position: relative;">
+      <div class="overlay_carregando overlay_carregando_aparecer_logo">
+        <div class="overlay_carregando_fundo"></div>
+        <div class="overlay_carregando_texto">
+          <span id="img_spinner"></span>
+          Carregando...
+        </div>
+        <br/>
+      </div>
+    </div>
+
+    <div class="actions">
+      <%= link_to 'Salvar recomendações', '#', class: 'link_submeter', id: 'link_salvar_recomendacoes', style: 'display: none' %>
+    </div>
+
+
+<% end %>

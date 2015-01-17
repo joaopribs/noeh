@@ -31,8 +31,10 @@
 
         listaPessoas = new ListaPessoas($("#ex_participantes_de_grupo"),
                 "ex_participantes_de_grupo",
+                true,
                 "grupo_id",
-                <%= @grupo.id %>);
+                <%= @grupo.id %>,
+                true);
 
         listaPessoas.inicializar();
 

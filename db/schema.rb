@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150103165419) do
+ActiveRecord::Schema.define(version: 20150112124355) do
 
   create_table "auto_sugestao", force: :cascade do |t|
     t.integer  "pessoa_id",   limit: 4
@@ -105,6 +105,23 @@ ActiveRecord::Schema.define(version: 20150103165419) do
     t.integer  "foto_pequena_file_size",    limit: 4
     t.datetime "foto_pequena_updated_at"
     t.string   "url_imagem_facebook",       limit: 255
+  end
+
+  create_table "recomendacoes_do_coordenador_permanente", force: :cascade do |t|
+    t.integer  "conjunto_pessoas_id",       limit: 4
+    t.integer  "pessoa_id",                 limit: 4
+    t.boolean  "recomenda_pra_coordenador", limit: 1
+    t.string   "comentario",                limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "recomendacoes_equipes", force: :cascade do |t|
+    t.integer  "conjunto_pessoas_id", limit: 4
+    t.integer  "pessoa_id",           limit: 4
+    t.integer  "posicao",             limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "relacoes_pessoa_conjunto", force: :cascade do |t|

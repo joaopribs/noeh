@@ -275,6 +275,48 @@ class ConjuntosPessoasController < ApplicationController
     end
   end
 
+  def recomendacoes
+    adicionar_breadcrumb "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}", circulo_url(@conjunto), "conjunto"
+    adicionar_breadcrumb "Recomendações do Coordenador", recomendacoes_url(@conjunto), "recomendacoes"
+
+    if params[:pessoa_id]
+      # Deletar recomendações existentes
+      RecomendacaoEquipe.destroy_all(pessoa: params[:pessoa_id])
+      RecomendacaoDoCoordenadorPermanente.destroy_all(pessoa: params[:pessoa_id])
+
+      params[:pessoa_id].each do |pessoa_id|
+        pessoa = Pessoa.find(pessoa_id)
+
+        if params[:recomendacoes][pessoa_id].present?
+          params[:recomendacoes][pessoa_id].select{|r| r.present?}.each_with_index do |recomendacao, indice|
+            recomendacaoEquipe = RecomendacaoEquipe.new
+            recomendacaoEquipe.pessoa = pessoa
+            recomendacaoEquipe.equipe = Equipe.find(recomendacao)
+            recomendacaoEquipe.posicao = indice
+            recomendacaoEquipe.save
+          end
+        end
+
+        if (params[:coord] && params[:coord][pessoa_id].present?) || params[:comentario][pessoa_id].present?
+          recomendacaoDoCoordenadorPermanente = RecomendacaoDoCoordenadorPermanente.new
+          recomendacaoDoCoordenadorPermanente.pessoa = pessoa
+          recomendacaoDoCoordenadorPermanente.conjunto_permanente = @conjunto
+
+          coord = params[:coord] && params[:coord][pessoa_id].present?
+
+          recomendacaoDoCoordenadorPermanente.recomenda_pra_coordenador = coord
+          recomendacaoDoCoordenadorPermanente.comentario = params[:comentario][pessoa_id]
+
+          recomendacaoDoCoordenadorPermanente.save
+        end
+      end
+
+      redirect_to circulo_path(@conjunto), notice: "Recomendações do coordenador salvas com sucesso"
+    end
+
+    carregar_pessoas(@conjunto.pessoas)
+  end
+
   private
 
     def set_encontro_grupo_e_conjunto

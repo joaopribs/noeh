@@ -5,7 +5,7 @@ function getParameterByName(name, string) {
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSucesso) {
+function ListaPessoas(containerDaTabela, tipoPagina, fazerPaginacao, tipoId, idObjeto, mostrarConjuges, funcaoSucesso) {
 
     var self = this;
 
@@ -49,6 +49,14 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
 
         if (query != null) {
             parametros.push("query=" + encodeURIComponent(query));
+        }
+
+        if (mostrarConjuges != null) {
+          parametros.push("mostrar_conjuges=" + mostrarConjuges);
+        }
+
+        if (fazerPaginacao != null) {
+            parametros.push("fazer_paginacao=" + fazerPaginacao);
         }
 
         parametros = parametros.join("&");
@@ -362,7 +370,6 @@ function ListaPessoas(containerDaTabela, tipoPagina, tipoId, idObjeto, funcaoSuc
 
             self.funcaoSucesso();
 
-//            $(self.containerDaTabela).find('.overlay_carregando').hide();
         });
 
     },

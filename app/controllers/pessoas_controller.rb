@@ -491,15 +491,22 @@ class PessoasController < ApplicationController
       session[:id_pessoas_antes_do_filtro] = session[:id_pessoas]
     end
 
-    pessoas_total = Pessoa.pegar_pessoas(session[:id_pessoas])
+    @pessoas = Pessoa.pegar_pessoas(session[:id_pessoas])
 
-    begin
-      @pessoas = pessoas_total.page params[:page]
-    rescue NoMethodError
-      @pessoas = Kaminari.paginate_array(pessoas_total).page params[:page]
+    @fazer_paginacao = params[:fazer_paginacao].nil? ? true : params[:fazer_paginacao] == "true"
+
+    if @fazer_paginacao
+      begin
+        @pessoas = @pessoas.page params[:page]
+      rescue NoMethodError
+        @pessoas = Kaminari.paginate_array(@pessoas).page params[:page]
+      end
     end
-    @total = pessoas_total.count
-    @numero_casais = pessoas_total.select{|p| p.conjuge != nil}.count / 2
+
+    @total = @pessoas.count
+    @numero_casais = @pessoas.select{|p| p.conjuge != nil}.count / 2
+
+    @mostrar_conjuges = params[:mostrar_conjuges].nil? ? true : params[:mostrar_conjuges] == "true"
 
     @tipo_pagina = params[:tipo_pagina]
 

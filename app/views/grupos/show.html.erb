@@ -31,8 +31,10 @@
 
         listaPessoas = new ListaPessoas($("#pessoas_no_grupo"),
                                         "pessoas_no_grupo",
+                                        true,
                                         "grupo_id",
                                         <%= @grupo.id %>,
+                                        true,
                                         function () {
                                             <% if @usuario_logado.eh_super_admin? %>
                                                 $(".checkbox_coordenador").on("click", function(e) {

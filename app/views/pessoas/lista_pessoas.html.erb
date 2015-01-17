@@ -69,7 +69,10 @@
         <thead>
         <tr>
             <th align="left">Pessoa</th>
-            <th align="left">Cônjuge</th>
+
+            <% if @mostrar_conjuges %>
+                <th align="left">Cônjuge</th>
+            <% end %>
 
             <% if @tipo_pagina == "lista_pessoas" %>
                 <th></th>
@@ -89,6 +92,12 @@
                     <th>Coordenador</th>
                 <% end %>
                 <th></th>
+            <% elsif @tipo_pagina == "recomendacoes" %>
+                <th>Primeira</th>
+                <th>Segunda</th>
+                <th>Terceira</th>
+                <th>Coord. de <%= @conjunto.tipo_do_conjunto %></th>
+                <th>Comentários</th>
             <% end %>
         </tr>
         </thead>
@@ -142,44 +151,46 @@
                         </table>
                     <% end %>
                 </td>
-                <td>
-                    <% if pessoa.conjuge.present? %>
-                        <%
-                            if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar"
-                                link_conjuge = pessoa.conjuge
-                            elsif @tipo_pagina == "pessoas_no_grupo"
-                                link_conjuge = grupo_pessoa_path(@grupo, pessoa.conjuge)
-                            elsif @tipo_pagina == "pessoas_no_conjunto"
-                                if @conjunto.tipo == "Equipe"
-                                    link_conjuge = equipe_pessoa_path(@conjunto, pessoa)
-                                elsif @conjunto.tipo == "CoordenacaoEncontro"
-                                    link_conjuge = encontro_coordenadores_pessoa_path(@conjunto.encontro, pessoa.conjuge)
-                                else
-                                    link_conjuge = circulo_pessoa_path(@conjunto.id, pessoa.conjuge)
+                <% if @mostrar_conjuges %>
+                    <td>
+                        <% if pessoa.conjuge.present? %>
+                            <%
+                                if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar"
+                                    link_conjuge = pessoa.conjuge
+                                elsif @tipo_pagina == "pessoas_no_grupo"
+                                    link_conjuge = grupo_pessoa_path(@grupo, pessoa.conjuge)
+                                elsif @tipo_pagina == "pessoas_no_conjunto"
+                                    if @conjunto.tipo == "Equipe"
+                                        link_conjuge = equipe_pessoa_path(@conjunto, pessoa)
+                                    elsif @conjunto.tipo == "CoordenacaoEncontro"
+                                        link_conjuge = encontro_coordenadores_pessoa_path(@conjunto.encontro, pessoa.conjuge)
+                                    else
+                                        link_conjuge = circulo_pessoa_path(@conjunto.id, pessoa.conjuge)
+                                    end
                                 end
-                            end
-                        %>
+                            %>
 
-                        <%= link_to link_conjuge do %>
-                          <table class="informacoes_pessoa_lista">
-                            <tr valign="top">
-                              <td>
-                                <%= image_tag pessoa.conjuge.url_imagem(30), class: 'imagem_pessoa_lista' %>
-                              </td>
-                              <td>
-                                <%= "#{pessoa.conjuge.nome} (#{pessoa.conjuge.nome_usual})" %>
-                                <div class="subtitulo_lista_pessoas">
-                                  Tel.: <%= pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
-                                  <% if defined?(@conjunto) %>
-                                      <%= pessoa_participando_de_outro_conjunto_em_encontro pessoa.conjuge, @conjunto %>
-                                  <% end %>
-                                </div>
-                              </td>
-                            </tr>
-                          </table>
+                            <%= link_to link_conjuge do %>
+                              <table class="informacoes_pessoa_lista">
+                                <tr valign="top">
+                                  <td>
+                                    <%= image_tag pessoa.conjuge.url_imagem(30), class: 'imagem_pessoa_lista' %>
+                                  </td>
+                                  <td>
+                                    <%= "#{pessoa.conjuge.nome} (#{pessoa.conjuge.nome_usual})" %>
+                                    <div class="subtitulo_lista_pessoas">
+                                      Tel.: <%= pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
+                                      <% if defined?(@conjunto) %>
+                                          <%= pessoa_participando_de_outro_conjunto_em_encontro pessoa.conjuge, @conjunto %>
+                                      <% end %>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </table>
+                            <% end %>
                         <% end %>
-                    <% end %>
-                </td>
+                    </td>
+                <% end %>
 
                 <%
                     if pessoa.conjuge.nil?
@@ -280,6 +291,33 @@
                       <% end %>
                     </td>
 
+                <% elsif @tipo_pagina == "recomendacoes" %>
+
+                    <%
+                       recomendacoes = pessoa.recomendacoes_equipes.collect{|r| r.equipe.id}
+                       equipes_padrao = @conjunto.encontro.grupo.encontro_padrao.equipes
+
+                       recomenda_pra_coord = pessoa.recomendacao_do_coordenador_permanente.nil? ? false : pessoa.recomendacao_do_coordenador_permanente.recomenda_pra_coordenador
+                       comentario = pessoa.recomendacao_do_coordenador_permanente.nil? ? "" : pessoa.recomendacao_do_coordenador_permanente.comentario
+                    %>
+
+                    <td align="center">
+                      <%= select_tag("recomendacoes[#{pessoa.id}][]", options_from_collection_for_select(equipes_padrao, "id", "nome", recomendacoes[0]), include_blank: true) %>
+                    </td>
+                    <td align="center">
+                      <%= select_tag("recomendacoes[#{pessoa.id}][]", options_from_collection_for_select(equipes_padrao, "id", "nome", recomendacoes[1]), include_blank: true) %>
+                    </td>
+                    <td align="center">
+                      <%= select_tag("recomendacoes[#{pessoa.id}][]", options_from_collection_for_select(equipes_padrao, "id", "nome", recomendacoes[2]), include_blank: true) %>
+                    </td>
+                    <td align="center">
+                      <input type="checkbox" name="coord[<%= pessoa.id %>]" <% if recomenda_pra_coord %>checked="checked"<% end %>/>
+                    </td>
+                    <td align="center">
+                      <textarea name="comentario[<%= pessoa.id %>]"><%= comentario %></textarea>
+                      <input type="hidden" name="pessoa_id[]" value="<%= pessoa.id %>" />
+                    </td>
+
                 <% end %>
 
             </tr>
@@ -289,4 +327,6 @@
     </table>
 <% end %>
 
-<%= paginate @pessoas %>
+<% if @fazer_paginacao %>
+    <%= paginate @pessoas %>
+<% end %>

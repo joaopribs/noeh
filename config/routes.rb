@@ -54,6 +54,8 @@ Noeh::Application.routes.draw do
   get '/circulo/:conjunto_id/pessoas/criar', :to => 'pessoas#new', :as => :circulo_criar_pessoa
   get '/circulo/:conjunto_id/pessoas/:id', :to => 'pessoas#show', :as => :circulo_pessoa
   get '/circulo/:conjunto_id/pessoas/:id/editar', :to => 'pessoas#edit', :as => :circulo_pessoa_editar
+  get '/circulo/:id/recomendacoes', :to => 'conjuntos_pessoas#recomendacoes', :as => :recomendacoes
+  post '/circulo/:id/recomendacoes', :to => 'conjuntos_pessoas#recomendacoes', :as => :recomendacoes_post
 
   post '/encontros/:encontro_id/equipes/criar', :to => 'conjuntos_pessoas#create', :as => :create_equipe, :tipo_conjunto => 'Equipe'
   post '/encontros/:encontro_id/conjuntos_permanentes/criar', :to => 'conjuntos_pessoas#create', :as => :create_conjunto_permanente, :tipo_conjunto => 'ConjuntoPermanente'

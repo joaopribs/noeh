@@ -21,6 +21,9 @@ class Pessoa < ActiveRecord::Base
   has_many :telefones, dependent: :destroy
   has_many :instrumentos, dependent: :destroy
   has_many :auto_sugestoes, class_name: 'AutoSugestao', dependent: :destroy
+  has_many :recomendacoes_equipes, -> {order(:posicao)}, class_name: 'RecomendacaoEquipe', dependent: :destroy
+
+  has_one :recomendacao_do_coordenador_permanente, dependent: :destroy
 
   belongs_to :conjuge, class_name: 'Pessoa', foreign_key: :conjuge_id, dependent: :destroy
 
