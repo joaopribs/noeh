@@ -79,6 +79,9 @@ class PessoasController < ApplicationController
 
     @pessoa = criar_pessoa("pessoa")
 
+    @foto_grande_pessoa = params[:imagem_facebook_pessoa]
+    @foto_grande_conjuge = params[:imagem_facebook_conjuge]
+
     pessoa_valida = @pessoa.valid?
 
     if params.has_key?(:auto_inserido)
@@ -215,6 +218,9 @@ class PessoasController < ApplicationController
     @pessoa = atualizar_pessoa(@pessoa, "pessoa")
 
     @pessoa = remover_facebook_se_necessario(@pessoa, tinha_facebook_antes)
+
+    @foto_grande_pessoa = params[:imagem_facebook_pessoa]
+    @foto_grande_conjuge = params[:imagem_facebook_conjuge]
 
     precisa_salvar_pessoa = true
     precisa_salvar_velho_conjuge = false
