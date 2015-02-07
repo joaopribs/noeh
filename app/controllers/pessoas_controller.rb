@@ -30,6 +30,8 @@ class PessoasController < ApplicationController
     if @pessoa.conjuge.present?
       @participacoes_conjuge = (@pessoa.conjuge.conjuntos_permanentes + @pessoa.conjuge.equipes).select{|c| pode_ver_participacao(c, @pessoa.conjuge)}
     end
+    
+    @participacoes = @participacoes.sort_by!{|c| c.encontro.data_inicio}.reverse
   end
 
   # GET /pessoas/new
