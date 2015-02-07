@@ -53,6 +53,7 @@
           var denominacao = $(this).closest('.adicionar_participacao').find(".denominacao").val();
           var selectEncontro = $(this).closest('.adicionar_participacao').find('.encontro_participacao');
           var selectConjunto = $(this).closest('.adicionar_participacao').find('.conjunto_participacao');
+          var denominacoesEncontros = $('#denominacoes_encontros');
 
           $.get(
                   "<%= encontros_de_grupo_url %>",
@@ -62,9 +63,11 @@
                   function (resposta) {
                       $(selectEncontro).empty();
                       $(selectConjunto).empty();
+                      $(denominacoesEncontros).empty();
 
                       $.each(resposta, function (index, encontro) {
                           selectEncontro.append('<option value="' + encontro.id + '">' + encontro.nome + '</option>');
+                          denominacoesEncontros.append('<input id="denominacao_' + encontro.id + '" type="hidden" value="' + encontro.denominacao_conjuntos_permanentes + '" />');
                           if (index == 0) {
                               $.get(
                                       "<%= conjuntos_para_adicionar_pessoa_url %>",
@@ -73,7 +76,7 @@
                                           encontro_id: encontro.id
                                       },
                                       function (respostaConjuntos) {
-                                          preencherConjuntos(selectConjunto, respostaConjuntos, denominacao);
+                                          preencherConjuntos(selectConjunto, respostaConjuntos, encontro.denominacao_conjuntos_permanentes);
                                       }
                               );
                           }
@@ -84,14 +87,15 @@
 
       $('.encontro_participacao').on('change', function (evento) {
           var pessoaId = $(this).closest('.adicionar_participacao').find(".pessoa-id").val();
-          var denominacao = $(this).closest('.adicionar_participacao').find(".denominacao").val();
           var selectConjunto = $(this).closest('.adicionar_participacao').find('.conjunto_participacao');
+          var encontroId = $(this).val();
+          var denominacao = $('#denominacao_' + encontroId).val();
 
           $.get(
                   "<%= conjuntos_para_adicionar_pessoa_url %>",
                   {
                       pessoa_id: pessoaId,
-                      encontro_id: $(this).val()
+                      encontro_id: encontroId
                   },
                   function (respostaConjuntos) {
                       preencherConjuntos(selectConjunto, respostaConjuntos, denominacao);
@@ -389,9 +393,6 @@
 
                 <%= form_tag adicionar_pessoa_a_conjunto_url, class: 'adicionar_participacao', style: 'display: none; margin-top: 10px;' do %>
                     <input type="hidden" name="id_pessoa" class="pessoa-id" value="<%= pessoa.id %>"/>
-                    <% if primeiro_encontro %>
-                        <input type="hidden" class="denominacao" value="<%= primeiro_encontro.denominacao_conjuntos_permanentes %>"/>
-                    <% end %>
 
                     <div class="field">
                         <label for="grupo">Grupo</label><br/>
@@ -401,6 +402,11 @@
                     <div class="field">
                         <label for="grupo">Encontro</label><br/>
                         <%= select_tag 'encontro', options_for_select(encontros.collect{|e| [e.nome, e.id]}), include_black: false, class: 'encontro_participacao' %>
+                        <div style="display: none;" id="denominacoes_encontros">
+                            <% encontros.each do |encontro| %>
+                                <input id="denominacao_<%= encontro.id %>" type="hidden" value="<%= encontro.denominacao_conjuntos_permanentes %>" />
+                            <% end %>
+                        </div>
                     </div>
                     <br/>
 
