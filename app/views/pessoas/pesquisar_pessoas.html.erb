@@ -1,0 +1,391 @@
+<script src="<%= lista_pessoas_js_url %>"></script>
+
+<script>
+    function atualizarOpcoes($elementoOpcoes) {
+      var opcoesEscolhidasArray = [];
+      $elementoOpcoes.find("input[type=checkbox]:checked").each(function () {
+        opcoesEscolhidasArray.push($(this).data("nome-opcao"));
+      });
+
+      var $opcoesEscolhidas = $elementoOpcoes.siblings(".contem_opcoes").children(".opcoes_escolhidas");
+
+      if (opcoesEscolhidasArray.length > 0) {
+        $opcoesEscolhidas.html(opcoesEscolhidasArray.join(", "));  
+      }
+      else {
+        $opcoesEscolhidas.html("Nenhuma opção escolhida");
+      }
+    }
+
+    var listaPessoas;
+
+    function recarregar(numeroPagina) {
+        listaPessoas.carregar(numeroPagina);
+    }
+
+    $(function () {
+        var opts = {
+            lines: 7, // The number of lines to draw
+            length: 4, // The length of each line
+            width: 3, // The line thickness
+            radius: 2, // The radius of the inner circle
+            corners: 0, // Corner roundness (0..1)
+            rotate: 0, // The rotation offset
+            direction: 1, // 1: clockwise, -1: counterclockwise
+            color: '#fff', // #rgb or #rrggbb or array of colors
+            speed: 1, // Rounds per second
+            trail: 60, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: '12px', // Top position relative to parent
+            left: '12px' // Left position relative to parent
+        };
+        var target = document.getElementById('img_spinner');
+        var spinner = new Spinner(opts).spin(target);
+
+        listaPessoas = new ListaPessoas($("#pessoas_da_pesquisa"),
+                "pesquisar_pessoas",
+                true,
+                null,
+                null,
+                true,
+                false);
+        listaPessoas.inicializar();
+
+        $("#enviar_pesquisa_pessoas").on("click", function (evento) {
+            evento.preventDefault();
+
+            var mostrarDialogValidacao = false;
+            var msgDialogValidacao = null;
+
+            if ($("#nome").val() == "" 
+                && $("input[type=checkbox][name=generos\\[\\]]:checked").size() == 0
+                && $("input[type=checkbox][name=estados_civis\\[\\]]:checked").size() == 0
+                && $("input[type=checkbox][name=instrumentos\\[\\]]:checked").size() == 0
+                && $("input[type=checkbox][name=grupos\\[\\]]:checked").size() == 0
+                && $("input[type=checkbox][name=equipes\\[\\]]:checked").size() == 0
+                && $("input[type=checkbox][name=recomendacoes\\[\\]]:checked").size() == 0) {
+              mostrarDialogValidacao = true;
+              msgDialogValidacao = "Você precisa entrar ao menos um critério de pesquisa";
+            }
+            else if ($("#nome").val() != "" && $("#nome").val().length < 3) {
+              mostrarDialogValidacao = true;
+              msgDialogValidacao = "Você precisa digitar no mínimo 3 caracteres para pesquisar por nome";
+            }
+            else {
+              $(this).closest("form").submit();
+            }
+
+            if (mostrarDialogValidacao) {
+              $("#dialog_conteudo").html(msgDialogValidacao + "<p/>");
+              $("#dialog_conteudo").append("<a href='#' class='dialog_link_confirmar'>OK</a>");
+              $("#dialog").show();
+
+              $(".dialog_link_confirmar").on("click", function (evento) {
+                  evento.preventDefault();
+                  esconderDialog();
+              });
+            }
+            
+        });
+
+        $(".checkbox_grupo").on("change", function () {
+            var mostrarPesquisasGrupos = false;
+
+            var opcoesEscolhidasArray = [];
+
+            if ($(".checkbox_grupo:checked").size() == 0) {
+              <% if @usuario_logado.grupos_que_pode_pesquisar.select{|g| g.tem_encontros}.count > 0 %>
+                mostrarPesquisasGrupos = true;
+                $(".equipes").removeClass("manter_escondido");
+                $(".recomendacoes").removeClass("manter_escondido");
+              <% else %>
+                mostrarPesquisasGrupos = false;
+              <% end %>
+            }
+            else {
+              $(".checkbox_grupo").each(function () {
+                var idGrupo = $(this).data("id");
+                var temEncontros = $(this).data("tem-encontros");
+                if ($(this).is(":checked") && temEncontros) {
+                  mostrarPesquisasGrupos = true;
+                  $("#equipes_grupo_" + idGrupo).css("display", "inline-block");
+                  $("#equipes_grupo_" + idGrupo).removeClass("manter_escondido");
+                  $("#recomendacoes_grupo_" + idGrupo).css("display", "inline-block");
+                  $("#recomendacoes_grupo_" + idGrupo).removeClass("manter_escondido");
+                }
+                else {
+                  $("#equipes_grupo_" + idGrupo).hide();
+                  $("#equipes_grupo_" + idGrupo).addClass("manter_escondido");
+                  $("#equipes_grupo_" + idGrupo).find("input[type=checkbox]").attr('checked', false);
+                  atualizarOpcoes($("#equipes_grupo_" + idGrupo).closest(".opcoes"));
+
+                  $("#recomendacoes_grupo_" + idGrupo).hide();
+                  $("#recomendacoes_grupo_" + idGrupo).addClass("manter_escondido");
+                  $("#recomendacoes_grupo_" + idGrupo).find("input[type=checkbox]").attr('checked', false);
+                  atualizarOpcoes($("#recomendacoes_grupo_" + idGrupo).closest(".opcoes"));
+                }
+              });
+            }
+
+            if (mostrarPesquisasGrupos) {
+              $("#pesquisas_sobre_grupos").show();
+              $(".equipes").css("display", "inline-block");
+              $(".recomendacoes").css("display", "inline-block");
+            }
+            else {
+              $("#pesquisas_sobre_grupos").hide();
+            }
+
+        });
+
+        $(".contem_opcoes").on("click", function () {
+          var $opcoes = $(this).siblings(".opcoes");
+
+          $(".contem_opcoes").not(this).children(".seta").html("▼");
+          $(".opcoes").not($opcoes).hide();
+
+          if ($opcoes.is(":visible")) {
+            $(this).children(".seta").html("▼");
+            $opcoes.hide();
+          }
+          else {
+            $(this).children(".seta").html("▲");
+            $opcoes.show();
+            $opcoes.children(".manter_escondido").hide();
+          }
+        });
+
+        $(".opcoes input[type=checkbox]").on("change", function () {
+          atualizarOpcoes($(this).closest(".opcoes"));
+        });
+    });
+</script>
+
+<%= render_breadcrumbs "pesquisar" %>
+
+<h1>Pesquisar pessoas</h1>
+
+<p/>
+
+<%= form_tag(:pesquisar_pessoas, class: "form_pesquisa_pessoas #{@parametros_pesquisa_pessoas.submeteu ? 'form_parametros_pesquisa_pessoas' : ''}") do %>
+    <input type="hidden" name="pesquisa" value="true" />
+
+    <div class="field">
+      <div class="titulo">Nome</div>
+      <%= text_field_tag('nome', @parametros_pesquisa_pessoas.nome, class: 'nome_pesquisa_pessoas') %>
+    </div>
+
+    <div class="field">
+      <div class="titulo">Gênero</div>
+      <label>
+        <%= check_box_tag('generos[]', 'homem', @parametros_pesquisa_pessoas.generos.include?('homem')) %>
+        Homem
+      </label>
+      <label>
+        <%= check_box_tag('generos[]', 'mulher', @parametros_pesquisa_pessoas.generos.include?('mulher')) %>
+        Mulher
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="titulo">Estado civil</div>
+      <label>
+        <%= check_box_tag('estados_civis[]', 'solteiro', @parametros_pesquisa_pessoas.estados_civis.include?('solteiro')) %>
+        Solteiro
+      </label>
+      <label>
+        <%= check_box_tag('estados_civis[]', 'casado', @parametros_pesquisa_pessoas.estados_civis.include?('casado')) %>
+        Casado
+      </label>
+    </div>
+
+    <br/>
+
+    <div class="field">
+
+      <a class="contem_opcoes">
+        <div class="titulo">Habilidades Musicais:</div>
+        <div class="opcoes_escolhidas">
+          <% if @parametros_pesquisa_pessoas.instrumentos.count > 0 %>
+            <%= @parametros_pesquisa_pessoas.instrumentos.join(", ") %>
+          <% else %>
+            Nenhuma opção escolhida
+          <% end %>
+        </div>
+        <span class="seta">▼</span>
+      </a>
+
+      <div class="opcoes" style="display: none">
+        <% instrumentos.each do |instrumento| %>
+          <label>
+            <%= check_box_tag('instrumentos[]', instrumento, @parametros_pesquisa_pessoas.instrumentos.include?(instrumento), data: {nome_opcao: instrumento}) %>
+            <%= instrumento %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <% grupos_que_pode_pesquisar = @usuario_logado.grupos_que_pode_pesquisar %>
+
+    <% if grupos_que_pode_pesquisar.count > 0 %>
+      <br/>
+
+      <div class="field">
+
+        <a class="contem_opcoes">
+          <div class="titulo">Grupos:</div>
+          <div class="opcoes_escolhidas">
+            <% if @parametros_pesquisa_pessoas.grupos.count > 0 %>
+              <% nomes = @parametros_pesquisa_pessoas.grupos.collect{|id_grupo| Grupo.find(id_grupo).nome} %>
+              <%= nomes.join(", ") %>
+            <% else %>
+              Nenhuma opção escolhida
+            <% end %>
+          </div>
+          <div class="seta">▼</div>
+        </a>
+
+        <div class="opcoes" style="display: none">
+          <% grupos_que_pode_pesquisar.each do |grupo| %>
+            <label>
+              <%= check_box_tag('grupos[]', grupo.id, @parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}"), class: 'checkbox_grupo', data: {id: grupo.id, tem_encontros: grupo.tem_encontros, nome_opcao: grupo.nome}) %>
+              <%= grupo.nome %>
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <% mostrar_equipes = grupos_que_pode_pesquisar.select{|g| g.tem_encontros}.count > 0 %>
+
+      <% if mostrar_equipes %>
+        <div id="pesquisas_sobre_grupos">
+
+          <div class="field">
+
+            <a class="contem_opcoes">
+              <div class="titulo">Equipes que já participou:</div>
+              <div class="opcoes_escolhidas">
+                <% if @parametros_pesquisa_pessoas.equipes.count > 0 %>
+                  <% 
+                    nomes = []
+                    @parametros_pesquisa_pessoas.equipes.each do |pesquisa|
+                      partes = pesquisa.split("###")
+                      id_equipe = partes.first
+                      id_grupo = partes.last
+                      grupo = Grupo.find(id_grupo)
+                      if id_equipe == 'coordPerm'
+                        nomes << "Coord. de #{grupo.encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})"
+                      else
+                        equipe = Equipe.find(id_equipe)
+                        nomes << "#{equipe.nome} (#{grupo.nome})"
+                      end 
+                    end
+                  %>
+                  <%= nomes.join(", ") %>
+                <% else %>
+                  Nenhuma opção escolhida
+                <% end %>
+              </div>
+              <div class="seta">▼</div>
+            </a>
+
+            <div class="opcoes" style="display: none">
+              <% grupos_que_pode_pesquisar.each do |grupo| %>
+                <% if grupo.tem_encontros && grupo.encontro_padrao.present? %>
+                  <% encontro_padrao = grupo.encontro_padrao %>
+                  <div class="equipes" id="equipes_grupo_<%= grupo.id %>" style="display: <% if @parametros_pesquisa_pessoas.grupos.count > 0 && !@parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}") %>none<% else %>inline-block<% end %>;">
+                    <label>
+                      <% opcao = "Coord. de #{encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})" %>
+                      <%= check_box_tag('equipes[]', "coordPerm####{grupo.id}", @parametros_pesquisa_pessoas.equipes.include?("coordPerm####{grupo.id}"), data: {nome_opcao: opcao}) %>
+                      <%= opcao %>
+                    </label>
+                    <% encontro_padrao.equipes.each do |equipe| %>
+                      <label>
+                        <% opcao = "#{equipe.nome} (#{grupo.nome})" %>
+                        <%= check_box_tag('equipes[]', equipe.id, @parametros_pesquisa_pessoas.equipes.include?("#{equipe.id}"), data: {nome_opcao: opcao}) %>
+                        <%= opcao %>
+                      </label>
+                    <% end %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+          <br/>
+
+          <div class="field">
+
+            <a class="contem_opcoes">
+              <div class="titulo">Recomendações do Coordenador:</div>
+              <div class="opcoes_escolhidas">
+                <% if @parametros_pesquisa_pessoas.recomendacoes.count > 0 %>
+                  <% 
+                    nomes = []
+                    @parametros_pesquisa_pessoas.recomendacoes.each do |pesquisa|
+                      partes = pesquisa.split("###")
+                      id_equipe = partes.first
+                      id_grupo = partes.last
+                      grupo = Grupo.find(id_grupo)
+                      if id_equipe == 'coordPerm'
+                        nomes << "Coord. de #{grupo.encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})"
+                      else
+                        equipe = Equipe.find(id_equipe)
+                        nomes << "#{equipe.nome} (#{grupo.nome})"
+                      end 
+                    end
+                  %>
+                  <%= nomes.join(", ") %>
+                <% else %>
+                  Nenhuma opção escolhida
+                <% end %>
+              </div>
+              <div class="seta">▼</div>
+            </a>
+
+            <div class="opcoes" style="display: none">
+              <% grupos_que_pode_pesquisar.each do |grupo| %>
+                <% if grupo.tem_encontros && grupo.encontro_padrao.present? %>
+                  <% encontro_padrao = grupo.encontro_padrao %>
+                  <div class="recomendacoes" id="recomendacoes_grupo_<%= grupo.id %>" style="display: <% if @parametros_pesquisa_pessoas.grupos.count > 0 && !@parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}") %>none<% else %>inline-block<% end %>;">
+                    <label>
+                      <% opcao = "Coord. de #{encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})" %>
+                      <%= check_box_tag('recomendacoes[]', "coordPerm####{grupo.id}", @parametros_pesquisa_pessoas.recomendacoes.include?("coordPerm####{grupo.id}"), data: {nome_opcao: opcao}) %>
+                      <%= opcao %>
+                    </label>
+                    <% encontro_padrao.equipes.each do |equipe| %>
+                      <label>
+                        <% opcao = "#{equipe.nome} (#{grupo.nome})" %>
+                        <%= check_box_tag('recomendacoes[]', equipe.id, @parametros_pesquisa_pessoas.recomendacoes.include?("#{equipe.id}"), data: {nome_opcao: opcao}) %>
+                        <%= opcao %>
+                      </label>
+                    <% end %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+        </div>
+      <% end %>
+    <% end %>
+
+    <p/>
+    <a href="#" id="enviar_pesquisa_pessoas" class="link_buscar">Pesquisar</a>
+<% end %>
+
+<% if @parametros_pesquisa_pessoas.submeteu %>
+    <div id="pessoas_da_pesquisa" style="position: relative;">
+      <div class="overlay_carregando overlay_carregando_aparecer_logo">
+        <div class="overlay_carregando_fundo"></div>
+        <div class="overlay_carregando_texto">
+          <span id="img_spinner"></span>
+          Carregando...
+        </div>
+        <br/>
+      </div>
+    </div>
+<% end %>

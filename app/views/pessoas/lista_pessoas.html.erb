@@ -47,21 +47,30 @@
    texto_casais = texto_casais.join
 %>
 
-<% if @total > 0 || @query.present? %>
+<% if @mostrar_filtro && (@total > 0 || @query.present?) %>
     <input type="text" id="query_filtrar_pessoas" value="<%= @query %>" />
-    <a href="#" id="enviar_query_filtrar_pessoas" class="link_buscar">Buscar</a>
+    <a href="#" id="enviar_query_filtrar_pessoas" class="link_buscar">Filtrar</a>
 
     <% if @query %>
-        <a href="#" id="limpar_filtro" class="link_remover">Limpar busca</a>
+        <a href="#" id="limpar_filtro" class="link_remover">Limpar filtro</a>
     <% end %>
 
     -
 <% end %>
 
 <% if @total > 0 %>
-    Total de <%= @total %> pessoa<%= "s" if plural_pessoas %><%= texto_casais %>
+    <% if @tipo_pagina == "pesquisar_pessoas" %>
+        Sua pesquisa resultou em
+    <% else %>
+        Total de
+    <% end %>
+    <%= @total %> pessoa<%= "s" if plural_pessoas %><%= texto_casais %>
 <% else %>
-    Nenhuma pessoa
+    <% if @tipo_pagina == "pesquisar_pessoas" %>
+        Sua pesquisa não resultou em nenhuma pessoa
+    <% else %>
+        Nenhuma pessoa
+    <% end %>
 <% end %>
 
 <% if @total > 0 %>
@@ -118,7 +127,7 @@
             <tr>
                 <td>
                     <%
-                        if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar"
+                        if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar" || @tipo_pagina == "pesquisar_pessoas"
                             link_pessoa = pessoa
                         elsif @tipo_pagina == "pessoas_no_grupo"
                             link_pessoa = grupo_pessoa_path(@grupo, pessoa)
@@ -155,7 +164,7 @@
                     <td>
                         <% if pessoa.conjuge.present? %>
                             <%
-                                if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar"
+                                if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar" || @tipo_pagina == "pesquisar_pessoas"
                                     link_conjuge = pessoa.conjuge
                                 elsif @tipo_pagina == "pessoas_no_grupo"
                                     link_conjuge = grupo_pessoa_path(@grupo, pessoa.conjuge)

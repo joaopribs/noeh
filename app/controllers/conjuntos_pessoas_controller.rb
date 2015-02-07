@@ -26,12 +26,19 @@ class ConjuntosPessoasController < ApplicationController
 
   def create
     if params[:tipo_conjunto] == "Equipe"
+      if params[:equipe_padrao_relacionada].present?
+        equipe_padrao = Equipe.find(params[:equipe_padrao_relacionada])
+        params[:nome] = equipe_padrao.nome
+      end
       @conjunto = Equipe.new(conjunto_params)
     elsif params[:tipo_conjunto] == "ConjuntoPermanente"
       @conjunto = ConjuntoPermanente.new(conjunto_params)
     end
 
     @conjunto.encontro = @encontro
+
+    precisa_poder_criar_conjuntos(@encontro)
+    return if performed?
 
     @titulo = "Criar #{@conjunto.tipo_do_conjunto}"
     adicionar_breadcrumb @titulo, @conjunto, "conjunto"
@@ -46,13 +53,17 @@ class ConjuntosPessoasController < ApplicationController
         format.html { redirect_to @conjunto.encontro, notice: msg }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        session[:conjunto] = @conjunto
+        format.html { redirect_to @conjunto.encontro }
         format.json { render json: @conjunto.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def edit
+    precisa_poder_gerenciar_conjunto(@conjunto)
+    return if performed?
+
     @titulo = "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}"
     adicionar_breadcrumb @titulo, @conjunto, "conjunto"
 
@@ -60,6 +71,9 @@ class ConjuntosPessoasController < ApplicationController
   end
 
   def update
+    precisa_poder_gerenciar_conjunto(@conjunto)
+    return if performed?
+
     @titulo = "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}"
     adicionar_breadcrumb @titulo, @conjunto, "conjunto"
 
@@ -80,6 +94,9 @@ class ConjuntosPessoasController < ApplicationController
   end
 
   def destroy
+    precisa_poder_gerenciar_conjunto(@conjunto)
+    return if performed?
+
     tipo_conjunto = @conjunto.tipo_do_conjunto
     if tipo_conjunto == "Equipe"
       texto_notificacao = "Equipe excluída com sucesso"
@@ -99,6 +116,10 @@ class ConjuntosPessoasController < ApplicationController
 
   def adicionar_pessoa_a_conjunto
     @conjunto = ConjuntoPessoas.find(params[:id_conjunto])
+
+    precisa_poder_gerenciar_conjunto(@conjunto)
+    return if performed?
+
     @pessoa = Pessoa.find(params[:id_pessoa])
     eh_coordenador = params[:eh_coordenador] ? params[:eh_coordenador] == "true" : false
 
@@ -162,6 +183,9 @@ class ConjuntosPessoasController < ApplicationController
   def remover_pessoa_de_conjunto
     @conjunto = ConjuntoPessoas.find(params[:id_conjunto])
 
+    precisa_poder_gerenciar_conjunto(@conjunto)
+    return if performed?
+
     condicoes = ["conjunto_pessoas_id = #{@conjunto.id}"]
 
     @pessoa = Pessoa.find(params[:id_pessoa])
@@ -214,6 +238,9 @@ class ConjuntosPessoasController < ApplicationController
     pessoa = Pessoa.find(params[:pessoa_id])
     conjunto = ConjuntoPessoas.find(params[:conjunto_id])
 
+    precisa_poder_gerenciar_conjunto(@conjunto)
+    return if performed?
+
     relacao_pessoa = RelacaoPessoaConjunto.where({:pessoa_id => pessoa.id, :conjunto_pessoas_id => params[:conjunto_id]}).first
     relacao_pessoa.eh_coordenador = params[:eh_coordenador]
 
@@ -259,11 +286,17 @@ class ConjuntosPessoasController < ApplicationController
   end
 
   def upload_relatorio
-    @conjunto.relatorio = params[:relatorio]
+    begin
+      @conjunto.relatorio = params[:relatorio]
 
-    respond_to do |format|
-      if @conjunto.save
-        format.js
+      respond_to do |format|
+        if @conjunto.save
+          format.js { render 'upload_relatorio.js.erb' }
+        end
+      end
+    rescue
+      respond_to do |format|
+        format.js { render 'erro_upload_relatorio.js.erb' }
       end
     end
   end
@@ -333,9 +366,46 @@ class ConjuntosPessoasController < ApplicationController
     end
 
     def conjunto_params
-      hash = ActionController::Parameters.new(nome: params[:nome], cor_id: params[:cor_id])
+      if params[:equipe_padrao_relacionada].present?
+        equipe_padrao_relacionada = Equipe.find(params[:equipe_padrao_relacionada])
+      else
+        equipe_padrao_relacionada = nil
+      end
+      hash = ActionController::Parameters.new(nome: params[:nome], cor_id: params[:cor_id], equipe_padrao_relacionada: equipe_padrao_relacionada)
       hash.permit!
       return hash
+    end
+
+    def pode_gerenciar_conjunto conjunto
+      if conjunto.tipo == 'ConjuntoPermanente'
+        return @usuario_logado.eh_super_admin? || 
+          conjunto.pessoas.include?(@usuario_logado) ||
+          conjunto.encontro.coordenadores.include?(@usuario_logado) ||
+          conjunto.encontro.grupo.coordenadores.include?(@usuario_logado)
+      else
+        return @usuario_logado.eh_super_admin? || 
+          conjunto.coordenadores.include?(@usuario_logado) || 
+          conjunto.encontro.coordenadores.include?(@usuario_logado) ||
+          conjunto.encontro.grupo.coordenadores.include?(@usuario_logado)
+      end
+    end
+
+    def precisa_poder_gerenciar_conjunto conjunto
+      if !pode_gerenciar_conjunto(conjunto)
+        redirect_to root_url and return
+      end
+    end
+
+    def pode_criar_conjuntos encontro
+      return @usuario_logado.eh_super_admin? || 
+        encontro.coordenadores.include?(@usuario_logado) ||
+        encontro.grupo.coordenadores.include?(@usuario_logado)
+    end
+
+    def precisa_poder_criar_conjuntos encontro
+      if !pode_criar_conjuntos(encontro)
+        redirect_to root_url and return
+      end
     end
 
 end

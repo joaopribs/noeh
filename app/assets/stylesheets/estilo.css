@@ -191,7 +191,7 @@ button {
 .field {
     display: inline-block;
     margin-bottom: 10px;
-    margin-right: 10px;
+    margin-right: 20px;
 }
 
 .actions {
@@ -315,6 +315,15 @@ a.link_recomendacoes {
     padding-left: 22px;
     background: url(recomendacoes.png) no-repeat;
     background-position: left center;
+}
+
+a.link_relatorio {
+    padding-left: 10px;
+    background: url(anexo.png) no-repeat;
+    background-position: left center;
+    font-size: 8pt;
+    height: 15px;
+    display: inline-block;
 }
 
 /* Tipos de arquivo
@@ -659,7 +668,7 @@ a.arquivo_pdf:hover {
 
 #navegacao {
     display: inline-block;
-    margin-right: 50px;
+    margin-right: 20px;
 }
 
 #navegacao a {
@@ -841,4 +850,39 @@ table.participacoes tr th:not(:nth-of-type(2)) {
 
 .titulo_coordenadores {
     margin-top: 0;
+}
+
+/* Página de pesquisa pessoas
+------------------------------------------------------------------------------*/
+
+.form_parametros_pesquisa_pessoas {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.nome_pesquisa_pessoas {
+    width: 300px;
+}
+
+.form_pesquisa_pessoas .field .titulo {
+    color: #ccc;
+}
+
+.contem_opcoes {
+    cursor: pointer;
+    position: relative;
+    font-weight: normal;
+}
+
+.contem_opcoes > div {
+    display: inline-block;
+}
+
+.container_opcoes > .opcoes {
+    position: absolute;
+}
+
+.contem_opcoes > .opcoes_escolhidas {
+    margin-left: 5px;
 }

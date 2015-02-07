@@ -97,7 +97,6 @@
 
                        FB.api('/' + idConjuge + '/picture?redirect=0&height=200&type=normal&width=200', function (response) {
                          urlFotoGrandeConjuge = response.data.url;
-
                          executar(atualizarBotao, nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
                                  nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
                        });
@@ -120,6 +119,13 @@
 
         function fazerLoginNoSistema(nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
                                      nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
+            $("#msg_principal").html("Checando login no noeh...");
+
+            $("#link_fb").off("click");
+            $("#link_fb").on("click", function (e) {
+              e.preventDefault();
+            });
+
             $.post("<%= log_in_url %>",
                     {
                         "nome_facebook": nomeFacebook,
@@ -170,6 +176,7 @@
                $("#imagem_usuario_facebook").show();
            }
 
+           $("#link_fb").off("click");
            $("#link_fb").on("click", function (e) {
                e.preventDefault();
                fazerLoginNoSistema(nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
@@ -183,7 +190,7 @@
            }
            else {
                $("#msg_principal").html("Entre no sistema usando sua conta de Facebook");
-
+               $("#link_fb").off("click");
                $("#link_fb").on("click", function (e) {
                    e.preventDefault();
 
@@ -194,6 +201,7 @@
            }
        });
 
+       $('.link_entrar_pelo_facebook').off('click');
        $('.link_entrar_pelo_facebook').on('click', function (evento) {
             evento.preventDefault();
 

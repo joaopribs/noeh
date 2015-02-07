@@ -7,8 +7,8 @@
         <% end %>
     <% end %>
 
-    <% if @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 %>
-        <%= link_to 'Pesquisar pessoas', '#' %>
+    <% if @usuario_logado.eh_super_admin || @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 %>
+        <%= link_to 'Pesquisar pessoas', pesquisar_pessoas_path %>
     <% end %>
 
     <% if @usuario_logado.eh_super_admin %>

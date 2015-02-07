@@ -34,23 +34,43 @@ module ApplicationHelper
   end
 
   def pode_excluir_pessoa pessoa_a_ser_excluida
-    if @usuario_logado.eh_super_admin ||
-        ((@usuario_logado.eh_coordenador_de_grupo_que_tem_encontros_de(pessoa_a_ser_excluida) || @usuario_logado.eh_coordenador_de_todos_os_grupos_de(pessoa_a_ser_excluida)) &&
-            @usuario_logado.id != pessoa_a_ser_excluida.id && !pessoa_a_ser_excluida.eh_super_admin?)
-      return true
+    if pode_excluir_pessoa_especifica(pessoa_a_ser_excluida)
+      if pessoa_a_ser_excluida.conjuge.present?
+        if pode_excluir_pessoa_especifica(pessoa_a_ser_excluida.conjuge)
+          return true
+        end
+      else
+        return true
+      end
     end
 
     return false
   end
 
+  def pode_excluir_pessoa_especifica pessoa_a_ser_excluida
+    return (@usuario_logado.eh_super_admin || @usuario_logado.eh_coordenador_de_todos_os_grupos_de(pessoa_a_ser_excluida)) && 
+        @usuario_logado.id != pessoa_a_ser_excluida.id && !pessoa_a_ser_excluida.eh_super_admin?
+  end
+
   def pode_editar_pessoa pessoa_a_ser_editada
-    if @usuario_logado.eh_super_admin ||
-        @usuario_logado.id == pessoa_a_ser_editada.id ||
-        (@usuario_logado.eh_coordenador_de_grupo_que_tem_encontros_de(pessoa_a_ser_editada) || @usuario_logado.eh_coordenador_de_todos_os_grupos_de(pessoa_a_ser_editada))
+    if pode_editar_pessoa_especifica(pessoa_a_ser_editada)
       return true
+    end
+      
+    if pessoa_a_ser_editada.conjuge.present?
+      if pode_editar_pessoa_especifica(pessoa_a_ser_editada.conjuge)
+        return true
+      end
     end
 
     return false
+  end
+
+  def pode_editar_pessoa_especifica pessoa_a_ser_editada
+    return @usuario_logado.eh_super_admin ||
+            @usuario_logado.id == pessoa_a_ser_editada.id ||
+            @usuario_logado.eh_coordenador_de_grupo_que_tem_encontros_de(pessoa_a_ser_editada) || 
+            @usuario_logado.eh_coordenador_de_todos_os_grupos_de(pessoa_a_ser_editada)
   end
 
   def pode_alterar_estado_civil_de outra_pessoa

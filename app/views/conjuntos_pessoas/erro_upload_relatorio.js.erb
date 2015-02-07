@@ -1,0 +1,11 @@
+$("#overlay_carregando_upload_relatorio").hide();
+
+$("#dialog_conteudo").html("Formato de arquivo inválido<br/>");
+$("#dialog_conteudo").append("Só são aceitos arquivos <em>Word</em> ou <em>PDF</em><p/>");
+$("#dialog_conteudo").append("<a href='#' class='dialog_link_confirmar'>OK</a>");
+$("#dialog").show();
+
+$(".dialog_link_confirmar").on("click", function (evento) {
+    evento.preventDefault();
+    esconderDialog();
+});

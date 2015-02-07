@@ -7,16 +7,12 @@
         $('#tem_facebook_<%= tipo_pessoa %>').on('change', function () {
             if ($(this).prop('checked')) {
                 $('#campos_de_facebook_<%= tipo_pessoa %>').show();
-//                carregarImagem<%= tipo_pessoa %>();
-
                 if ($('#esta_tirando_facebook_<%= tipo_pessoa %>').size() > 0) {
                     $('#esta_tirando_facebook_<%= tipo_pessoa %>').val("0");
                 }
             }
             else {
                 $('#campos_de_facebook_<%= tipo_pessoa %>').hide();
-//                carregarImagem<%= tipo_pessoa %>('<%= Pessoa.url_imagem_sem_imagem(120) %>');
-
                 if ($('#esta_tirando_facebook_<%= tipo_pessoa %>').size() > 0) {
                     $('#esta_tirando_facebook_<%= tipo_pessoa %>').val("1");
                 }

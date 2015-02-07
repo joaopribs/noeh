@@ -16,6 +16,7 @@ class EncontrosController < ApplicationController
 
   def index
     precisa_ser_coordenador_do_grupo @grupo
+    return if performed?
 
     @encontros = @grupo.encontros.page params[:page]
     @total = @grupo.encontros.count
@@ -23,12 +24,31 @@ class EncontrosController < ApplicationController
 
   def show
     precisa_ser_coordenador_do_grupo_ou_do_encontro @encontro
+    return if performed?
 
     adicionar_breadcrumb @encontro.nome, @encontro, "ver"
+
+    @equipe = Equipe.new(encontro: @encontro)
+    @conjunto_permanente = ConjuntoPermanente.new(encontro: @encontro)
+    @mostrar_form_equipe = false
+    @mostrar_form_conjunto_permanente = false
+
+    if session[:conjunto]
+      conjunto = session[:conjunto]
+      if conjunto.present? && conjunto.tipo == 'Equipe'
+        @equipe = conjunto
+        @mostrar_form_equipe
+      elsif conjunto.present? && conjunto.tipo == 'ConjuntoPermanente'
+        @conjunto_permanente = conjunto
+        @mostrar_form_conjunto_permanente = true
+      end
+      session[:conjunto] = nil
+    end
   end
 
   def new
     precisa_ser_coordenador_do_grupo @grupo
+    return if performed?
 
     adicionar_breadcrumb "Criar novo encontro", new_grupo_encontro_url, "criar"
     @encontro = Encontro.new(grupo: @grupo)
@@ -37,6 +57,7 @@ class EncontrosController < ApplicationController
 
   def create
     precisa_ser_coordenador_do_grupo @grupo
+    return if performed?
 
     adicionar_breadcrumb "Criar novo encontro", new_grupo_encontro_url, "criar"
 
@@ -46,7 +67,9 @@ class EncontrosController < ApplicationController
     encontro_padrao = @grupo.encontro_padrao
 
     encontro_padrao.equipes.each do |equipe|
-      @encontro.equipes << equipe.dup
+      equipe_encontro = equipe.dup
+      equipe_encontro.equipe_padrao_relacionada = equipe
+      @encontro.equipes << equipe_encontro
     end
 
     encontro_padrao.conjuntos_permanentes.each do |conjunto_permanente|
@@ -66,6 +89,7 @@ class EncontrosController < ApplicationController
 
   def edit
     precisa_ser_coordenador_do_grupo_ou_do_encontro @encontro
+    return if performed?
 
     adicionar_breadcrumb @encontro.nome, @encontro, "ver"
     adicionar_breadcrumb "Editar", edit_encontro_url(@encontro), "editar"
@@ -73,6 +97,7 @@ class EncontrosController < ApplicationController
 
   def update
     precisa_ser_coordenador_do_grupo_ou_do_encontro @encontro
+    return if performed?
 
     adicionar_breadcrumb @encontro.nome, @encontro, "ver"
     adicionar_breadcrumb "Editar", edit_encontro_url(@encontro), "editar"
@@ -90,6 +115,7 @@ class EncontrosController < ApplicationController
 
   def forma_padrao
     precisa_ser_coordenador_do_grupo @grupo
+    return if performed?
 
     adicionar_breadcrumb "Forma Padrão", grupo_padrao_url(@grupo), "padrao"
 
@@ -101,6 +127,7 @@ class EncontrosController < ApplicationController
 
   def update_forma_padrao
     precisa_ser_coordenador_do_grupo @grupo
+    return if performed?
 
     adicionar_breadcrumb "Forma Padrão", grupo_padrao_url(@grupo), "padrao"
 
@@ -119,6 +146,7 @@ class EncontrosController < ApplicationController
 
   def destroy
     precisa_ser_coordenador_do_grupo @grupo
+    return if performed?
 
     @encontro.destroy
 
@@ -147,14 +175,33 @@ class EncontrosController < ApplicationController
       if eh_padrao
         nomes_equipes = params[:nomes_equipes]
         cores_equipes = params[:cores_equipes]
+        ids_equipes = params[:ids_equipes]
 
         equipes = []
-        if nomes_equipes.present? && cores_equipes.present?
-          nomes_equipes.each_with_index do |nome_equipe, index|
+        if nomes_equipes.present? && cores_equipes.present? && ids_equipes.present?
+          ids_equipes.each_with_index do |id_equipe, index|
             cor_equipe = cores_equipes[index]
+            nome_equipe = nomes_equipes[index]
 
-            if nome_equipe.present? || cor_equipe.present?
-              equipes << Equipe.new({nome: nome_equipe, cor_id: cor_equipe})
+            if id_equipe != "-1"
+              equipe = Equipe.find(id_equipe)
+            end
+
+            if nome_equipe.present?
+              if equipe.nil?
+                equipe = Equipe.new
+              end
+
+              equipe.nome = nome_equipe
+              equipe.cor_id = cor_equipe
+
+              # if id_equipe != "-1"
+                equipe.save
+              # end
+            end
+
+            if equipe.present?
+              equipes << equipe
             end
           end
         end
@@ -167,7 +214,7 @@ class EncontrosController < ApplicationController
           nomes_conjuntos_permanentes.each_with_index do |nome_conjunto_permanente, index|
             cor_conjunto_permanente = cores_conjuntos_permanentes[index]
 
-            if nome_conjunto_permanente.present? || cor_conjunto_permanente.present?
+            if nome_conjunto_permanente.present?
               conjuntos_permanentes << ConjuntoPermanente.new({nome: nome_conjunto_permanente, cor_id: cor_conjunto_permanente})
             end
           end

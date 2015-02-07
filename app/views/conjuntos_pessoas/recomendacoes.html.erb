@@ -14,6 +14,7 @@
             "conjunto_id",
             <%= @conjunto.id %>,
             false,
+            true,
             function () {
                 $("#link_salvar_recomendacoes").show();
             });
@@ -47,8 +48,6 @@
     };
     var target = document.getElementById('img_spinner');
     var spinner = new Spinner(opts).spin(target);
-
-    listaPessoas.carregar();
   });
 </script>
 

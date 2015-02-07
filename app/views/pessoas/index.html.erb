@@ -1,10 +1,31 @@
 <script src="<%= lista_pessoas_js_path %>"></script>
 
 <script>
-    $(function () {
-        listaPessoas = new ListaPessoas($("#lista_pessoas"), "lista_pessoas");
-        listaPessoas.inicializar();
-    });
+	$(function () {
+	  var opts = {
+	      lines: 7, // The number of lines to draw
+	      length: 4, // The length of each line
+	      width: 3, // The line thickness
+	      radius: 2, // The radius of the inner circle
+	      corners: 0, // Corner roundness (0..1)
+	      rotate: 0, // The rotation offset
+	      direction: 1, // 1: clockwise, -1: counterclockwise
+	      color: '#fff', // #rgb or #rrggbb or array of colors
+	      speed: 1, // Rounds per second
+	      trail: 60, // Afterglow percentage
+	      shadow: false, // Whether to render a shadow
+	      hwaccel: false, // Whether to use hardware acceleration
+	      className: 'spinner', // The CSS class to assign to the spinner
+	      zIndex: 2e9, // The z-index (defaults to 2000000000)
+	      top: '12px', // Top position relative to parent
+	      left: '12px' // Left position relative to parent
+	  };
+	  var target = document.getElementById('img_spinner');
+	  var spinner = new Spinner(opts).spin(target);
+
+	  listaPessoas = new ListaPessoas($("#lista_pessoas"), "lista_pessoas");
+	  listaPessoas.inicializar();
+  });
 </script>
 
 <%= render_breadcrumbs "pessoas" %>
@@ -13,4 +34,13 @@
 
 <%= render 'shared/notificacao' %>
 
-<div id="lista_pessoas" style="position: relative;"></div>
+<div id="lista_pessoas" style="position: relative;">
+  <div class="overlay_carregando overlay_carregando_aparecer_logo">
+    <div class="overlay_carregando_fundo"></div>
+    <div class="overlay_carregando_texto">
+      <span id="img_spinner"></span>
+      Carregando...
+    </div>
+    <br/>
+  </div>
+</div>

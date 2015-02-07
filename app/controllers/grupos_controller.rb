@@ -14,6 +14,7 @@ class GruposController < ApplicationController
   # GET /grupos.json
   def index
     precisa_ser_super_admin
+    return if performed?
 
     if @usuario_logado.eh_super_admin?
       @grupos = Grupo.all.page params[:page]
@@ -28,6 +29,7 @@ class GruposController < ApplicationController
   # GET /grupos/new
   def new
     precisa_ser_super_admin
+    return if performed?
 
     adicionar_breadcrumb "Criar novo grupo", new_grupo_path, "criar"
 
@@ -37,6 +39,7 @@ class GruposController < ApplicationController
   # GET /grupos/1
   def show
     precisa_poder_gerenciar_grupo @grupo
+    return if performed?
 
     adicionar_breadcrumb @grupo.nome, @grupo, "editar"
 
@@ -48,13 +51,24 @@ class GruposController < ApplicationController
   # POST /grupos.json
   def create
     precisa_ser_super_admin
+    return if performed?
 
     adicionar_breadcrumb "Criar novo grupo", new_grupo_path, "criar"
 
     @grupo = Grupo.new(grupo_params)
 
     respond_to do |format|
-      if @grupo.save
+      if @grupo.valid?
+        if @grupo.tem_encontros
+          encontro_padrao = Encontro.new({
+            padrao: 1, 
+            nome: 'Padrão', 
+            denominacao_conjuntos_permanentes: 'Círculo'})
+          @grupo.encontro_padrao = encontro_padrao
+        end
+
+        @grupo.save
+
         format.html { redirect_to grupos_url, notice: 'Grupo criado com sucesso.' }
         format.json { render action: 'show', status: :created, location: @grupo }
       else
@@ -68,6 +82,7 @@ class GruposController < ApplicationController
   # PATCH/PUT /grupos/1.json
   def update
     precisa_ser_super_admin
+    return if performed?
 
     adicionar_breadcrumb @grupo.nome, @grupo, "editar"
 
@@ -75,6 +90,15 @@ class GruposController < ApplicationController
 
     respond_to do |format|
       if @grupo.update(grupo_params)
+        if @grupo.tem_encontros
+          encontro_padrao = Encontro.new({
+            padrao: 1, 
+            nome: 'Padrão', 
+            denominacao_conjuntos_permanentes: 'Círculo'})
+          @grupo.encontro_padrao = encontro_padrao
+          @grupo.save
+        end
+
         format.html { redirect_to grupos_url, notice: 'Grupo editado com sucesso.' }
         format.json { head :no_content }
       else
@@ -88,6 +112,7 @@ class GruposController < ApplicationController
   # DELETE /grupos/1.json
   def destroy
     precisa_ser_super_admin
+    return if performed?
 
     @grupo.destroy
 
@@ -106,6 +131,7 @@ class GruposController < ApplicationController
 
   def setar_eh_coordenador
     precisa_ser_super_admin
+    return if performed?
 
     precisa_salvar_relacao_pessoa = true
     precisa_salvar_relacao_conjuge = false
@@ -144,6 +170,7 @@ class GruposController < ApplicationController
     @pessoa = Pessoa.find(params[:id_pessoa])
 
     precisa_poder_gerenciar_grupo @grupo
+    return if performed?
 
     relacao_pessoa = RelacaoPessoaGrupo.where({:pessoa => @pessoa, :grupo_id => params[:id_grupo]}).first
 
@@ -181,6 +208,7 @@ class GruposController < ApplicationController
     @grupo = Grupo.find(params[:id_grupo])
 
     precisa_poder_gerenciar_grupo @grupo
+    return if performed?
 
     condicoes = ["grupo_id = #{@grupo.id}"]
 
@@ -266,6 +294,7 @@ class GruposController < ApplicationController
     @grupo = Grupo.friendly.find(params[:grupo_id])
 
     precisa_poder_gerenciar_grupo @grupo
+    return if performed?
 
     adicionar_breadcrumb @grupo.nome, @grupo, "editar"
     adicionar_breadcrumb "Ex-participantes", grupo_ex_participantes_url(@grupo), "ex_participantes"
@@ -284,10 +313,19 @@ class GruposController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def grupo_params
+      params[:grupo][:outros_grupos_que_pode_ver_equipes] = []
+
+      if params[:outros_grupos_que_pode_ver_equipes].present? && params[:grupo][:tem_encontros].present? && params[:grupo][:tem_encontros] == "1"
+        params[:outros_grupos_que_pode_ver_equipes].each do |outro_grupo_id|
+          params[:grupo][:outros_grupos_que_pode_ver_equipes] << Grupo.find(outro_grupo_id)
+        end
+      end
+
       params_grupo = params[:grupo]
 
       hash = ActionController::Parameters.new(nome: params_grupo[:nome],
                                               tem_encontros: params_grupo[:tem_encontros],
+                                              outros_grupos_que_pode_ver_equipes: params_grupo[:outros_grupos_que_pode_ver_equipes],
                                               slug: nil)
       hash.permit!
       return hash

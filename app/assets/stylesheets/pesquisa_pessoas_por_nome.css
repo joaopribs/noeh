@@ -1,15 +1,15 @@
-.container_dos_campos_de_pesquisa {
+.container_dos_campos_de_pesquisa_por_nome {
     position: relative;
 }
 
-.nome_pessoa_pesquisa {
+.nome_pessoa_pesquisa_por_nome {
     width: 456px;
     padding-left: 35px !important;
     background: url(/assets/procurar.png) no-repeat;
     background-position: 10px center;
 }
 
-.resultados_pesquisa {
+.resultados_pesquisa_por_nome {
     display: none;
     position: absolute;
     top: 27px;
@@ -20,7 +20,7 @@
     height: auto;
 }
 
-.conteudo_resultados_pesquisa {
+.conteudo_resultados_pesquisa_por_nome {
     display: block;
     position: relative;
     top: 0;
@@ -31,12 +31,12 @@
     height: auto;
 }
 
-p.conteudo_resultados_pesquisa {
+p.conteudo_resultados_pesquisa_por_nome {
     padding: 10px;
     color: #555;
 }
 
-.conteudo_resultados_pesquisa li {
+.conteudo_resultados_pesquisa_por_nome li {
     display: block;
     float: none;
     clear: both;
@@ -50,11 +50,11 @@ p.conteudo_resultados_pesquisa {
     padding-top: 5px;
 }
 
-.conteudo_resultados_pesquisa li:not(.carregando):not(.extrapolou):first-of-type {
+.conteudo_resultados_pesquisa_por_nome li:not(.carregando):not(.extrapolou):first-of-type {
     padding-top: 0;
 }
 
-.conteudo_resultados_pesquisa a {
+.conteudo_resultados_pesquisa_por_nome a {
     position: relative;
     top: 0;
     left: 0;
@@ -72,13 +72,13 @@ p.conteudo_resultados_pesquisa {
     color: #ff0000;
 }
 
-.conteudo_resultados_pesquisa a:hover,
-.conteudo_resultados_pesquisa a.selecionado {
+.conteudo_resultados_pesquisa_por_nome a:hover,
+.conteudo_resultados_pesquisa_por_nome a.selecionado {
     background-color: #ccc;
 }
 
-.conteudo_resultados_pesquisa .carregando,
-.conteudo_resultados_pesquisa .extrapolou {
+.conteudo_resultados_pesquisa_por_nome .carregando,
+.conteudo_resultados_pesquisa_por_nome .extrapolou {
     padding: 10px;
 }
 
@@ -88,64 +88,64 @@ p.conteudo_resultados_pesquisa {
     vertical-align: middle;
 }
 
-.conteudo_resultados_pesquisa li img.imagem_fb_busca:first-of-type {
+.conteudo_resultados_pesquisa_por_nome li img.imagem_fb_busca:first-of-type {
     padding-left: 10px;
 }
 
-.container_dos_campos_de_pesquisa {
+.container_dos_campos_de_pesquisa_por_nome {
     float: left;
     margin-right: 30px;
     margin-bottom: 20px;
 }
 
-.detalhes_pesquisa {
+.detalhes_pesquisa_por_nome {
     width: 430px;
     display: inline-block;
 }
 
-.imagens_detalhe_pesquisa {
+.imagens_detalhe_pesquisa_por_nome {
     float: left;
     display: inline-block;
     margin: 0 10px 10px 0;
 }
 
-img.imagem_detalhe_pesquisa {
+img.imagem_detalhe_pesquisa_por_nome {
     margin: 0;
     width: 100px;
     height: 100px;
 }
 
-.nome_detalhe_pesquisa {
+.nome_detalhe_pesquisa_por_nome {
     font-size: 18px;
     display: block;
 }
 
-.nome_usual_detalhe_pesquisa {
+.nome_usual_detalhe_pesquisa_por_nome {
     display: block;
 }
 
-.obs_detalhe_pesquisa {
+.obs_detalhe_pesquisa_por_nome {
     color: #ff0000;
 }
 
-table.resultado_pesquisa_pessoas {
+table.resultado_pesquisa_pessoas_por_nome {
     margin: 0;
     padding: 3px 0;
     border: 0;
     display: inline-block;
 }
 
-table.resultado_pesquisa_pessoas td {
+table.resultado_pesquisa_pessoas_por_nome td {
     margin: 0;
     padding: 0;
     vertical-align: middle;
 }
 
-table.resultado_pesquisa_pessoas td:first-of-type {
+table.resultado_pesquisa_pessoas_por_nome td:first-of-type {
     padding-right: 10px;
 }
 
-.nome_grupo {
+.nome_grupo_pesquisa_por_nome {
     font-size: 0.6em;
     text-transform: uppercase;
     background-color: #999;
@@ -154,7 +154,7 @@ table.resultado_pesquisa_pessoas td:first-of-type {
     margin: 5px 5px 0 0;
 }
 
-.grupos_pesquisa > span {
+.grupos_pesquisa_por_nome > span {
     font-size: 0.8em;
     text-transform: uppercase;
     background-color: #999;

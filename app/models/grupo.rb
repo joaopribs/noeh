@@ -10,6 +10,8 @@ class Grupo < ActiveRecord::Base
     end
   }
 
+  before_destroy { outros_grupos_que_pode_ver_equipes.clear }
+
   default_scope { order(:nome) }
 
   friendly_id :nome, use: :slugged
@@ -18,6 +20,12 @@ class Grupo < ActiveRecord::Base
   has_many :pessoas, -> {reorder 'relacoes_pessoa_grupo.eh_coordenador DESC, pessoas.nome ASC'}, through: :relacoes_pessoa_grupo
   has_many :encontros, -> { where padrao: false}, dependent: :destroy
   has_many :auto_sugestoes, class_name: 'AutoSugestao', dependent: :destroy
+
+  # Autorrelacionamento bidirecional
+  has_many :outros_grupos_que_pode_ver_equipes_relacionamento, foreign_key: 'grupo_id', class_name: 'GrupoPodeVerEquipesDeOutrosGrupos'
+  has_many :outros_grupos_que_pode_ver_equipes, through: :outros_grupos_que_pode_ver_equipes_relacionamento, source: :outro_grupo, dependent: :destroy
+  has_many :pode_ser_visto_por_outros_grupos_relacionamento, foreign_key: 'outro_grupo_id', class_name: 'GrupoPodeVerEquipesDeOutrosGrupos'
+  has_many :pode_ser_visto_por_outros_grupos, through: :pode_ser_visto_por_outros_grupos_relacionamento, source: :grupo, dependent: :destroy
 
   has_one :encontro_padrao, -> { where padrao: true}, class_name: 'Encontro', dependent: :destroy
 

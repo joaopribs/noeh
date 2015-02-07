@@ -2,15 +2,16 @@
 require "open-uri"
 
 class PessoasController < ApplicationController
-  skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao, :teste]
+  skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao]
   before_action :set_entidades, :adicionar_breadcrumbs_entidades
-  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :cadastrar_novo_confirmacao, :teste]
+  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :cadastrar_novo_confirmacao]
   skip_before_action :verify_authenticity_token, only: [:lista_pessoas_js]
 
   # GET /pessoas
   # GET /pessoas.json
   def index
     precisa_ser_super_admin
+    return if performed?
 
     carregar_pessoas(Pessoa.all)
     @tipo_pagina = "lista_pessoas"
@@ -20,6 +21,7 @@ class PessoasController < ApplicationController
   # GET /pessoas/1.json
   def show
     precisa_poder_ver_pessoa @pessoa
+    return if performed?
 
     adicionar_breadcrumb_de_ver_pessoa
 
@@ -33,6 +35,7 @@ class PessoasController < ApplicationController
   # GET /pessoas/new
   def new
     precisa_poder_criar_pessoas
+    return if performed?
 
     adicionar_breadcrumb "Criar nova pessoa", new_pessoa_url, "criar"
 
@@ -43,11 +46,14 @@ class PessoasController < ApplicationController
   # GET /pessoas/1/edit
   def edit
     precisa_poder_editar_pessoa @pessoa
+    return if performed?
 
     @eh_casal = @pessoa.conjuge.present?
 
     if @eh_casal
       precisa_poder_editar_pessoa @pessoa.conjuge
+      return if performed?
+
       @conjuge = @pessoa.conjuge
       @tipo_conjuge = 'form'
     else
@@ -64,6 +70,7 @@ class PessoasController < ApplicationController
   def create
     if !params.has_key?(:auto_inserido)
       precisa_poder_criar_pessoas
+      return if performed?
     end
 
     adicionar_breadcrumb "Criar nova pessoa", new_pessoa_url, "criar"
@@ -151,25 +158,6 @@ class PessoasController < ApplicationController
           criar_relacoes_auto_inserir
         end
 
-        if defined? @grupo
-          relacao_pessoa = RelacaoPessoaGrupo.new({:pessoa_id => @pessoa.id, :grupo_id => params[:grupo_id]})
-          relacao_pessoa.save
-
-          if @eh_casal
-            relacao_conjuge = RelacaoPessoaGrupo.where({:pessoa_id => @conjuge.id, :grupo_id => params[:grupo_id]}).first
-
-            if relacao_conjuge.nil?
-              relacao_conjuge = RelacaoPessoaGrupo.new({:pessoa_id => @conjuge.id, :grupo_id => params[:grupo_id]})
-            end
-
-            relacao_conjuge.save
-
-            msg_sucesso = "Casal criado e adicionado ao grupo #{@grupo.nome} com sucesso"
-          else
-            msg_sucesso = "Pessoa criada e adicionada ao grupo #{@grupo.nome} com sucesso"
-          end
-        end
-
         if defined? @conjunto
           if @conjunto.tipo == 'CoordenacaoEncontro'
             texto_adicionado = "à coordenação do encontro #{@conjunto.encontro.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
@@ -179,33 +167,23 @@ class PessoasController < ApplicationController
             texto_adicionado = "a #{@conjunto.tipo_do_conjunto} #{@conjunto.nome} do encontro #{@conjunto.encontro.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
           end
 
-          relacao_pessoa_conjunto = RelacaoPessoaConjunto.new({:pessoa_id => @pessoa.id, :conjunto_pessoas_id => @conjunto.id})
-          relacao_pessoa_conjunto.save
-
-          relacao_pessoa_grupo = RelacaoPessoaGrupo.new({:pessoa_id => @pessoa.id, :grupo_id => @conjunto.encontro.grupo.id})
-          relacao_pessoa_grupo.save
+          salvar_relacao_conjunto(@pessoa, @grupo)
 
           if @eh_casal
-            relacao_conjuge_conjunto = RelacaoPessoaConjunto.where({:pessoa_id => @conjuge.id, :conjunto_pessoas_id => @conjunto.id}).first
-
-            if relacao_conjuge_conjunto.nil?
-              relacao_conjuge_conjunto = RelacaoPessoaConjunto.new({:pessoa_id => @conjuge.id, :conjunto_pessoas_id => @conjunto.id})
-            end
-
-            relacao_conjuge_conjunto.save
-
-            relacao_conjuge_grupo = RelacaoPessoaGrupo.where({:pessoa_id => @conjuge.id, :grupo_id => @conjunto.encontro.grupo.id}).first
-
-            if relacao_conjuge_grupo.nil?
-              relacao_conjuge_grupo = RelacaoPessoaGrupo.new({:pessoa_id => @conjuge.id, :grupo_id => @conjunto.encontro.grupo.id})
-            end
-
-            relacao_conjuge_grupo.save
-
             msg_sucesso = "Casal criado e adicionado #{texto_adicionado} com sucesso"
           else
             msg_sucesso = "Pessoa criada e adicionada #{texto_adicionado} com sucesso"
           end
+
+        elsif defined? @grupo
+
+          salvar_relacao_grupo(@pessoa, @grupo)
+          if @eh_casal
+            msg_sucesso = "Casal criado e adicionado ao grupo #{@grupo.nome} com sucesso"
+          else
+            msg_sucesso = "Pessoa criada e adicionada ao grupo #{@grupo.nome} com sucesso"
+          end
+
         end
 
         format.html { redirect_to pagina_retorno, notice: msg_sucesso }
@@ -225,6 +203,7 @@ class PessoasController < ApplicationController
   # PATCH/PUT /pessoas/1.json
   def update
     precisa_poder_editar_pessoa @pessoa
+    return if performed?
 
     adicionar_breadcrumb_de_ver_pessoa
     adicionar_breadcrumb "Editar", edit_pessoa_url(@pessoa), "editar"
@@ -251,6 +230,7 @@ class PessoasController < ApplicationController
 
         precisa_poder_editar_pessoa @conjuge
         precisa_poder_editar_pessoa @pessoa.conjuge
+        return if performed?
 
         if @pessoa.valid?
           @velho_conjuge = @pessoa.conjuge
@@ -266,6 +246,8 @@ class PessoasController < ApplicationController
 
         if @conjuge.present?
           precisa_poder_editar_pessoa @conjuge
+          return if performed?
+
           @conjuge = atualizar_pessoa(@conjuge, "conjuge")
         else
           @conjuge = criar_pessoa("conjuge")
@@ -315,6 +297,11 @@ class PessoasController < ApplicationController
       if ((precisa_salvar_pessoa && @pessoa.save) || !precisa_salvar_pessoa) &&
           ((precisa_salvar_conjuge && @conjuge.save) || !precisa_salvar_conjuge) &&
           ((precisa_salvar_velho_conjuge && @velho_conjuge.save) || !precisa_salvar_velho_conjuge)
+        if defined? @conjunto
+          salvar_relacao_conjunto(@pessoa, @conjunto)
+        elsif defined? @grupo
+          salvar_relacao_grupo(@pessoa, @grupo)
+        end
         format.html { redirect_to pagina_retorno, notice: msg_sucesso }
         format.json { head :no_content }
       else
@@ -329,18 +316,26 @@ class PessoasController < ApplicationController
   def destroy
     if pode_excluir_pessoa @pessoa
       @pessoa.destroy
-    end
 
-    carregar_pessoas(Pessoa.all)
-    numero_pagina = 1
+      id_pessoas_a_remover_da_session = [@pessoa.id]
+      if @pessoa.conjuge.present?
+        id_pessoas_a_remover_da_session << @pessoa.conjuge.id
+      end
 
-    msg_sucesso = @pessoa.conjuge.present? ? 'Casal excluído com sucesso' : 'Pessoa excluída com sucesso'
+      remover_pessoas_da_session(id_pessoas_a_remover_da_session)
 
-    flash[:notice] = msg_sucesso
+      numero_pagina = 1
 
-    respond_to do |format|
-      # format.html { redirect_to pessoas_url, notice: msg_sucesso, status: 303 } # Status 303 eh pq ta vindo de um method DELETE e redirecionando pra um GET
-      format.json { render json: {novaPagina: numero_pagina, msgSucesso: msg_sucesso}, status: :ok }
+      msg_sucesso = @pessoa.conjuge.present? ? 'Casal excluído com sucesso' : 'Pessoa excluída com sucesso'
+
+      flash[:notice] = msg_sucesso
+
+      respond_to do |format|
+        # format.html { redirect_to pessoas_url, notice: msg_sucesso, status: 303 } # Status 303 eh pq ta vindo de um method DELETE e redirecionando pra um GET
+        format.json { render json: {novaPagina: numero_pagina, msgSucesso: msg_sucesso}, status: :ok }
+      end
+    else
+      redirect_to root_url and return
     end
   end
 
@@ -393,13 +388,13 @@ class PessoasController < ApplicationController
   def cadastrar_novo_confirmacao
   end
 
-  def pesquisa_pessoas
+  def pesquisa_pessoas_por_nome
     condicoes = []
     id_pessoas_ignorar = []
     id_pessoas_incluir = []
 
     if params.has_key? :query
-      condicoes.concat ["(nome LIKE '%#{params[:query]}%' OR nome_usual LIKE '%#{params[:query]}%')"]
+      condicoes.concat ["(pessoas.nome LIKE '%#{params[:query]}%' OR pessoas.nome_usual LIKE '%#{params[:query]}%')"]
     end
 
     if params.has_key? :id_grupo_ignorar
@@ -417,19 +412,19 @@ class PessoasController < ApplicationController
     end
 
     if id_pessoas_ignorar.count > 0
-      condicoes.concat ["id NOT IN (#{id_pessoas_ignorar.join(",")})"]
+      condicoes.concat ["pessoas.id NOT IN (#{id_pessoas_ignorar.join(",")})"]
     end
 
     if id_pessoas_incluir.count > 0
-      condicoes.concat ["id IN (#{id_pessoas_incluir.join(",")})"]
+      condicoes.concat ["pessoas.id IN (#{id_pessoas_incluir.join(",")})"]
     end
 
     if params.has_key? :ignorar_casais
-      condicoes.concat ["conjuge_id IS NULL"]
+      condicoes.concat ["pessoas.conjuge_id IS NULL"]
     end
 
     sql = condicoes.join(" AND ")
-    pessoas = Pessoa.where(sql).order("nome ASC")
+    pessoas = Pessoa.where(sql).order("pessoas.nome ASC")
 
     if pessoas.length == 0
       descricao_quantidade = "nenhuma"
@@ -493,6 +488,10 @@ class PessoasController < ApplicationController
 
     @pessoas = Pessoa.pegar_pessoas(session[:id_pessoas])
 
+    @total = @pessoas.count
+    @numero_casais = @pessoas.select{|p| p.conjuge != nil}.count / 2
+
+    @mostrar_filtro = params[:mostrar_filtro].nil? ? true : params[:mostrar_filtro] == "true"
     @fazer_paginacao = params[:fazer_paginacao].nil? ? true : params[:fazer_paginacao] == "true"
 
     if @fazer_paginacao
@@ -502,9 +501,6 @@ class PessoasController < ApplicationController
         @pessoas = Kaminari.paginate_array(@pessoas).page params[:page]
       end
     end
-
-    @total = @pessoas.count
-    @numero_casais = @pessoas.select{|p| p.conjuge != nil}.count / 2
 
     @mostrar_conjuges = params[:mostrar_conjuges].nil? ? true : params[:mostrar_conjuges] == "true"
 
@@ -625,6 +621,148 @@ class PessoasController < ApplicationController
     adicionar_breadcrumb "Pessoas aguardando confirmação", pessoas_a_confirmar_url, "confirmar"
 
     carregar_pessoas(@usuario_logado.pessoas_a_confirmar)
+  end
+
+  def pesquisar_pessoas
+    precisa_poder_pesquisar_pessoas
+    return if performed?
+
+    adicionar_breadcrumb "Pesquisar pessoas", pesquisar_pessoas_url, "pesquisar"
+
+    @parametros_pesquisa_pessoas = ParametrosPesquisaPessoas.new
+
+    if params["pesquisa"].present?
+      @parametros_pesquisa_pessoas.submeteu = true
+
+      pesquisar_em_grupos = false
+      pesquisar_em_instrumentos = false
+      pesquisar_em_conjuntos = false
+      pesquisar_recomendacoes_do_coordenador_permanente = false
+      pesquisar_recomendacoes_equipes = false
+
+      filtros_total = []
+
+      filtros_pessoas = []
+
+      if params[:nome].present?
+        @parametros_pesquisa_pessoas.nome = params[:nome]
+        filtros_pessoas << "(pessoas.nome LIKE '%#{@parametros_pesquisa_pessoas.nome}%' OR pessoas.nome_usual LIKE '%#{@parametros_pesquisa_pessoas.nome}%')"
+      end
+
+      if params[:generos].present?
+        @parametros_pesquisa_pessoas.generos = params[:generos]
+        if @parametros_pesquisa_pessoas.generos.count == 1
+          filtros_pessoas << "pessoas.eh_homem = #{@parametros_pesquisa_pessoas.generos[0] == 'homem'}"
+        end
+      end
+
+      if params[:estados_civis].present?
+        @parametros_pesquisa_pessoas.estados_civis = params[:estados_civis]
+        if @parametros_pesquisa_pessoas.estados_civis.count == 1
+          filtros_pessoas << "pessoas.conjuge_id IS #{@parametros_pesquisa_pessoas.estados_civis[0] == 'casado' ? 'NOT ' : ''}NULL"
+        end
+      end
+
+      if filtros_pessoas.count > 0
+        filtros_total << "(#{filtros_pessoas.join(" AND ")})"
+      end
+
+      if params[:instrumentos].present?
+        @parametros_pesquisa_pessoas.instrumentos = params[:instrumentos]
+        filtros_instrumentos = []
+        params[:instrumentos].each do |instrumento|
+          filtros_instrumentos << "instrumentos.nome LIKE '%#{instrumento}%'"
+        end
+        filtros_total << "(#{filtros_instrumentos.join(" OR ")})"
+        pesquisar_em_instrumentos = true
+      end
+
+      if params[:grupos]
+        pesquisar_em_grupos = true
+        @parametros_pesquisa_pessoas.grupos = params[:grupos]
+        filtros_total << "(grupos.id IN (#{params[:grupos].join(", ")}))"
+      else
+        unless @usuario_logado.eh_super_admin?
+          pesquisar_em_grupos = true
+          filtros_total << "(grupos.id IN (#{@usuario_logado.grupos_que_pode_pesquisar.collect{|g| g.id}.join(", ")}))"
+        end
+      end
+
+      if params[:equipes]
+        @parametros_pesquisa_pessoas.equipes = params[:equipes]
+
+        pesquisar_em_conjuntos = true
+
+        filtros_equipes = []
+
+        params[:equipes].each do |equipe_procurando|
+          partes = equipe_procurando.split("###")
+          equipe = partes.first
+          grupo = partes.last
+
+          if equipe == 'coordPerm'
+            filtros_equipes << "(conjuntos_pessoas.tipo = 'ConjuntoPermanente' AND relacoes_pessoa_conjunto.eh_coordenador = true AND grupos.id = #{grupo})"
+            pesquisar_em_grupos = true
+          else
+            filtros_equipes << "(conjuntos_pessoas.equipe_padrao_relacionada = #{equipe})"
+          end
+        end
+        filtros_total << "(#{filtros_equipes.join(" OR ")})"
+      end
+
+      if params[:recomendacoes]
+        @parametros_pesquisa_pessoas.recomendacoes = params[:recomendacoes]
+
+        filtros_recomendacoes = []
+
+        params[:recomendacoes].each do |recomendacao_procurando|
+          partes = recomendacao_procurando.split("###")
+          equipe = partes.first
+          grupo = partes.last
+
+          if equipe == 'coordPerm'
+            filtros_recomendacoes << "(recomendacoes_do_coordenador_permanente.recomenda_pra_coordenador = true AND recomendacoes_do_coordenador_permanente.conjunto_pessoas_id = conjuntos_pessoas.id AND conjuntos_pessoas.encontro_id = encontros.id AND encontros.grupo_id = #{grupo})"
+            pesquisar_recomendacoes_do_coordenador_permanente = true
+          else
+            filtros_recomendacoes << "(recomendacoes_equipes.conjunto_pessoas_id = #{equipe})"
+            pesquisar_recomendacoes_equipes = true
+          end
+        end
+
+        filtros_total << "(#{filtros_recomendacoes.join(" OR ")})"
+      end
+
+      objetos = Pessoa
+
+      if pesquisar_em_grupos
+        objetos = objetos.joins(:grupos)
+      end
+
+      if pesquisar_em_instrumentos
+        objetos = objetos.joins(:instrumentos)
+      end
+
+      if pesquisar_recomendacoes_do_coordenador_permanente
+        objetos = objetos.joins(:recomendacao_do_coordenador_permanente)
+          .joins('INNER JOIN conjuntos_pessoas ON recomendacoes_do_coordenador_permanente.conjunto_pessoas_id = conjuntos_pessoas.id')
+          .joins('INNER JOIN encontros ON conjuntos_pessoas.encontro_id = encontros.id')
+      end
+
+      if pesquisar_em_conjuntos && !pesquisar_recomendacoes_do_coordenador_permanente
+        objetos = objetos.joins(:conjuntos_pessoas)
+      end
+
+      if pesquisar_recomendacoes_equipes
+        objetos = objetos.joins(:recomendacoes_equipes)
+      end
+
+      debugger
+
+      pessoas = objetos.where(filtros_total.join(" AND ")).distinct
+
+      carregar_pessoas(pessoas)
+    end
+
   end
 
   private
@@ -945,14 +1083,6 @@ class PessoasController < ApplicationController
       return false
     end
 
-    def pode_criar_pessoas
-      if @usuario_logado.eh_super_admin? || (@usuario_logado.grupos_que_coordena.count > 0)
-        return true
-      end
-
-      return false
-    end
-
     def pode_ver_pessoa pessoa
       if @usuario_logado.eh_super_admin? ||
           @usuario_logado.eh_coordenador_de_grupo_de(pessoa) ||
@@ -971,12 +1101,6 @@ class PessoasController < ApplicationController
       end
     end
 
-    def precisa_poder_criar_pessoas
-      if !pode_criar_pessoas
-        redirect_to root_url and return
-      end
-    end
-
     def precisa_poder_ver_pessoa pessoa
       if !pode_ver_pessoa pessoa
         redirect_to root_url and return
@@ -990,5 +1114,81 @@ class PessoasController < ApplicationController
           @usuario_logado.eh_coordenador_de_conjunto_permanente_de(pessoa) ||
           @usuario_logado == pessoa
     end
+
+    def pode_pesquisar_pessoas
+      if @usuario_logado.eh_super_admin? || (@usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0)
+        return true
+      end
+
+      return false
+    end
+
+    def precisa_poder_pesquisar_pessoas
+      if !pode_pesquisar_pessoas
+        redirect_to root_url and return
+      end
+    end
+
+    def pode_criar_pessoas_em_grupo grupo_id
+      if @usuario_logado.eh_super_admin? || 
+        @usuario_logado.grupos_que_coordena.collect{|g| g.slug}.include?(grupo_id) || 
+        @usuario_logado.grupos_que_coordena.collect{|g| g.id.to_s}.include?(grupo_id)
+        return true
+      end
+
+      return false
+    end
+
+    def precisa_poder_criar_pessoas
+      if params[:grupo_id]
+        if !pode_criar_pessoas_em_grupo params[:grupo_id]
+          redirect_to root_url and return
+        end
+      else
+        if !@usuario_logado.eh_super_admin?
+          redirect_to root_url and return
+        end
+      end
+    end
+
+    def salvar_relacao_grupo pessoa, grupo
+      relacao_pessoa = RelacaoPessoaGrupo.where({:pessoa_id => pessoa.id, :grupo_id => grupo.id})
+      
+      if relacao_pessoa.nil?
+        relacao_pessoa = RelacaoPessoaGrupo.new({:pessoa_id => pessoa.id, :grupo_id => grupo.id})
+        relacao_pessoa.save
+      end
+
+      if pessoa.conjuge.present?
+        relacao_conjuge = RelacaoPessoaGrupo.where({:pessoa_id => pessoa.conjuge.id, :grupo_id => grupo.id}).first
+
+        if relacao_conjuge.nil?
+          relacao_conjuge = RelacaoPessoaGrupo.new({:pessoa_id => pessoa.conjuge.id, :grupo_id => grupo.id})
+          relacao_conjuge.save
+        end
+      end
+    end
+
+    def salvar_relacao_conjunto pessoa, conjunto
+      relacao_pessoa = RelacaoPessoaConjunto.where({:pessoa_id => pessoa.id, :conjunto_pessoas_id => conjunto.id})
+
+      if relacao_pessoa.nil?
+        relacao_pessoa = RelacaoPessoaConjunto.new({:pessoa_id => pessoa.id, :conjunto_pessoas_id => conjunto.id})
+        relacao_pessoa.save
+      end
+
+      if pessoa.conjuge.present?
+        relacao_conjuge = RelacaoPessoaConjunto.where({:pessoa_id => pessoa.conjuge.id, :conjunto_pessoas_id => conjunto.id}).first
+
+        if relacao_conjuge.nil?
+          relacao_conjuge = RelacaoPessoaConjunto.new({:pessoa_id => pessoa.conjuge.id, :conjunto_pessoas_id => conjunto.id})
+          relacao_conjuge.save
+        end
+      end
+
+      salvar_relacao_grupo(pessoa, conjunto.grupo)
+    end
+
+
 
 end

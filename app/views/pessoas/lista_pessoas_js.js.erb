@@ -5,7 +5,7 @@ function getParameterByName(name, string) {
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-function ListaPessoas(containerDaTabela, tipoPagina, fazerPaginacao, tipoId, idObjeto, mostrarConjuges, funcaoSucesso) {
+function ListaPessoas(containerDaTabela, tipoPagina, fazerPaginacao, tipoId, idObjeto, mostrarConjuges, mostrarFiltro, funcaoSucesso) {
 
     var self = this;
 
@@ -59,6 +59,10 @@ function ListaPessoas(containerDaTabela, tipoPagina, fazerPaginacao, tipoId, idO
             parametros.push("fazer_paginacao=" + fazerPaginacao);
         }
 
+        if (mostrarFiltro != null) {
+            parametros.push("mostrar_filtro=" + mostrarFiltro);
+        }
+
         parametros = parametros.join("&");
 
         $(self.containerDaTabela).load("<%= lista_pessoas_url %>?" + parametros, function () {
@@ -76,7 +80,8 @@ function ListaPessoas(containerDaTabela, tipoPagina, fazerPaginacao, tipoId, idO
                 var page = $(this).data("page");
                 var nome = $(this).data("nome-pessoa");
 
-                $("#dialog_conteudo").html("Tem certeza que deseja excluir <em>" + nome + "</em> do sistema?<p/>");
+                $("#dialog_conteudo").html("Tem certeza que deseja excluir <em>" + nome + "</em> do sistema? Todos os seus registros no sistema inteiro serão removidos (não apenas desse grupo).<p/>");
+                $("#dialog_conteudo").append('Se sua necessidade é apenas remover do grupo, clique em "remover".<p/>')
                 $("#dialog_conteudo").append("<a href='#' class='confirmar_excluir_pessoa dialog_link_confirmar' data-pessoa-id='" + pessoaId + "' data-page='" + page + "'>Confirmar</a>");
                 $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
                 $("#dialog").show();
@@ -193,6 +198,10 @@ function ListaPessoas(containerDaTabela, tipoPagina, fazerPaginacao, tipoId, idO
                         function (response) {
                             var novaPagina = parseInt(response.novaPagina);
                             self.carregar(novaPagina);
+
+                            if (tipoRemover == 'saindo') {
+                                $("#ex_participantes").show();
+                            }
 
                             mostrarNotificacao(response.msgSucesso);
 

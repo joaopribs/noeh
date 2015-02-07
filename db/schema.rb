@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150112124355) do
+ActiveRecord::Schema.define(version: 20150125005230) do
 
   create_table "auto_sugestao", force: :cascade do |t|
     t.integer  "pessoa_id",   limit: 4
@@ -24,16 +24,17 @@ ActiveRecord::Schema.define(version: 20150112124355) do
   end
 
   create_table "conjuntos_pessoas", force: :cascade do |t|
-    t.integer  "encontro_id",            limit: 4
-    t.string   "nome",                   limit: 255
+    t.integer  "encontro_id",               limit: 4
+    t.string   "nome",                      limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "tipo",                   limit: 255
-    t.integer  "cor_id",                 limit: 4
-    t.string   "relatorio_file_name",    limit: 255
-    t.string   "relatorio_content_type", limit: 255
-    t.integer  "relatorio_file_size",    limit: 4
+    t.string   "tipo",                      limit: 255
+    t.integer  "cor_id",                    limit: 4
+    t.string   "relatorio_file_name",       limit: 255
+    t.string   "relatorio_content_type",    limit: 255
+    t.integer  "relatorio_file_size",       limit: 4
     t.datetime "relatorio_updated_at"
+    t.integer  "equipe_padrao_relacionada", limit: 4
   end
 
   create_table "cores", force: :cascade do |t|
@@ -59,6 +60,13 @@ ActiveRecord::Schema.define(version: 20150112124355) do
     t.date     "data_termino"
     t.date     "data_liberacao"
     t.date     "data_fechamento"
+  end
+
+  create_table "grupo_pode_ver_equipes_de_outros_grupos", force: :cascade do |t|
+    t.integer  "grupo_id",       limit: 4
+    t.integer  "outro_grupo_id", limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "grupos", force: :cascade do |t|

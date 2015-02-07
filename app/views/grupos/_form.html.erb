@@ -42,16 +42,35 @@
 
 <%= form_for(@grupo, html: {class: 'espaco_embaixo'}) do |f| %>
     <div class="field">
-        <%= f.label "Nome*", :for => "nome" %><br>
+        <%= f.label "Nome*", :for => "nome" %><br/>
         <div class="erro_form"><%= @grupo.errors[:nome].first %></div>
         <%= f.text_field :nome, size: '50' %>
     </div>
 
     <div class="field">
-        <%= f.label "Tem encontros?*", :for => "tem_encontros" %><br>
+        <%= f.label "Tem encontros?*", :for => "tem_encontros" %><br/>
         <div class="erro_form"><%= @grupo.errors[:tem_encontros].first %></div>
         <%= f.check_box :tem_encontros %>
     </div>
+
+    <% if !@grupo.new_record? %>
+        <% grupos_pra_ver_equipes = Grupo.where("tem_encontros = true AND id != #{@grupo.id}")%>
+
+        <% if @grupo.tem_encontros && grupos_pra_ver_equipes.count > 0 %>
+            <br/>
+
+            <div class="field">
+              <%= f.label "Outros grupos cujas equipes são visíveis a esse grupo" %><br/>
+              <% grupos_pra_ver_equipes.each do |outro_grupo| %>
+                  <label>
+                    <%= check_box_tag('outros_grupos_que_pode_ver_equipes[]', outro_grupo.id, @grupo.outros_grupos_que_pode_ver_equipes.include?(outro_grupo)) %> <%= outro_grupo.nome %>
+                  </label>
+              <% end %>
+            </div>
+        <% end %>
+    <% end %>
+
+    <br/>
 
     <a href="#" id="link_enviar" class="link_submeter">Salvar</a>
     <% if !@grupo.new_record? %>

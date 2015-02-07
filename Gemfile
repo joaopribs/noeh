@@ -36,3 +36,5 @@ gem 'rails_12factor', group: :production
 gem "paperclip-dropbox", ">= 1.1.7"
 
 gem 'remotipart', '~> 1.2'
+
+gem "debugger", group: :development

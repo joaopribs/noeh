@@ -20,6 +20,7 @@
                 "conjunto_id",
                 <%= @conjunto.id %>,
                 true,
+                true,
                 function () {
                     $(".checkbox_coordenador").on("click", function(e) {
                         var pessoa_id = $(this).data("pessoa_id");
@@ -51,7 +52,7 @@
 
           $("#overlay_carregando_remover_relatorio").show();
 
-          $.post("<%= remover_relatorio_url %>",
+          $.post("<%= remover_relatorio_url(id: @conjunto.id) %>",
                   {
                     "id": <%= @conjunto.id %>
                   },
@@ -92,8 +93,6 @@
         };
         var target = document.getElementById('img_spinner');
         var spinner = new Spinner(opts).spin(target);
-
-        listaPessoas.carregar();
 
         var targetUploadRelatorio = document.getElementById('img_spinner_upload_relatorio');
         var spinnerUploadRelatorio = new Spinner(opts).spin(targetUploadRelatorio);
@@ -209,5 +208,5 @@
 
     <h3><%= titulo_busca %></h3>
 
-    <%= render 'pessoas/pesquisa_pessoas', tipo_pesquisa: "pesquisa_conjunto" %>
+    <%= render 'pessoas/pesquisa_pessoas_por_nome', tipo_pesquisa: "pesquisa_conjunto" %>
 <% end %>

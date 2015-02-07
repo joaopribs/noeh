@@ -54,17 +54,16 @@ class Pessoa < ActiveRecord::Base
   validates_attachment_content_type :foto_grande, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
   validates_attachment_content_type :foto_pequena, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
 
-  def conjuge
-    Pessoa.unscoped{ super }
-  end
+  # def conjuge
+  #   Pessoa.unscoped{ super }
+  # end
 
   def self.pegar_pessoas array_ids
     pessoas = []
 
     if array_ids.present? && array_ids.count > 0
-      array_ids.each do |id|
-        pessoas << Pessoa.unscoped.find(id)
-      end
+      pessoas_do_banco = Pessoa.unscoped.where("pessoas.id IN (#{array_ids.join(", ")})").eager_load(:telefones).order(:nome)
+      pessoas = pessoas.concat(pessoas_do_banco.to_a);
     end
 
     return pessoas
@@ -172,6 +171,42 @@ class Pessoa < ActiveRecord::Base
       return Grupo.where(tem_encontros: true)
     else
       return self.relacoes_pessoa_grupo.joins(:grupo).where('relacoes_pessoa_grupo.eh_coordenador = true AND grupos.tem_encontros = true').collect{|r| r.grupo}
+    end
+  end
+
+  def grupos_que_nao_tem_encontros_que_coordena
+    if self.eh_super_admin
+      return Grupo.where(tem_encontros: false)
+    else
+      return self.relacoes_pessoa_grupo.joins(:grupo).where('relacoes_pessoa_grupo.eh_coordenador = true AND grupos.tem_encontros = false').collect{|r| r.grupo}
+    end
+  end
+
+  def grupos_que_pode_pesquisar
+    if self.eh_super_admin
+      return Grupo.all
+    else
+      grupos = []
+
+      grupos_que_tem_encontros_que_coordena = self.grupos_que_tem_encontros_que_coordena
+
+      if grupos_que_tem_encontros_que_coordena
+        grupos = grupos_que_tem_encontros_que_coordena
+      end
+
+      grupos_que_tem_encontros_que_coordena.each do |grupo_coordena|
+        grupo_coordena.outros_grupos_que_pode_ver_equipes.each do |outro_grupo|
+          grupos << outro_grupo
+        end
+      end
+
+      grupos.concat(Grupo.where(tem_encontros: false))
+
+      if grupos.count > 0
+        grupos = grupos.uniq.sort_by{|g| g.nome}
+      end
+
+      return grupos
     end
   end
 

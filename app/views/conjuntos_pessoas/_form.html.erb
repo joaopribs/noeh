@@ -4,6 +4,13 @@
             e.preventDefault();
             $(this).closest("form").submit();
         });
+
+        <% if conjunto.tipo_do_conjunto == "Equipe" %>
+          $("#equipe_padrao_relacionada").on("change", function () {
+            var idCor = $(this).find(":selected").data("cor");
+            $("#cor_equipe").val(idCor);
+          });
+        <% end %>
     });
 </script>
 
@@ -22,10 +29,30 @@
 <%= form_tag(url, class: 'espaco_embaixo') do %>
 
     <div class="field">
-      <%= label_tag "nome", "Nome*" %><br/>
-      <div class="erro_form"><%= conjunto.errors[:nome].first %></div>
-      <%= text_field_tag :nome, conjunto.nome, size: 30 %>
+
+      <% if conjunto.tipo_do_conjunto == "Equipe" %>
+
+        <%= label_tag "equipe", "Equipe*" %><br/>
+        <div class="erro_form"><%= conjunto.errors[:nome].first %></div>
+        <select name="equipe_padrao_relacionada" id="equipe_padrao_relacionada">
+          <option value=""></option>
+          <% conjunto.encontro.grupo.encontro_padrao.equipes.each do |equipe| %>
+            <option value="<%= equipe.id %>" data-cor="<%= equipe.cor.present? ? equipe.cor.id : "" %>" <% if conjunto.equipe_padrao_relacionada.present? && conjunto.equipe_padrao_relacionada.id == equipe.id %>selected="selected"<% end %>>
+              <%= equipe.nome %>
+            </option>
+          <% end %>
+        </select>
+
+      <% else %>
+
+        <%= label_tag "nome", "Nome*" %><br/>
+        <div class="erro_form"><%= conjunto.errors[:nome].first %></div>
+        <%= text_field_tag :nome, conjunto.nome, size: 30 %>
+
+      <% end %>
     </div>
+
+
 
     <div class="field">
       <label for="cor_id">
@@ -40,13 +67,17 @@
       <%
          if conjunto.tipo_do_conjunto == "Equipe"
            cores = Cor.where(de_equipe: true).collect{|c| [c.nome, c.id]}
+           id_select = 'cor_equipe'
          else
            cores = Cor.where(de_conjunto_permanente: true).collect{|c| [c.nome, c.id]}
+           id_select = 'cor_conjunto_permanente'
          end
       %>
 
-      <%= select_tag :cor_id, options_for_select(cores, (conjunto.cor.present? ? conjunto.cor.id : "")), include_blank: true %>
+      <%= select_tag :cor_id, options_for_select(cores, (conjunto.cor.present? ? conjunto.cor.id : "")), include_blank: true, id: id_select %>
     </div>
+
+    <br/>
 
     <a href="#" class="link_enviar link_submeter" style="margin-right: 10px">
       <% if conjunto.new_record? %>

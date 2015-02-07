@@ -15,6 +15,8 @@ class ConjuntoPessoas < ActiveRecord::Base
   belongs_to :cor
   belongs_to :encontro
 
+  validates :nome, :presence => {:message => "Obrigatório"}
+
   def tipo_do_conjunto
     if self.tipo == "ConjuntoPermanente"
       return self.encontro.denominacao_conjuntos_permanentes

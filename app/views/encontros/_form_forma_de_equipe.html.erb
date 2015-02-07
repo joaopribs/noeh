@@ -1,4 +1,7 @@
 <div class="campos_equipe">
+
+<input type="hidden" name="ids_equipes[]" value="<%= equipe.id.present? ? equipe.id : "-1" %>"/>
+
   <div class="field">
     <label for="nome_equipe">Equipe</label><br/>
     <div class="erro_form"><%= equipe.errors[:nome].first %></div>
@@ -8,6 +11,11 @@
     <label for="cor_equipe">Cor do crachá</label><br/>
     <div class="erro_form"><%= equipe.errors[:cor].first %></div>
     <%= select_tag "cores_equipes[]", options_for_select(Cor.where(de_equipe: true).collect{|c| [c.nome, c.id]}, (equipe.cor.present? ? equipe.cor.id : "")), include_blank: true %>
-    <a href="#" class="link_remover remover_equipe">Remover</a>
+
+    <% if equipe.equipes_para_a_qual_eh_padrao.count == 0 %>
+      <a href="#" class="link_remover remover_equipe">Remover</a>
+    <% else %>
+      <span class="helper">(Não pode ser removido)</span>
+    <% end %>
   </div>
 </div>

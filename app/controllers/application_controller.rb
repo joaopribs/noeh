@@ -76,4 +76,9 @@ class ApplicationController < ActionController::Base
     session[:id_pessoas_antes_do_filtro] = nil
   end
 
+  def remover_pessoas_da_session id_pessoas
+    session[:id_pessoas] = session[:id_pessoas] - id_pessoas
+    session[:id_pessoas_antes_do_filtro] = nil
+  end
+
 end

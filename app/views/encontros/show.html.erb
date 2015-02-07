@@ -160,8 +160,8 @@
 
       <%= link_to "Criar nova equipe", '#', :id => 'link_nova_equipe', :class => "link_novo link_novo_conjunto" %>
 
-      <div id="form_equipe" style="display: none;">
-        <%= render 'conjuntos_pessoas/form', conjunto: Equipe.new(encontro: @encontro) %>
+      <div id="form_equipe" <% if !@mostrar_form_equipe %>style="display: none;"<% end %>>
+        <%= render 'conjuntos_pessoas/form', conjunto: @equipe %>
       </div>
 
       <table class="zebra">
@@ -176,8 +176,13 @@
                     </div>
                 <% end %>
               </td>
-              <td>
+              <td align="center">
                 <%= equipe.pessoas.count %> pessoa<%= "s" unless equipe.pessoas.count == 1 %>
+              </td>
+              <td align="center">
+                <% if equipe.relatorio.present? %>
+                  <%= link_to 'Relatório', equipe.relatorio.url(download: true), class: 'link_relatorio' %>
+                <% end %>
               </td>
               <td align="center">
                 <%=
@@ -200,8 +205,8 @@
 
       <%= link_to "Criar novo #{@encontro.denominacao_conjuntos_permanentes.downcase}", '#', :id => 'link_novo_conjunto_permanente', :class => "link_novo link_novo_conjunto" %>
 
-      <div id="form_conjunto_permanente" style="display: none;">
-        <%= render 'conjuntos_pessoas/form', conjunto: ConjuntoPermanente.new(encontro: @encontro) %>
+      <div id="form_conjunto_permanente" <% if !@mostrar_form_conjunto_permanente %>style="display: none;"<% end %>>
+        <%= render 'conjuntos_pessoas/form', conjunto: @conjunto_permanente %>
       </div>
 
       <table class="zebra">

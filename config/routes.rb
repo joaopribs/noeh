@@ -1,4 +1,6 @@
 Noeh::Application.routes.draw do
+  match '/pessoas/pesquisar', :to => 'pessoas#pesquisar_pessoas', :as => :pesquisar_pessoas, via: [:get, :post]
+
   scope path_names: { new: 'criar', edit: 'editar' } do
     resources :grupos do
       get 'pessoas/criar', :to => 'pessoas#new', :as => :new_pessoa
@@ -30,7 +32,7 @@ Noeh::Application.routes.draw do
 
   get '/lista_pessoas', :to => 'pessoas#lista_pessoas', :as => :lista_pessoas
   get '/lista_pessoas_js', :to => 'pessoas#lista_pessoas_js', :as => :lista_pessoas_js, :defaults => { :format => 'js' }
-  post '/pesquisa_pessoas', :to => 'pessoas#pesquisa_pessoas', :as => :pesquisa_pessoas
+  post '/pesquisa_pessoas_por_nome', :to => 'pessoas#pesquisa_pessoas_por_nome', :as => :pesquisa_pessoas_por_nome
   post '/filtrar_pessoas', :to => 'pessoas#filtrar_pessoas', :as => :filtrar_pessoas
 
   get '/pessoas_no_grupo', :to => 'grupos#pessoas_no_grupo', :as => :pessoas_no_grupo, :defaults => { :format => 'js' }

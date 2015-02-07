@@ -8,7 +8,6 @@ class SessionsController < ApplicationController
   skip_before_filter :notificacao
 
   def log_in
-
     nome_facebook = params[:nome_facebook]
     email_facebook = params[:email_facebook]
     nascimento = params[:nascimento]
