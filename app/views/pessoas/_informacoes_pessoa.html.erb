@@ -366,7 +366,7 @@
                     @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 ||
                     @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 %>
                 <%
-                   grupos = @usuario_logado.eh_super_admin? ? Grupo.all : @usuario_logado.grupos_que_tem_encontros_que_coordena
+                   grupos = @usuario_logado.eh_super_admin? ? Grupo.where(tem_encontros: true) : @usuario_logado.grupos_que_tem_encontros_que_coordena
                    primeiro_grupo = grupos.first
 
                    if primeiro_grupo
