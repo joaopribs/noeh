@@ -227,6 +227,9 @@
                 <% end %>
               </td>
               <td align="center">
+                <%= conjunto_permanente.pessoas.count %> pessoa<%= "s" unless conjunto_permanente.pessoas.count == 1 %>
+              </td>
+              <td align="center">
                 <%=
                     link_to 'Excluir', '#', class: 'link_excluir link_excluir_conjunto', data: {
                         nome_conjunto: conjunto_permanente.nome,
