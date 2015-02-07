@@ -764,8 +764,6 @@ class PessoasController < ApplicationController
         objetos = objetos.joins(:recomendacoes_equipes)
       end
 
-      debugger
-
       pessoas = objetos.where(filtros_total.join(" AND ")).distinct
 
       carregar_pessoas(pessoas)
