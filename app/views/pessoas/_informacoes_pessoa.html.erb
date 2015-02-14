@@ -430,8 +430,15 @@
         <% auto_sugestoes = @usuario_logado.auto_sugestoes_de_outra_pessoa(pessoa.id) %>
 
         <% if auto_sugestoes.count > 0 %>
-            <h2 class="sem_espaco_embaixo">Participações a confirmar</h2>
 
+            <h2 class="sem_espaco_embaixo">
+              Participações 
+              <% if tem_conjuge %>
+                individuais (não dos dois como casal)
+              <% end %>
+              pendendo confirmação
+            </h2>
+          
             <table class="zebra participacoes">
                 <thead>
                     <tr>

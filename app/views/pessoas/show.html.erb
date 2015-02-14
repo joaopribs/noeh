@@ -69,25 +69,28 @@
 <% tem_conjuge = @pessoa.conjuge.present? %>
 
 <%
-   auto_sugestoes_pessoa = @usuario_logado.auto_sugestoes_de_outra_pessoa(@pessoa.id).count
+   auto_sugestoes_pessoa = @usuario_logado.auto_sugestoes_de_outra_pessoa(@pessoa.id)
    pessoa_foi_auto_inserida = @pessoa.auto_inserido
 
    if tem_conjuge
-     auto_sugestoes_conjuge = @usuario_logado.auto_sugestoes_de_outra_pessoa(@pessoa.conjuge.id).count
+     auto_sugestoes_conjuge = @usuario_logado.auto_sugestoes_de_outra_pessoa(@pessoa.conjuge.id)
      if @pessoa.conjuge.tem_facebook
        conjuge_foi_auto_inserido = @pessoa.conjuge.auto_inserido
      else
        conjuge_foi_auto_inserido = false
      end
+
+     auto_sugestoes_casal = @usuario_logado.auto_sugestoes_de_casal(@pessoa.id)
    else
-     auto_sugestoes_conjuge = 0
+     auto_sugestoes_conjuge = []
+     auto_sugestoes_casal = []
      conjuge_foi_auto_inserido = false
    end
 %>
 
 <% tem_auto_sugestoes = false %>
 
-<% if auto_sugestoes_pessoa + auto_sugestoes_conjuge > 0 %>
+<% if auto_sugestoes_pessoa.count + auto_sugestoes_conjuge.count + auto_sugestoes_casal.count > 0 %>
     <% tem_auto_sugestoes = true %>
 
     <p class="notificacao_atencao">
@@ -98,9 +101,9 @@
       <% elsif conjuge_foi_auto_inserido %>
         O cônjuge dessa pessoa ainda não possui acesso. Seu acesso será liberado a partir do momento que algum coordenador confirmar alguma de suas participações.
       <% else %>
-        <% if auto_sugestoes_pessoa > 0 && auto_sugestoes_conjuge > 0 %>
+        <% if auto_sugestoes_pessoa.count > 0 && auto_sugestoes_conjuge.count > 0 %>
           Esse casal tem participações a serem revisadas.
-        <% elsif auto_sugestoes_pessoa > 0 %>
+        <% elsif auto_sugestoes_pessoa.count > 0 %>
           Essa pessoa tem participações a serem revisadas.
         <% else %>
           O cônjuge dessa pessoa tem participações a serem revisadas.
@@ -116,3 +119,103 @@
 <% end %>
 
 <br style="clear: both;"/>
+
+<% if tem_conjuge %>
+
+  <% if auto_sugestoes_casal.count > 0 %>
+
+      <h2 class="sem_espaco_embaixo">Participações dos dois como casal pendendo confirmação</h2>
+
+      <table class="zebra participacoes">
+          <thead>
+              <tr>
+                <th align="left">Participação</th>
+                <th align="left">Auto-Sugestão</th>
+                <th>Coord.</th>
+                <th>Adicionar ao sistema</th>
+                <th></th>
+                <th></th>
+              </tr>
+          </thead>
+          <tbody>
+              <% auto_sugestoes_casal.each do |auto_sugestao| %>
+                  <%
+                     tipo = auto_sugestao.sugestao == 'so_grupo' ? 'grupo' : 'conjunto'
+
+                     nome_grupo = auto_sugestao.grupo.nome
+
+                     if tipo == 'conjunto'
+                       nome_encontro = auto_sugestao.encontro.nome
+                       ano_encontro = auto_sugestao.encontro.data_inicio.year
+                     else
+                       nome_encontro = nil
+                       ano_encontro = nil
+                     end
+                  %>
+
+                  <tr>
+                    <td>
+                      <% if tipo == "grupo" %>
+                          <%= auto_sugestao.grupo.nome %>
+                      <% else %>
+                          <% encontro = auto_sugestao.encontro %>
+                          <%= "#{encontro.nome} (#{encontro.data_inicio.year})" %>
+                      <% end %>
+                    </td>
+                    <td class="sugestao">
+                      <% if tipo == "grupo" %>
+                          -
+                      <% else %>
+                        <%= auto_sugestao.sugestao %>
+                      <% end %>
+                    </td>
+                    <td align="center" class="sugestao">
+                      <% if auto_sugestao.coordenador %>
+                          Coord.
+                      <% end %>
+                    </td>
+                    <td align="center">
+                      <% if tipo != "grupo" %>
+                          <%= select_tag 'conjunto', options_for_select(encontro.conjuntos_ordenados.collect{|c| [c.nome_pra_auto_sugestao, c.id]}), include_blank: false, class: 'conjunto' %>
+                          <label>
+                            <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coord.
+                          </label>
+                      <% else %>
+                          <select>
+                            <option><%= auto_sugestao.grupo.nome %></option>
+                          </select>
+                          <label>
+                              <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coord.
+                          </label>
+                      <% end %>
+                    </td>
+                    <td align="center">
+                      <%= link_to '', '#', class: 'link_submeter confirmar_auto_sugestao',
+                                  data: {
+                                          id_auto_sugestao: auto_sugestao.id,
+                                          tipo: tipo,
+                                          nome_grupo: nome_grupo,
+                                          nome_encontro: nome_encontro,
+                                          ano_encontro: ano_encontro
+                                      }
+                      %>
+                    </td>
+                    <td align="center">
+                      <%= link_to '', '#', class: 'link_excluir rejeitar_auto_sugestao',
+                                  data: {
+                                          id_auto_sugestao: auto_sugestao.id,
+                                          tipo: tipo,
+                                          nome_grupo: nome_grupo,
+                                          nome_encontro: nome_encontro,
+                                          ano_encontro: ano_encontro,
+                                          texto_sugestao: auto_sugestao.sugestao
+                                  }
+                      %>
+                    </td>
+                  </tr>
+              <% end %>
+          </tbody>
+      </table>
+
+  <% end %>
+<% end %>

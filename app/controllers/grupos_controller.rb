@@ -144,9 +144,11 @@ class GruposController < ApplicationController
 
     if pessoa.conjuge.present?
       relacao_conjuge = RelacaoPessoaGrupo.where({:pessoa_id => pessoa.conjuge.id, :grupo_id => params[:grupo_id]}).first
-      relacao_conjuge.eh_coordenador = params[:eh_coordenador]
 
-      precisa_salvar_relacao_conjuge = true
+      if relacao_conjuge.present?
+        relacao_conjuge.eh_coordenador = params[:eh_coordenador]
+        precisa_salvar_relacao_conjuge = true
+      end
     end
 
     if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&
@@ -167,7 +169,17 @@ class GruposController < ApplicationController
     precisa_salvar_relacao_pessoa = false
 
     @grupo = Grupo.find(params[:id_grupo])
-    @pessoa = Pessoa.find(params[:id_pessoa])
+
+    if params[:so_um_ou_os_dois].nil? || params[:so_um_ou_os_dois] == 'os_dois'
+      @pessoa = Pessoa.find(params[:id_pessoa])
+      @conjuge = @pessoa.conjuge
+    elsif params[:so_um_ou_os_dois] == 'so_pessoa'
+      @pessoa = Pessoa.find(params[:id_pessoa])
+      @conjuge = nil
+    elsif params[:so_um_ou_os_dois] == 'so_conjuge'
+      @pessoa = Pessoa.find(params[:id_pessoa]).conjuge
+      @conjuge = nil
+    end
 
     precisa_poder_gerenciar_grupo @grupo
     return if performed?
@@ -179,11 +191,11 @@ class GruposController < ApplicationController
       relacao_pessoa = RelacaoPessoaGrupo.new({:pessoa => @pessoa, :grupo_id => params[:id_grupo]})
     end
 
-    if @pessoa.conjuge.present?
-      relacao_conjuge = RelacaoPessoaGrupo.where({:pessoa => @pessoa.conjuge, :grupo_id => params[:id_grupo]}).first
+    if @conjuge.present?
+      relacao_conjuge = RelacaoPessoaGrupo.where({:pessoa => @conjuge, :grupo_id => params[:id_grupo]}).first
       if relacao_conjuge.nil?
         precisa_salvar_relacao_conjuge = true
-        relacao_conjuge = RelacaoPessoaGrupo.new({:pessoa => @pessoa.conjuge, :grupo_id => params[:id_grupo]})
+        relacao_conjuge = RelacaoPessoaGrupo.new({:pessoa => @conjuge, :grupo_id => params[:id_grupo]})
       end
 
       msg_sucesso = "Casal adicionado ao grupo com sucesso"

@@ -449,7 +449,7 @@
 
       <% if defined?(modo) && modo == "cadastrar_novo" %>
 
-        <h2 class="sem_espaco_embaixo">Participações</h2>
+        <h2 class="sem_espaco_embaixo">Participações individuais dessa pessoa <span class="campos_casado" style="display: none;">(não dos dois como um casal)</span></h2>
 
         <div class="erro_form"><%= pessoa.errors[:auto_inserir].first %></div>
 
@@ -479,7 +479,9 @@
           </script>
         </div>
 
-        <%= link_to 'Adicionar participação', '#', class: 'link_novo', id: "link_adicionar_participacao_#{tipo_pessoa}" %>
+        <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_#{tipo_pessoa}" do %>
+            Adicionar outra participação individual dessa pessoa <span class="campos_casado" style="display: none;">(não dos dois como um casal)</span>
+        <% end %>
 
       <% end %>
 

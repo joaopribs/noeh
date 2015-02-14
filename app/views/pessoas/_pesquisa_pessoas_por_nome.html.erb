@@ -31,13 +31,15 @@
                 evento.preventDefault();
 
                 var id_pessoa = $(this).data("id_pessoa");
+                var so_um_ou_os_dois = $('input:radio[name=so_um_ou_os_dois]:checked').val();
 
                 if (id_pessoa != null && id_pessoa != "") {
                     $.post(
                             "<%= adicionar_pessoa_a_grupo_url %>",
                             {
                                 id_grupo: <%= @grupo.id %>,
-                                id_pessoa: id_pessoa
+                                id_pessoa: id_pessoa, 
+                                so_um_ou_os_dois: so_um_ou_os_dois
                             },
                             function (response) {
                                 listaPessoas.carregar();
@@ -55,13 +57,15 @@
                 evento.preventDefault();
 
                 var id_pessoa = $(this).data("id_pessoa");
+                var so_um_ou_os_dois = $('input:radio[name=so_um_ou_os_dois]:checked').val();
 
                 if (id_pessoa != null && id_pessoa != "") {
                     $.post(
                             "<%= adicionar_pessoa_a_conjunto_url %>",
                             {
                                 id_conjunto: <%= @conjunto.id %>,
-                                id_pessoa: id_pessoa
+                                id_pessoa: id_pessoa, 
+                                so_um_ou_os_dois: so_um_ou_os_dois
                             },
                             function (response) {
                                 listaPessoas.carregar();
@@ -105,13 +109,27 @@
                     %>
                     <%= parametros_array.join(", ") %>
                 },
-                function (idPessoa) {
+                function (pessoa) {
+                    <% if tipo_pesquisa == "pesquisa_grupo" || tipo_pesquisa == "pesquisa_conjunto" %>
+                        if (pessoa.conjuge != null) {
+                            $("#nome_pessoa_so_um").html("Adicionar só " + pessoa.nome_usual);
+                            $("#nome_conjuge_so_um").html("Adicionar só " + pessoa.conjuge.nome_usual);
+                            
+                            $('input:radio[name=so_um_ou_os_dois]').filter('[value=os_dois]').prop('checked', true);
+
+                            $("#selecionar_so_um_ou_dois").show();
+                        }
+                        else {
+                            $("#selecionar_so_um_ou_dois").hide();   
+                        }
+                    <% end %>
+
                     <% if tipo_pesquisa == "pesquisa_grupo" %>
-                        $("#botao_adicionar_pessoa_ao_grupo").data("id_pessoa", idPessoa);
+                        $("#botao_adicionar_pessoa_ao_grupo").data("id_pessoa", pessoa.id);
                     <% elsif tipo_pesquisa == "pesquisa_conjunto" %>
-                        $("#botao_adicionar_pessoa_ao_conjunto").data("id_pessoa", idPessoa);
+                        $("#botao_adicionar_pessoa_ao_conjunto").data("id_pessoa", pessoa.id);
                     <% elsif tipo_pesquisa == "pesquisa_conjuge" %>
-                        $("#id_conjuge").val(idPessoa);
+                        $("#id_conjuge").val(pessoa.id);
                     <% end %>
                 }
         );
@@ -133,6 +151,14 @@
     <span class="nome_usual_detalhe_pesquisa_por_nome"><%= "(#{pessoa_a_mostrar.nome_usual})" if mostrar_pessoa %></span>
     <span class="obs_detalhe_pesquisa_por_nome"></span>
     <span class="grupos_pesquisa_por_nome"></span>
+
+    <% if tipo_pesquisa == "pesquisa_grupo" || tipo_pesquisa == "pesquisa_conjunto" %>
+        <div id="selecionar_so_um_ou_dois" style="display: none;">
+            <label><input type="radio" name="so_um_ou_os_dois" value="os_dois" checked="checked"/>Adicionar casal todo</label><br/>
+            <label><input type="radio" name="so_um_ou_os_dois" value="so_pessoa"/><span id="nome_pessoa_so_um"/></label><br/>
+            <label><input type="radio" name="so_um_ou_os_dois" value="so_conjuge"/><span id="nome_conjuge_so_um"/></label>
+        </div>
+    <% end %>
 
     <% if tipo_pesquisa == "pesquisa_grupo" %>
         <br/>

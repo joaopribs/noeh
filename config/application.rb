@@ -24,6 +24,6 @@ module Noeh
       html_tag
     }
 
-    config.time_zone = 'Brasilia'
+    config.time_zone = 'America/Recife'
   end
 end

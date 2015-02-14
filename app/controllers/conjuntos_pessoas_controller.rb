@@ -117,10 +117,20 @@ class ConjuntosPessoasController < ApplicationController
   def adicionar_pessoa_a_conjunto
     @conjunto = ConjuntoPessoas.find(params[:id_conjunto])
 
+    if params[:so_um_ou_os_dois].nil? || params[:so_um_ou_os_dois] == 'os_dois'
+      @pessoa = Pessoa.find(params[:id_pessoa])
+      @conjuge = @pessoa.conjuge
+    elsif params[:so_um_ou_os_dois] == 'so_pessoa'
+      @pessoa = Pessoa.find(params[:id_pessoa])
+      @conjuge = nil
+    elsif params[:so_um_ou_os_dois] == 'so_conjuge'
+      @pessoa = Pessoa.find(params[:id_pessoa]).conjuge
+      @conjuge = nil
+    end
+
     precisa_poder_gerenciar_conjunto(@conjunto)
     return if performed?
 
-    @pessoa = Pessoa.find(params[:id_pessoa])
     eh_coordenador = params[:eh_coordenador] ? params[:eh_coordenador] == "true" : false
 
     relacao_pessoa = RelacaoPessoaConjunto.where({:pessoa => @pessoa, :conjunto_pessoas_id => params[:id_conjunto]}).first
@@ -146,20 +156,18 @@ class ConjuntosPessoasController < ApplicationController
 
     precisa_salvar_relacao_conjuge = false
 
-    if @pessoa.conjuge.present?
-      precisa_salvar_relacao_conjuge = true
-
-      relacao_conjuge = RelacaoPessoaConjunto.where({:pessoa => @pessoa.conjuge, :conjunto_pessoas_id => params[:id_conjunto]}).first
+    if @conjuge.present?
+      relacao_conjuge = RelacaoPessoaConjunto.where({:pessoa => @conjuge, :conjunto_pessoas_id => params[:id_conjunto]}).first
 
       if relacao_conjuge.nil?
-        relacao_conjuge = RelacaoPessoaConjunto.new({:pessoa => @pessoa.conjuge, :conjunto_pessoas_id => params[:id_conjunto]})
-      end
+        precisa_salvar_relacao_conjuge = true
+        relacao_conjuge = RelacaoPessoaConjunto.new({:pessoa => @conjuge, :conjunto_pessoas_id => params[:id_conjunto]})
+        relacao_conjuge.eh_coordenador = eh_coordenador
 
-      relacao_conjuge.eh_coordenador = eh_coordenador
-
-      relacao_conjuge_grupo = RelacaoPessoaGrupo.where({:pessoa => @pessoa.conjuge, :grupo => @conjunto.encontro.grupo}).first
-      if relacao_conjuge_grupo.nil?
-        relacao_conjuge_grupo = RelacaoPessoaGrupo.new({:pessoa => @pessoa.conjuge, :grupo => @conjunto.encontro.grupo})
+        relacao_conjuge_grupo = RelacaoPessoaGrupo.where({:pessoa => @conjuge, :grupo => @conjunto.encontro.grupo}).first
+        if relacao_conjuge_grupo.nil?
+          relacao_conjuge_grupo = RelacaoPessoaGrupo.new({:pessoa => @conjuge, :grupo => @conjunto.encontro.grupo})
+        end
       end
 
       msg_sucesso = "Casal adicionado #{texto_conjunto}"
@@ -246,9 +254,11 @@ class ConjuntosPessoasController < ApplicationController
 
     if pessoa.conjuge.present?
       relacao_conjuge = RelacaoPessoaConjunto.where({:pessoa_id => pessoa.conjuge.id, :conjunto_pessoas_id => params[:conjunto_id]}).first
-      relacao_conjuge.eh_coordenador = params[:eh_coordenador]
 
-      precisa_salvar_relacao_conjuge = true
+      if relacao_conjuge.present?
+        relacao_conjuge.eh_coordenador = params[:eh_coordenador]
+        precisa_salvar_relacao_conjuge = true
+      end
     end
 
     if ((precisa_salvar_relacao_pessoa && relacao_pessoa.save) || !precisa_salvar_relacao_pessoa) &&

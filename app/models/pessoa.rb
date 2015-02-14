@@ -58,12 +58,18 @@ class Pessoa < ActiveRecord::Base
   #   Pessoa.unscoped{ super }
   # end
 
-  def self.pegar_pessoas array_ids
+  def self.pegar_pessoas array_ids, forcar_conjuges
     pessoas = []
 
     if array_ids.present? && array_ids.count > 0
       pessoas_do_banco = Pessoa.unscoped.where("pessoas.id IN (#{array_ids.join(", ")})").eager_load(:telefones).order(:nome)
       pessoas = pessoas.concat(pessoas_do_banco.to_a);
+    end
+
+    if forcar_conjuges
+      pessoas.map do |pessoa|
+        pessoa.conjuge = Pessoa.unscoped.find(pessoa.conjuge_id)
+      end
     end
 
     return pessoas
@@ -303,6 +309,10 @@ class Pessoa < ActiveRecord::Base
     return retorno
   end
 
+  def quantas_auto_sugestoes_individuais_ou_casal
+    return AutoSugestao.where("pessoa_id = #{self.id} OR conjuge_id = #{self.conjuge_id}").count
+  end
+
   def ids_pessoas_a_confirmar
     retorno = []
 
@@ -329,7 +339,24 @@ class Pessoa < ActiveRecord::Base
     grupos = self.grupos_que_coordena
 
     grupos.each do |grupo|
-      auto_sugestoes = auto_sugestoes.concat(grupo.auto_sugestoes_de_pessoa(id_outra_pessoa))
+      auto_sugestoes = auto_sugestoes.concat(grupo.auto_sugestoes_individuais_de_pessoa(id_outra_pessoa))
+    end
+
+    auto_sugestoes_ordenado = []
+
+    auto_sugestoes_ordenado = auto_sugestoes_ordenado.concat(auto_sugestoes.select{|a| a.encontro.nil?}.sort_by{|a| a.grupo.nome})
+    auto_sugestoes_ordenado = auto_sugestoes_ordenado.concat(auto_sugestoes.select{|a| !a.encontro.nil?}.sort_by{|a| [a.grupo.nome, a.encontro.data_inicio.year]})
+
+    return auto_sugestoes_ordenado
+  end
+
+  def auto_sugestoes_de_casal id_outra_pessoa
+    auto_sugestoes = []
+
+    grupos = self.grupos_que_coordena
+
+    grupos.each do |grupo|
+      auto_sugestoes = auto_sugestoes.concat(grupo.auto_sugestoes_de_casal(id_outra_pessoa))
     end
 
     auto_sugestoes_ordenado = []

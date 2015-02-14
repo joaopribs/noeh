@@ -222,7 +222,108 @@
 
         });
 
+        $('#link_adicionar_participacao_casal').on('click', function (evento) {
+            evento.preventDefault();
+
+            console.log("clicou");
+
+            $('#participacoes_casal').append(
+                '<%= raw (render 'form_participacao_auto_inserir', tipo_pessoa: "casal", grupo_id: "-1", encontro_id: "-1", sugestao: "", coordenador: "false").gsub("\n", "") %>'
+            );
+
+            atualizarFuncoesAutoInserirCasal();
+        });
+
     });
+
+    function atualizarFuncoesAutoInserirCasal() {
+        $('.grupo_participacao').on('change', function () {
+            var idEscolhido = $(this).val();
+
+            if (idEscolhido == '') {
+                grupoEscolhido = null;
+            }
+            else {
+                $.each(grupos, function (index, item) {
+                    if (item.id == idEscolhido) {
+                        grupoEscolhido = item;
+                    }
+                });
+            }
+
+            var fieldEncontros = $(this).parent().siblings('.wrapper_encontro_participacao');
+            var fieldParticipacoes = $(this).parent().siblings('.wrapper_participacao');
+
+            if (grupoEscolhido != null) {
+                if (grupoEscolhido.tem_encontros) {
+                    var primeiroEncontro = null;
+
+                    $(fieldEncontros).children('select').empty();
+                    $.each(grupoEscolhido.encontros, function (index, item) {
+                        if (primeiroEncontro == null) {
+                            primeiroEncontro = item;
+                        }
+
+                        var ano = item.data_inicio.substr(0, 4);
+
+                        $(fieldEncontros).children('select').append(
+                                        '<option value="' + item.id + '">' + item.nome + ' (' + ano + ')' + '</option>'
+                        );
+                    });
+
+                    $(fieldEncontros).show();
+
+                    if (primeiroEncontro != null) {
+                        $(fieldParticipacoes).children('.campo_texto_sugestao').val('');
+                        $(fieldParticipacoes).show();
+                    }
+                }
+                else {
+                    $(fieldEncontros).children('select').empty();
+                    $(fieldEncontros).children('select').append(
+                            '<option value="-1"></option>'
+                    );
+
+                    $(fieldParticipacoes).children('.campo_texto_sugestao').val('so_grupo');
+
+                    $(fieldEncontros).add(fieldParticipacoes).hide();
+                }
+            }
+            else {
+                $(fieldEncontros).children('select').empty();
+                $(fieldEncontros).children('select').append(
+                        '<option value="-1"></option>'
+                );
+
+                $(fieldEncontros).add(fieldParticipacoes).hide();
+            }
+        });
+
+        $('.encontro_participacao').on('change', function () {
+            var idEscolhido = $(this).val();
+
+            var encontro = null;
+            $.each(grupoEscolhido.encontros, function (index, item) {
+                if (item.id == idEscolhido) {
+                    encontro = item;
+                }
+            });
+        });
+
+        $('.remover_participacao').on('click', function (evento) {
+            evento.preventDefault();
+            $(this).parent().remove();
+        });
+
+        $('.checkbox_coordenador').on('change', function () {
+            if ($(this).prop('checked')) {
+                $(this).siblings('.hidden_coordenador').val("true");
+            }
+            else {
+                $(this).siblings('.hidden_coordenador').val("false");
+            }
+        });
+    }
 </script>
 
 <%
@@ -253,7 +354,6 @@
        end
     %>
 
-
     <% if defined?(@conjunto) %>
         <input type="hidden" name="conjunto_id" value="<%= @conjunto.id %>" />
     <% elsif defined?(@encontro) %>
@@ -267,6 +367,18 @@
       <label><%= radio_button_tag :casado_ou_solteiro, 'solteiro', (!@eh_casal) %>Solteiro</label>
       <label><%= radio_button_tag :casado_ou_solteiro, 'casado', (@eh_casal) %>Casado</label>
     </div>
+
+    <% if @adicionar && (defined?(@conjunto) || defined?(@encontro) || defined?(@grupo)) %>
+        <% 
+            if !defined?(@os_dois) 
+                @os_dois = true 
+            end 
+        %>
+        <div class="field campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>>
+            <label><%= radio_button_tag :os_dois, true, @os_dois %>Adicionar os dois do casal</label><br/>
+            <label><%= radio_button_tag :os_dois, false, !@os_dois %>Adicionar apenas a primeira pessoa do casal (o casal será criado, mas só a primeira pessoa será adicionada)</label>
+        </div>
+    <% end %>
 
     <%= render 'form_pessoa', pessoa: @pessoa, tipo_pessoa: 'pessoa', modo: modo, foto_grande_pessoa: foto_grande_pessoa, foto_pequena_pessoa: foto_pequena_pessoa %>
 
@@ -341,6 +453,39 @@
 
         <%= render 'pessoas/pesquisa_pessoas_por_nome', tipo_pesquisa: "pesquisa_conjuge" %>
       </div>
+
+      <% if defined?(modo) && modo == "cadastrar_novo" %>
+        <div id="participacoes_casal">
+          <h2>Participações dos dois como um casal</h2>
+          <%
+             grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_casal")
+             encontros_auto_inserir = instance_variable_get("@encontros_auto_inserir_casal")
+             sugestoes_auto_inserir = instance_variable_get("@sugestoes_auto_inserir_casal")
+             coordenadores_auto_inserir = instance_variable_get("@coordenadores_auto_inserir_casal")
+          %>
+
+          <% if grupos_auto_inserir.present? %>
+            <% grupos_auto_inserir.each_with_index do |grupo_id, index| %>
+              <%
+                encontro_id = encontros_auto_inserir[index]
+                texto_sugestao = sugestoes_auto_inserir[index]
+                coordenador = coordenadores_auto_inserir[index]
+              %>
+              <%= render 'form_participacao_auto_inserir', tipo_pessoa: 'casal', grupo_id: grupo_id, encontro_id: encontro_id, sugestao: texto_sugestao, coordenador: coordenador %>
+            <% end %>
+          <% else %>
+            <%= render 'form_participacao_auto_inserir', tipo_pessoa: 'casal', grupo_id: '-1', encontro_id: '-1', sugestao: '', coordenador: 'false' %>
+          <% end %>
+
+          <script>
+              atualizarFuncoesAutoInserirCasal();
+          </script>
+        </div>
+
+        <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_casal" do %>
+            Adicionar outra participação dos dois como um casal
+        <% end %>
+      <% end %>
 
     </div>
 
