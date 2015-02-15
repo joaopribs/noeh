@@ -1,4 +1,9 @@
+<p class="helper_participacao">
+    Preencha todas as suas participações nos grupos abaixo. Quando for o caso, digite o que foi sua participação (equipe, grupo, família, etc), de modo que seja possível a identificação pelos coordenadores.
+</p>
+
 <div>
+
     <div class="field">
         <label for="grupo">Grupo</label><br/>
         <%= select_tag "grupos_auto_inserir_#{tipo_pessoa}[]", options_for_select(Grupo.all.collect{|g| [g.nome, g.id]}, grupo_id), include_blank: true, class: 'grupo_participacao' %>

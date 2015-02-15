@@ -126,6 +126,10 @@ form.espaco_embaixo {
     color: #ccc;
 }
 
+.helper_participacao {
+    color: #aaa;
+}
+
 .sem_espaco_embaixo {
     margin-bottom: 0;
 }
