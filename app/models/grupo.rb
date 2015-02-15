@@ -68,6 +68,6 @@ class Grupo < ActiveRecord::Base
   def auto_sugestoes_de_casal id_pessoa
     auto_sugestoes = self.auto_sugestoes
 
-    return auto_sugestoes.select{|a| a.pessoa_id == id_pessoa && a.conjuge_id != nil}
+    return auto_sugestoes.select{|a| (a.pessoa_id == id_pessoa || a.conjuge_id == id_pessoa) && a.conjuge_id != nil}
   end
 end

@@ -351,16 +351,18 @@
                       <li <% if cor.present? %>style="color: <%= cor %>;"<% end %>><span>
                         <% coordenador = conjunto.coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
 
-                        <% if conjunto.tipo == 'Equipe' %>
-                            <%= link_to "Equipe #{conjunto.nome}#{coordenador}", equipe_path(conjunto) %>
-                        <% else %>
-                            <%= link_to "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}", circulo_path(conjunto) %>
-                        <% end %>
-                        -
                         <% if pode_ver_encontro(conjunto.encontro) %>
                             <%= link_to "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})", encontro_path(conjunto.encontro) %>
                         <% else %>
                             <%= conjunto.encontro.nome %>
+                        <% end %>
+
+                        -
+
+                        <% if conjunto.tipo == 'Equipe' %>
+                            <%= link_to "Equipe #{conjunto.nome}#{coordenador}", equipe_path(conjunto) %>
+                        <% else %>
+                            <%= link_to "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}", circulo_path(conjunto) %>
                         <% end %>
                       </span></li>
                     <% end %>
@@ -497,7 +499,7 @@
                             <% end %>
                             <br/>
                             <label>
-                              <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coordenador
+                              <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coordenação
                             </label>
                           </td>
                           <td align="center">
