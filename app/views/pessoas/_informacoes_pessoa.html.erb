@@ -490,18 +490,15 @@
                           <td align="center">
                             <% if tipo != "grupo" %>
                                 <%= select_tag 'conjunto', options_for_select(encontro.conjuntos_ordenados.collect{|c| [c.nome_pra_auto_sugestao, c.id]}), include_blank: false, class: 'conjunto' %>
-                                <label>
-                                  <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coord.
-                                </label>
                             <% else %>
                                 <select>
                                   <option><%= auto_sugestao.grupo.nome %></option>
                                 </select>
-                                <br/>
-                                <label>
-                                    <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coord.
-                                </label>
                             <% end %>
+                            <br/>
+                            <label>
+                              <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coordenador
+                            </label>
                           </td>
                           <td align="center">
                             <%= link_to '', '#', class: 'link_submeter confirmar_auto_sugestao',
