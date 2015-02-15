@@ -312,7 +312,11 @@ class Pessoa < ActiveRecord::Base
   end
 
   def quantas_auto_sugestoes_individuais_ou_casal
-    return AutoSugestao.where("pessoa_id = #{self.id} OR conjuge_id = #{self.conjuge_id}").count
+    if self.conjuge_id.present?
+      return AutoSugestao.where("pessoa_id = #{self.id} OR conjuge_id = #{self.conjuge_id}").count
+    else
+      return AutoSugestao.where("pessoa_id = #{self.id}").count
+    end
   end
 
   def ids_pessoas_a_confirmar
