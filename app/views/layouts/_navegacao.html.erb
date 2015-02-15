@@ -7,6 +7,22 @@
         <% end %>
     <% end %>
 
+    <% if @usuario_logado.eh_super_admin %>
+        <script type="text/javascript">
+            $(function () {
+                $("#fazer_login_com_id").on("click", function (e) {
+                    e.preventDefault();
+                    if ($("#id").val() != "") {
+                        $(this).closest("form").submit();    
+                    }
+                });
+            });
+        </script>
+        <form method="post" action="<%= login_com_id_url %>" style="display: inline-block;">
+            <a href="#" id="fazer_login_com_id">Fazer login com ID</a><input type="text" name="id" id="id" size="3"/>
+        </form>
+    <% end %>
+
     <% if @usuario_logado.eh_super_admin || @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 %>
         <%= link_to 'Pesquisar pessoas', pesquisar_pessoas_path %>
     <% end %>

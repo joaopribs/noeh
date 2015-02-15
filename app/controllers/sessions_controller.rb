@@ -116,6 +116,19 @@ class SessionsController < ApplicationController
     redirect_to deslogado_url and return
   end
 
+  def login_com_id
+    id = params[:id]
+    usuario = Pessoa.where(id: id).first
+
+    if usuario.present?
+      session[:id_usuario] = usuario.id
+      redirect_to root_url and return
+    else
+      reset_session
+      redirect_to deslogado_url and return
+    end
+  end
+
   private
 
   def pegar_usuario(params)

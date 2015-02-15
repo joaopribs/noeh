@@ -28,6 +28,7 @@ Noeh::Application.routes.draw do
   get '/deslogado', :to => 'homepage#deslogado', :as => :deslogado
 
   post '/log_in', :to => 'sessions#log_in', :as => :log_in
+  post '/login_com_id', :to => 'sessions#login_com_id', :as => :login_com_id
   get '/log_out', :to => 'sessions#log_out', :as => :log_out
 
   get '/lista_pessoas', :to => 'pessoas#lista_pessoas', :as => :lista_pessoas
