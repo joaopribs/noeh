@@ -68,7 +68,9 @@ class Pessoa < ActiveRecord::Base
 
     if forcar_conjuges
       pessoas.map do |pessoa|
-        pessoa.conjuge = Pessoa.unscoped.find(pessoa.conjuge_id)
+        if pessoa.conjuge_id.present?
+          pessoa.conjuge = Pessoa.unscoped.find(pessoa.conjuge_id)
+        end
       end
     end
 
