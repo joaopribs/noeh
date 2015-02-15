@@ -1251,7 +1251,6 @@ class PessoasController < ApplicationController
       end
 
       if pessoa.conjuge.present? && os_dois
-        debugger
         relacao_conjuge = RelacaoPessoaGrupo.where({:pessoa_id => pessoa.conjuge.id, :grupo_id => grupo.id}).first
 
         if relacao_conjuge.nil?
