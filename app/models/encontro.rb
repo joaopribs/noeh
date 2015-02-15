@@ -42,7 +42,7 @@ class Encontro < ActiveRecord::Base
   end
 
   def conjuntos_ordenados
-    return conjuntos.select{|c| c.tipo == 'Equipe'}.sort_by{|a| a.nome} + conjuntos.select{|c| c.tipo == 'ConjuntoPermanente'}.sort_by{|a| a.nome}
+    return conjuntos.select{|c| c.tipo == 'Equipe' || c.tipo == 'CoordenacaoEncontro'}.sort_by{|a| a.nome} + conjuntos.select{|c| c.tipo == 'ConjuntoPermanente'}.sort_by{|a| a.nome}
   end
 
   def conjuntos_que_poderia_adicionar_pessoa pessoa
