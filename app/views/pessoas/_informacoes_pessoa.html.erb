@@ -250,6 +250,8 @@
 
                         <% if conjunto.tipo == 'Equipe' %>
                             <%= link_to "Equipe #{conjunto.nome}#{coordenador}", equipe_path(conjunto) %>
+                        <% elsif conjunto.tipo == 'CoordenacaoEncontro' %>
+                            <%= link_to "Coordenação do Encontro", encontro_editar_coordenadores_path(conjunto.encontro) %>
                         <% else %>
                             <%= link_to "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}", circulo_path(conjunto) %>
                         <% end %>

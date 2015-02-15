@@ -14,7 +14,7 @@ class Pessoa < ActiveRecord::Base
 
   has_many :relacoes_pessoa_conjunto, class_name: 'RelacaoPessoaConjunto', dependent: :destroy
   has_many :conjuntos_pessoas, through: :relacoes_pessoa_conjunto, source: 'conjunto_pessoas'
-  has_many :equipes, -> { where tipo: 'Equipe' }, through: :relacoes_pessoa_conjunto, source: 'conjunto_pessoas'
+  has_many :equipes, -> { where tipo: ['Equipe', 'CoordenacaoEncontro'] }, through: :relacoes_pessoa_conjunto, source: 'conjunto_pessoas'
   has_many :conjuntos_permanentes, -> { where tipo: 'ConjuntoPermanente' }, through: :relacoes_pessoa_conjunto, source: 'conjunto_pessoas'
   has_many :relacoes_pessoa_grupo, class_name: 'RelacaoPessoaGrupo', dependent: :destroy
   has_many :grupos, -> { where 'relacoes_pessoa_grupo.deixou_de_participar_em IS NULL' }, through: :relacoes_pessoa_grupo
