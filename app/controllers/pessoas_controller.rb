@@ -51,11 +51,15 @@ class PessoasController < ApplicationController
     precisa_poder_editar_pessoa @pessoa
     return if performed?
 
+    @foto_grande_pessoa = @pessoa.foto_grande
+
     @eh_casal = @pessoa.conjuge.present?
 
     if @eh_casal
       precisa_poder_editar_pessoa @pessoa.conjuge
       return if performed?
+
+      @foto_grande_conjuge = @pessoa.conjuge.foto_grande
 
       @conjuge = @pessoa.conjuge
       @tipo_conjuge = 'form'
