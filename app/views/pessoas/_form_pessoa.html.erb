@@ -156,7 +156,7 @@
         <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= foto_pequena_pessoa %>" />
 
       <% elsif (defined?(modo) && modo == "cadastrar_novo" && pessoa.nome_facebook.blank?) ||
-              pode_editar_facebook_de_pessoa(pessoa) %>
+              @usuario_logado.permissoes.pode_editar_facebook_de_pessoa(pessoa) %>
           <% if pessoa.tem_informacoes_facebook %>
               <input type="hidden" id="esta_tirando_facebook_<%= tipo_pessoa %>" value="0" />
           <% end %>

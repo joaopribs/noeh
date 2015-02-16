@@ -25,10 +25,10 @@ class PessoasController < ApplicationController
 
     adicionar_breadcrumb_de_ver_pessoa
 
-    @participacoes = (@pessoa.conjuntos_permanentes + @pessoa.equipes).select{|c| pode_ver_participacao(c, @pessoa)}
+    @participacoes = (@pessoa.conjuntos_permanentes + @pessoa.equipes).select{|c| @usuario_logado.permissoes.pode_ver_participacao(c, @pessoa)}
 
     if @pessoa.conjuge.present?
-      @participacoes_conjuge = (@pessoa.conjuge.conjuntos_permanentes + @pessoa.conjuge.equipes).select{|c| pode_ver_participacao(c, @pessoa.conjuge)}
+      @participacoes_conjuge = (@pessoa.conjuge.conjuntos_permanentes + @pessoa.conjuge.equipes).select{|c| @usuario_logado.permissoes.pode_ver_participacao(c, @pessoa)}
     end
     
     @participacoes = @participacoes.sort_by!{|c| c.encontro.data_inicio}.reverse
@@ -337,7 +337,7 @@ class PessoasController < ApplicationController
   # DELETE /pessoas/1
   # DELETE /pessoas/1.json
   def destroy
-    if pode_excluir_pessoa @pessoa
+    if @usuario_logado.permissoes.pode_excluir_pessoa(@pessoa)
       @pessoa.destroy
 
       id_pessoas_a_remover_da_session = [@pessoa.id]
@@ -592,6 +592,9 @@ class PessoasController < ApplicationController
   def confirmar_auto_sugestao
     auto_sugestao = AutoSugestao.find(params[:id_auto_sugestao])
 
+    precisa_poder_confirmar_ou_rejeitar_auto_sugestao(auto_sugestao)
+    return if performed?
+
     pessoa = Pessoa.unscoped.find(auto_sugestao.pessoa_id)
 
     begin
@@ -644,6 +647,9 @@ class PessoasController < ApplicationController
 
   def rejeitar_auto_sugestao
     auto_sugestao = AutoSugestao.find(params[:id_auto_sugestao])
+
+    precisa_poder_confirmar_ou_rejeitar_auto_sugestao(auto_sugestao)
+    return if performed?
 
     pessoa = Pessoa.unscoped.find(auto_sugestao.pessoa_id)
 
@@ -1155,55 +1161,26 @@ class PessoasController < ApplicationController
       end
     end
 
-    def pode_excluir_pessoa pessoa
-      if @usuario_logado.eh_super_admin? || (@usuario_logado.eh_coordenador_de_grupo_de(pessoa) && !pessoa.eh_super_admin?)
-        return true
-      end
-
-      return false
-    end
-
-    def pode_editar_pessoa pessoa
-      if @usuario_logado == pessoa ||
-          @usuario_logado.eh_super_admin? ||
-          @usuario_logado.eh_coordenador_de_grupo_de(pessoa) ||
-          @usuario_logado.conjuge == pessoa
-        return true
-      end
-
-      return false
-    end
-
     def precisa_poder_editar_pessoa pessoa
-      if !pode_editar_pessoa pessoa
+      if !@usuario_logado.permissoes.pode_editar_pessoa(pessoa)
         redirect_to root_url and return
       end
     end
 
     def precisa_poder_ver_pessoa pessoa
-      if !@usuario_logado.permissoes.pode_ver_pessoa(pessoa)
-        redirect_to root_url and return
+      if pessoa.conjuge.present?
+        if !@usuario_logado.permissoes.pode_ver_pessoa(pessoa) && !@usuario_logado.permissoes.pode_ver_pessoa(pessoa.conjuge)
+          redirect_to root_url and return
+        end
+      else
+        if !@usuario_logado.permissoes.pode_ver_pessoa(pessoa)
+          redirect_to root_url and return
+        end
       end
-    end
-
-    def pode_ver_participacao conjunto, pessoa
-      return @usuario_logado.eh_super_admin? ||
-          @usuario_logado.eh_coordenador_de_algum_grupo_que_tem_encontros ||
-          @usuario_logado.eh_coordenador_de_encontro_de(pessoa) ||
-          @usuario_logado.eh_coordenador_de_conjunto_permanente_de(pessoa) ||
-          @usuario_logado == pessoa
-    end
-
-    def pode_pesquisar_pessoas
-      if @usuario_logado.eh_super_admin? || (@usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0)
-        return true
-      end
-
-      return false
     end
 
     def precisa_poder_pesquisar_pessoas
-      if !pode_pesquisar_pessoas
+      if !@usuario_logado.permissoes.pode_pesquisar_pessoas
         redirect_to root_url and return
       end
     end
@@ -1217,6 +1194,12 @@ class PessoasController < ApplicationController
         if !@usuario_logado.eh_super_admin?
           redirect_to root_url and return
         end
+      end
+    end
+
+    def precisa_poder_confirmar_ou_rejeitar_auto_sugestao(auto_sugestao)
+      if !@usuario_logado.permissoes.pode_confirmar_ou_rejeitar_auto_sugestao(auto_sugestao)
+        redirect_to root_url and return
       end
     end
 
@@ -1255,7 +1238,7 @@ class PessoasController < ApplicationController
         end
       end
 
-      salvar_relacao_grupo(pessoa, conjunto.grupo, os_dois)
+      salvar_relacao_grupo(pessoa, conjunto.encontro.grupo, os_dois)
     end
 
 

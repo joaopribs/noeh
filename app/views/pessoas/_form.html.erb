@@ -371,7 +371,7 @@
         <input type="hidden" name="grupo_id" value="<%= @grupo.id %>" />
     <% end %>
 
-    <div class="field campo_solteiro_ou_casado" <% if modo != "cadastrar_novo" && !pode_alterar_estado_civil_de(@pessoa) %>style="display: none;"<% end %>>
+    <div class="field campo_solteiro_ou_casado" <% if modo != "cadastrar_novo" && !@usuario_logado.permissoes.pode_alterar_estado_civil_de(@pessoa) %>style="display: none;"<% end %>>
       Estado civil:
       <label><%= radio_button_tag :casado_ou_solteiro, 'solteiro', (!@eh_casal) %>Solteiro</label>
       <label><%= radio_button_tag :casado_ou_solteiro, 'casado', (@eh_casal) %>Casado</label>
@@ -409,7 +409,7 @@
             end
         %>
 
-        <% if modo != 'cadastrar_novo' && pode_alterar_tipo_de_conjuge(@pessoa) %>
+        <% if modo != 'cadastrar_novo' && @usuario_logado.permissoes.pode_alterar_tipo_de_conjuge(@pessoa) %>
             <a href="#" id="novo_conjuge" <% if ativar_form_conjuge %>class="ativo"<% end %>>
                 <% if modo == 'editando' && @pessoa.conjuge.present? %>
                     Editar pessoa
@@ -514,7 +514,7 @@
         %>
         <%= link_to texto_link, '#', id: 'link_enviar', class: 'link_submeter' %>
 
-        <% if modo == "editando" && pode_excluir_pessoa(@pessoa) %>
+        <% if modo == "editando" && @usuario_logado.permissoes.pode_excluir_pessoa(@pessoa) %>
             <%= link_to 'Excluir', '#', data: {pessoa_id: @pessoa.id, nome_pessoa: nome_dialog}, class: 'link_excluir link_excluir_pessoa' %>
         <% end %>
 

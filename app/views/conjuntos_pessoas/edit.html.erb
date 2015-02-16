@@ -106,7 +106,7 @@
 
 <h1><%= @titulo %></h1>
 
-<% if @conjunto.tipo == 'ConjuntoPermanente' && pode_editar_sugestoes(@conjunto) %>
+<% if @conjunto.tipo == 'ConjuntoPermanente' && @usuario_logado.permissoes.pode_editar_recomendacoes(@conjunto) %>
   <%= link_to 'Recomendações do coordenador', recomendacoes_path(@conjunto), class: 'link_recomendacoes'  %>
   <p/>
 <% end %>
@@ -116,7 +116,7 @@
 
 <p/>
 
-<% if @conjunto.tipo != 'CoordenacaoEncontro' && pode_editar_conjunto(@conjunto) %>
+<% if @conjunto.tipo != 'CoordenacaoEncontro' && @usuario_logado.permissoes.pode_editar_conjunto(@conjunto) %>
     <%= render 'form', conjunto: @conjunto %>
 <% end %>
 
@@ -181,9 +181,9 @@
   </div>
 </div>
 
-<% if pode_editar_conjunto(@conjunto) %>
+<% if @usuario_logado.permissoes.pode_editar_conjunto(@conjunto) %>
 
-    <% if pode_criar_pessoa_em_um_grupo @conjunto.encontro.grupo %>
+    <% if @usuario_logado.permissoes.pode_criar_pessoas_em_grupo(@conjunto.encontro.grupo) %>
         <h2>Adicionar pessoa:</h2>
 
         <%

@@ -95,7 +95,7 @@
   <h1><%= @encontro.nome %></h1>
   <%= link_to 'Editar', edit_encontro_path(@encontro), class: 'link_editar' %>
 
-  <% if pode_excluir_encontro @encontro %>
+  <% if @usuario_logado.permissoes.pode_excluir_encontro @encontro %>
     <%= link_to 'Excluir', '#', class: 'link_excluir link_excluir_encontro' %>
   <% end %>
 </div>

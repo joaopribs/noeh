@@ -8,14 +8,14 @@ class EncontrosController < ApplicationController
       adicionar_breadcrumb "Grupos", grupos_url, "grupos"
     end
 
-    if eh_coordenador_do_grupo @grupo
+    if @usuario_logado.eh_super_admin? || @grupo.coordenadores.include?(@usuario_logado)
       adicionar_breadcrumb @grupo.nome, @grupo, "editar_grupo"
       adicionar_breadcrumb "Encontros", grupo_encontros_url(@grupo), "encontros"
     end
   end
 
   def index
-    precisa_ser_coordenador_do_grupo @grupo
+    precisa_poder_gerenciar_grupo @grupo
     return if performed?
 
     @encontros = @grupo.encontros.page params[:page]
@@ -23,7 +23,7 @@ class EncontrosController < ApplicationController
   end
 
   def show
-    precisa_ser_coordenador_do_grupo_ou_do_encontro @encontro
+    precisa_poder_gerenciar_encontro @encontro
     return if performed?
 
     adicionar_breadcrumb @encontro.nome, @encontro, "ver"
@@ -47,7 +47,7 @@ class EncontrosController < ApplicationController
   end
 
   def new
-    precisa_ser_coordenador_do_grupo @grupo
+    precisa_poder_gerenciar_grupo @grupo
     return if performed?
 
     adicionar_breadcrumb "Criar novo encontro", new_grupo_encontro_url, "criar"
@@ -56,7 +56,7 @@ class EncontrosController < ApplicationController
   end
 
   def create
-    precisa_ser_coordenador_do_grupo @grupo
+    precisa_poder_gerenciar_grupo @grupo
     return if performed?
 
     adicionar_breadcrumb "Criar novo encontro", new_grupo_encontro_url, "criar"
@@ -88,7 +88,7 @@ class EncontrosController < ApplicationController
   end
 
   def edit
-    precisa_ser_coordenador_do_grupo_ou_do_encontro @encontro
+    precisa_poder_gerenciar_encontro @encontro
     return if performed?
 
     adicionar_breadcrumb @encontro.nome, @encontro, "ver"
@@ -96,7 +96,7 @@ class EncontrosController < ApplicationController
   end
 
   def update
-    precisa_ser_coordenador_do_grupo_ou_do_encontro @encontro
+    precisa_poder_gerenciar_encontro @encontro
     return if performed?
 
     adicionar_breadcrumb @encontro.nome, @encontro, "ver"
@@ -114,7 +114,7 @@ class EncontrosController < ApplicationController
   end
 
   def forma_padrao
-    precisa_ser_coordenador_do_grupo @grupo
+    precisa_poder_gerenciar_grupo @grupo
     return if performed?
 
     adicionar_breadcrumb "Forma Padrão", grupo_padrao_url(@grupo), "padrao"
@@ -126,7 +126,7 @@ class EncontrosController < ApplicationController
   end
 
   def update_forma_padrao
-    precisa_ser_coordenador_do_grupo @grupo
+    precisa_poder_gerenciar_grupo @grupo
     return if performed?
 
     adicionar_breadcrumb "Forma Padrão", grupo_padrao_url(@grupo), "padrao"
@@ -145,7 +145,7 @@ class EncontrosController < ApplicationController
   end
 
   def destroy
-    precisa_ser_coordenador_do_grupo @grupo
+    precisa_poder_gerenciar_grupo @grupo
     return if performed?
 
     @encontro.destroy
@@ -263,22 +263,14 @@ class EncontrosController < ApplicationController
       end
     end
 
-    def eh_coordenador_do_grupo grupo
-      return @usuario_logado.eh_super_admin? || grupo.coordenadores.include?(@usuario_logado)
-    end
-
-    def precisa_ser_coordenador_do_grupo grupo
-      if !eh_coordenador_do_grupo(grupo)
+    def precisa_poder_gerenciar_grupo grupo
+      if !@usuario_logado.permissoes.pode_gerenciar_grupo(grupo)
         redirect_to root_url and return
       end
     end
 
-    def eh_coordenador_do_grupo_ou_do_encontro encontro
-      return @usuario_logado.eh_super_admin? || encontro.coordenadores.include?(@usuario_logado) || encontro.grupo.coordenadores.include?(@usuario_logado)
-    end
-
-    def precisa_ser_coordenador_do_grupo_ou_do_encontro encontro
-      if !eh_coordenador_do_grupo_ou_do_encontro(encontro)
+    def precisa_poder_gerenciar_encontro encontro
+      if !@usuario_logado.permissoes.pode_gerenciar_encontro(encontro)
         redirect_to root_url and return
       end
     end

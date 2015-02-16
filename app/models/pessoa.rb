@@ -195,7 +195,7 @@ class Pessoa < ActiveRecord::Base
     end
   end
 
-  def grupos_que_pode_pesquisar
+  def grupos_que_pode_ver
     if self.eh_super_admin
       return Grupo.all
     else
@@ -234,6 +234,14 @@ class Pessoa < ActiveRecord::Base
     end
 
     return equipes
+  end
+
+  def equipes_que_esta_coordenando_agora
+    return equipes_em_que_esta_participando_agora.select{|e| e.coordenadores.include?(self)}
+  end
+
+  def esta_coordenando_agora_alguma_equipe_de_outra_pessoa outra_pessoa
+    return equipes_que_esta_coordenando_agora.select{|e| e.pessoas.include?(outra_pessoa)}.count > 0
   end
 
   def encontros_que_esta_coordenando_agora

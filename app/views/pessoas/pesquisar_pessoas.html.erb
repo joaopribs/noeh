@@ -97,7 +97,7 @@
             var opcoesEscolhidasArray = [];
 
             if ($(".checkbox_grupo:checked").size() == 0) {
-              <% if @usuario_logado.grupos_que_pode_pesquisar.select{|g| g.tem_encontros}.count > 0 %>
+              <% if @usuario_logado.grupos_que_pode_ver.select{|g| g.tem_encontros}.count > 0 %>
                 mostrarPesquisasGrupos = true;
                 $(".equipes").removeClass("manter_escondido");
                 $(".recomendacoes").removeClass("manter_escondido");
@@ -228,7 +228,7 @@
       </div>
     </div>
 
-    <% grupos_que_pode_pesquisar = @usuario_logado.grupos_que_pode_pesquisar %>
+    <% grupos_que_pode_pesquisar = @usuario_logado.grupos_que_pode_ver %>
 
     <% if grupos_que_pode_pesquisar.count > 0 %>
       <br/>

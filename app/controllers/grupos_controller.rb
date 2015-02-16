@@ -345,12 +345,8 @@ class GruposController < ApplicationController
       return hash
     end
 
-    def pode_gerenciar_grupo grupo
-      return @usuario_logado.eh_super_admin? || grupo.coordenadores.include?(@usuario_logado)
-    end
-
     def precisa_poder_gerenciar_grupo grupo
-      if !pode_gerenciar_grupo(grupo)
+      if !@usuario_logado.permissoes.pode_gerenciar_grupo(grupo)
         redirect_to root_url and return
       end
     end

@@ -23,7 +23,7 @@
         </form>
     <% end %>
 
-    <% if @usuario_logado.eh_super_admin || @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 %>
+    <% if @usuario_logado.permissoes.pode_pesquisar_pessoas %>
         <%= link_to 'Pesquisar pessoas', pesquisar_pessoas_path %>
     <% end %>
 

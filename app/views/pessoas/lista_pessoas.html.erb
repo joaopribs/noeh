@@ -212,10 +212,10 @@
                 <% if @tipo_pagina == "lista_pessoas" %>
 
                     <td align="center">
-                        <%= link_to 'Editar', edit_pessoa_path(pessoa), class: 'link_editar'  if pode_editar_pessoa(pessoa) %>
+                        <%= link_to 'Editar', edit_pessoa_path(pessoa), class: 'link_editar' if @usuario_logado.permissoes.pode_editar_pessoa(pessoa) %>
                     </td>
                     <td align="center">
-                         <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir link_excluir_pessoa' if pode_excluir_pessoa(pessoa) %>
+                         <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir link_excluir_pessoa' if @usuario_logado.permissoes.pode_excluir_pessoa(pessoa) %>
                     </td>
 
                 <% elsif @tipo_pagina == "pessoas_no_grupo" %>
@@ -241,10 +241,10 @@
                     </td>
 
                     <td align="center">
-                        <%= link_to 'Editar', grupo_edit_pessoa_path(@grupo, pessoa), class: 'link_editar' if pode_editar_pessoa(pessoa) %>
+                        <%= link_to 'Editar', grupo_edit_pessoa_path(@grupo, pessoa), class: 'link_editar' if @usuario_logado.permissoes.pode_editar_pessoa(pessoa) %>
                     </td>
                     <td align="center">
-                      <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir link_excluir_pessoa' if pode_excluir_pessoa(pessoa) %>
+                      <%= link_to 'Excluir', '#', data: {pessoa_id: pessoa.id, page: @pessoas.current_page, nome_pessoa: nome_pra_dialog}, class: 'link_excluir link_excluir_pessoa' if @usuario_logado.permissoes.pode_excluir_pessoa(pessoa) %>
                     </td>
 
                 <% elsif @tipo_pagina == "ex_participantes_de_grupo" %>
@@ -277,7 +277,7 @@
 
                     <% if @conjunto.tipo != "CoordenacaoEncontro" %>
                         <td align="center">
-                            <% if pode_editar_coordenador_de_conjunto @conjunto %>
+                            <% if @usuario_logado.permissoes.pode_editar_coordenador_de_conjunto @conjunto %>
                                 <input type="checkbox" name="eh_coordenador" <%= "checked" if eh_coordenador %> class="checkbox_coordenador" data-pessoa_id="<%= pessoa.id %>" data-page="<%= @pessoas.current_page %>"/>
                             <% else %>
                                 <%= eh_coordenador ? "Coordenador" : "" %>
@@ -286,7 +286,7 @@
                     <% end %>
 
                     <td align="center">
-                      <% if pode_editar_conjunto(@conjunto) %>
+                      <% if @usuario_logado.permissoes.pode_editar_conjunto(@conjunto) %>
                           <%= link_to 'Remover', '#', class: 'link_remover_do_conjunto link_remover',
                                       data: {
                                               conjunto_id: @conjunto.id,

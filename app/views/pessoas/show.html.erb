@@ -157,7 +157,7 @@
 <div class="links_no_titulo">
   <h1><%= @pessoa.label %></h1>
 
-  <% if pode_editar_pessoa @pessoa %>
+  <% if @usuario_logado.permissoes.pode_editar_pessoa(@pessoa) %>
       <% if defined?(@conjunto) %>
           <% if @conjunto.tipo == 'CoordenacaoEncontro' %>
               <%= link_to 'Editar', encontro_coordenadores_pessoa_editar_path(@conjunto.encontro, @pessoa), class: 'link_editar' %>
@@ -174,7 +174,7 @@
 
   <% end %>
 
-  <% if pode_excluir_pessoa @pessoa %>
+  <% if @usuario_logado.permissoes.pode_excluir_pessoa @pessoa %>
       <%= link_to 'Excluir', '#', data: { pessoa_id: @pessoa.id, nome_pessoa: @pessoa.nome }, class: 'link_excluir link_excluir_pessoa' %>
   <% end %>
 </div>

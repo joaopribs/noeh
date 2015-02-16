@@ -52,7 +52,7 @@
 
 Total de <%= @total %> encontro<%= "s" if plural %>.
 
-<% if pode_criar_encontro_no_grupo @grupo %>
+<% if @usuario_logado.permissoes.pode_gerenciar_grupo(@grupo) %>
     <%= link_to "Criar novo encontro de #{@grupo.nome}", new_grupo_encontro_url, :class => "link_novo link_novo_encontro" %>
 <% end %>
 

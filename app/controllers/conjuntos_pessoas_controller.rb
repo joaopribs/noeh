@@ -37,7 +37,7 @@ class ConjuntosPessoasController < ApplicationController
 
     @conjunto.encontro = @encontro
 
-    precisa_poder_criar_conjuntos(@encontro)
+    precisa_poder_gerenciar_encontro(@encontro)
     return if performed?
 
     @titulo = "Criar #{@conjunto.tipo_do_conjunto}"
@@ -246,7 +246,7 @@ class ConjuntosPessoasController < ApplicationController
     pessoa = Pessoa.find(params[:pessoa_id])
     conjunto = ConjuntoPessoas.find(params[:conjunto_id])
 
-    precisa_poder_gerenciar_conjunto(@conjunto)
+    precisa_poder_gerenciar_conjunto(conjunto)
     return if performed?
 
     relacao_pessoa = RelacaoPessoaConjunto.where({:pessoa_id => pessoa.id, :conjunto_pessoas_id => params[:conjunto_id]}).first
@@ -277,6 +277,10 @@ class ConjuntosPessoasController < ApplicationController
 
   def editar_coordenadores_de_encontro
     @encontro = Encontro.find(params[:encontro_id])
+
+    precisa_poder_gerenciar_encontro(@encontro)
+    return if performed?
+
     @conjunto = @encontro.coordenacao_encontro
 
     @titulo = "Coordenadores"
@@ -296,6 +300,9 @@ class ConjuntosPessoasController < ApplicationController
   end
 
   def upload_relatorio
+    precisa_poder_gerenciar_conjunto(@conjunto)
+    return if performed?
+
     begin
       @conjunto.relatorio = params[:relatorio]
 
@@ -312,6 +319,9 @@ class ConjuntosPessoasController < ApplicationController
   end
 
   def remover_relatorio
+    precisa_poder_gerenciar_conjunto(@conjunto)
+    return if performed?
+
     @conjunto.relatorio.clear
     if @conjunto.save
       render :text => "ok"
@@ -319,6 +329,9 @@ class ConjuntosPessoasController < ApplicationController
   end
 
   def recomendacoes
+    precisa_poder_editar_recomendacoes
+    return if performed?
+
     adicionar_breadcrumb "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}", circulo_url(@conjunto), "conjunto"
     adicionar_breadcrumb "Recomendações do Coordenador", recomendacoes_url(@conjunto), "recomendacoes"
 
@@ -386,34 +399,20 @@ class ConjuntosPessoasController < ApplicationController
       return hash
     end
 
-    def pode_gerenciar_conjunto conjunto
-      if conjunto.tipo == 'ConjuntoPermanente'
-        return @usuario_logado.eh_super_admin? || 
-          conjunto.pessoas.include?(@usuario_logado) ||
-          conjunto.encontro.coordenadores.include?(@usuario_logado) ||
-          conjunto.encontro.grupo.coordenadores.include?(@usuario_logado)
-      else
-        return @usuario_logado.eh_super_admin? || 
-          conjunto.coordenadores.include?(@usuario_logado) || 
-          conjunto.encontro.coordenadores.include?(@usuario_logado) ||
-          conjunto.encontro.grupo.coordenadores.include?(@usuario_logado)
-      end
-    end
-
     def precisa_poder_gerenciar_conjunto conjunto
-      if !pode_gerenciar_conjunto(conjunto)
+      if !@usuario_logado.permissoes.pode_gerenciar_conjunto(conjunto)
         redirect_to root_url and return
       end
     end
 
-    def pode_criar_conjuntos encontro
-      return @usuario_logado.eh_super_admin? || 
-        encontro.coordenadores.include?(@usuario_logado) ||
-        encontro.grupo.coordenadores.include?(@usuario_logado)
+    def precisa_poder_gerenciar_encontro encontro
+      if !@usuario_logado.permissoes.pode_gerenciar_encontro(encontro)
+        redirect_to root_url and return
+      end
     end
 
-    def precisa_poder_criar_conjuntos encontro
-      if !pode_criar_conjuntos(encontro)
+    def precisa_poder_editar_recomendacoes
+      if !@usuario_logado.permissoes.pode_editar_recomendacoes(@conjunto)
         redirect_to root_url and return
       end
     end
