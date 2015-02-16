@@ -575,7 +575,7 @@ class PessoasController < ApplicationController
         session[:id_pessoas_antes_do_filtro] = session[:id_pessoas]
       end
 
-      pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro])
+      pessoas = Pessoa.pegar_pessoas(session[:id_pessoas_antes_do_filtro], false)
 
       query = ActiveSupport::Inflector.transliterate(params[:query].downcase)
 

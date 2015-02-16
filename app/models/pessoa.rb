@@ -247,14 +247,28 @@ class Pessoa < ActiveRecord::Base
   def encontros_que_esta_coordenando_agora
     encontros = []
 
-    relacoes = self.relacoes_pessoa_conjunto.joins(:conjunto_pessoas).where("conjuntos_pessoas.tipo = 'CoordenacaoEncontro'")
+    grupos_que_tem_encontros_que_coordena = self.grupos_que_tem_encontros_que_coordena
 
-    relacoes.each do |relacao|
-      encontro = relacao.conjunto_pessoas.encontro
+    if grupos_que_tem_encontros_que_coordena.count > 0
+      grupos_que_tem_encontros_que_coordena.each do |grupo|
+        grupo.encontros.each do |encontro|
+          if encontro.data_liberacao.present? && encontro.data_fechamento.present?
+            if (encontro.data_liberacao.beginning_of_day..encontro.data_fechamento.end_of_day).cover?(Time.now)
+              encontros << encontro
+            end
+          end
+        end
+      end
+    else
+      relacoes = self.relacoes_pessoa_conjunto.joins(:conjunto_pessoas).where("conjuntos_pessoas.tipo = 'CoordenacaoEncontro'")
 
-      if encontro.data_liberacao.present? && encontro.data_fechamento.present?
-        if (encontro.data_liberacao.beginning_of_day..encontro.data_fechamento.end_of_day).cover?(Time.now)
-          encontros << encontro
+      relacoes.each do |relacao|
+        encontro = relacao.conjunto_pessoas.encontro
+
+        if encontro.data_liberacao.present? && encontro.data_fechamento.present?
+          if (encontro.data_liberacao.beginning_of_day..encontro.data_fechamento.end_of_day).cover?(Time.now)
+            encontros << encontro
+          end
         end
       end
     end

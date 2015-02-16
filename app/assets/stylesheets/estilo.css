@@ -692,6 +692,69 @@ a.arquivo_pdf:hover {
     background-color: #d41111;
 }
 
+#navegacao a.pesquisar_pessoas {
+    padding-left: 25px;
+    background-image: url(procurar.png); 
+    background-size: 13px;
+    background-repeat: no-repeat;
+    background-position: 8px center;
+}
+
+/* Submenus no topo
+------------------------------------------------------------------------------*/
+.tem_submenu {
+    position: relative;
+    display: inline-block;
+}
+
+.tem_submenu > a:hover {
+    background-color: #000;
+}
+
+.submenu {
+    color: #fff;
+    background-color: #000;
+    display: none;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 40px;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-weight: normal;
+}
+
+.submenu > .conteudo {
+    background-color: #000;
+    position: absolute;
+    top: 40px;
+    right: 0px;
+    line-height: normal;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+.submenu > .conteudo table {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.submenu > .conteudo td {
+    padding: 10px;
+    text-align: right;
+}
+
+.submenu > .conteudo td:first-child {
+    padding-right: 0;
+}
+
+.submenu > .conteudo td > a {
+    line-height: 25px;
+    margin-left: 0 !important;
+}
+
 /* Conteúdo principal da página centralizado
 ------------------------------------------------------------------------------*/
 
@@ -883,8 +946,8 @@ table.participacoes tr th:not(:nth-of-type(2)) {
     display: inline-block;
 }
 
-.container_opcoes > .opcoes {
-    position: absolute;
+.opcoes {
+    margin: 3px 0 10px;
 }
 
 .contem_opcoes > .opcoes_escolhidas {

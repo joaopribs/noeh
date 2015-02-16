@@ -1,5 +1,22 @@
 <% if defined? @usuario_logado %>
 
+    <script type="text/javascript">
+        $(function () {
+            $(".tem_submenu > a").on("mouseenter", function () {
+                // Esconde todos os submenu
+                $(".submenu").hide();
+
+                // Mostra só o submenu específico
+                $pai = $(this).closest(".tem_submenu");
+                $pai.find(".submenu").show();
+            });
+
+            $(".submenu").on("mouseleave", function () {
+                $(this).hide();
+            });
+        });
+    </script>
+
     <% quantas_pessoas_a_confirmar = @usuario_logado.ids_pessoas_a_confirmar.count %>
     <% if quantas_pessoas_a_confirmar > 0 %>
         <%= link_to pessoas_a_confirmar_path, class: 'atencao' do %>
@@ -24,30 +41,115 @@
     <% end %>
 
     <% if @usuario_logado.permissoes.pode_pesquisar_pessoas %>
-        <%= link_to 'Pesquisar pessoas', pesquisar_pessoas_path %>
+        <%= link_to "Pesquisar pessoas", pesquisar_pessoas_path, class: "pesquisar_pessoas" %>
     <% end %>
 
     <% if @usuario_logado.eh_super_admin %>
         <%= link_to "Grupos", grupos_path %>
         <%= link_to "Pessoas", pessoas_path %>
     <% else %>
-        <% @usuario_logado.grupos_que_coordena.each do |grupo| %>
-            <%= link_to grupo.nome, grupo %>
+        <% encontros_que_esta_coordenando_agora = @usuario_logado.encontros_que_esta_coordenando_agora %>
+
+        <% if encontros_que_esta_coordenando_agora.count > 0 %>
+            <span class="tem_submenu">
+                <a href="#">Encontros Abertos ▼</a>
+                <div class="submenu">
+                    <span class="titulo">Encontros Abertos ▲</span>
+                    <div class="conteudo">
+                        <table>
+                            <tr>
+                                <td nowrap>
+                                    Encontros aos quais você tem acesso<br/>e para os quais o sistema está aberto no momento
+                                </td>
+                                <td nowrap>
+                                    <% encontros_que_esta_coordenando_agora.each do |encontro| %>
+                                        <%= link_to encontro.nome, encontro %><br/>
+                                    <% end %>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </span>
         <% end %>
 
-        <% @usuario_logado.equipes_em_que_esta_participando_agora.each do |equipe| %>
-            <% if equipe.tipo == 'Equipe' %>
-                <%= link_to equipe.nome, equipe %>
-            <% end %>
+        <% equipes_em_que_esta_participando_agora = @usuario_logado.equipes_em_que_esta_participando_agora %>
+
+        <% if equipes_em_que_esta_participando_agora.count > 0 %>
+            <span class="tem_submenu">
+                <a href="#">Equipes atuais ▼</a>
+                <div class="submenu">
+                    <span class="titulo">Equipes atuais ▲</span>
+                    <div class="conteudo">
+                        <table>
+                            <tr>
+                                <td nowrap>
+                                    Equipes em que você está<br/>trabalhando no momento
+                                </td>
+                                <td nowrap>
+                                    <% equipes_em_que_esta_participando_agora.each do |equipe| %>
+                                        <% if equipe.tipo == 'Equipe' %>
+                                            <%= link_to "#{equipe.nome} - #{equipe.encontro.nome}", equipe %><br/>
+                                        <% end %>
+                                    <% end %>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </span>
         <% end %>
 
-        <% @usuario_logado.conjuntos_permanentes.each do |conjunto_permanente| %>
-            <% classe_css = conjunto_permanente.cor.present? ? conjunto_permanente.cor.classe_css : "" %>
-            <%= link_to "#{conjunto_permanente.encontro.denominacao_conjuntos_permanentes} #{conjunto_permanente.nome}", circulo_path(conjunto_permanente), class: "#{classe_css}" %>
+        <% grupos_que_coordena = @usuario_logado.grupos_que_coordena %>
+
+        <% if grupos_que_coordena.count > 0 %>
+            <span class="tem_submenu">
+                <a href="#">Grupos ▼</a>
+                <div class="submenu">
+                    <span class="titulo">Grupos ▲</span>
+                    <div class="conteudo">
+                        <table>
+                            <tr>
+                                <td nowrap>
+                                    Grupos aos quais você<br/>tem acesso
+                                </td>
+                                <td nowrap>
+                                    <% grupos_que_coordena.each do |grupo| %>
+                                        <%= link_to grupo.nome, grupo %><br/>
+                                    <% end %>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </span>
         <% end %>
 
-        <% @usuario_logado.encontros_que_esta_coordenando_agora.each do |encontro| %>
-            <%= link_to encontro.nome, encontro %>
+        <% conjuntos_permanentes = @usuario_logado.conjuntos_permanentes %>
+
+        <% if conjuntos_permanentes.count > 0 %>
+            <span class="tem_submenu">
+                <a href="#">Famílias ▼</a>
+                <div class="submenu">
+                    <span class="titulo">Famílias ▲</span>
+                        <div class="conteudo">
+                            <table>
+                                <tr>
+                                    <td nowrap>
+                                        Famílias formadas durante<br/>os encontros
+                                    </td>
+                                    <td nowrap>
+                                        <% conjuntos_permanentes.each do |conjunto_permanente| %>
+                                            <% classe_css = conjunto_permanente.cor.present? ? conjunto_permanente.cor.classe_css : "" %>
+                                            <%= link_to "#{conjunto_permanente.encontro.denominacao_conjuntos_permanentes} #{conjunto_permanente.nome}", circulo_path(conjunto_permanente), class: "#{classe_css}" %><br/>
+                                        <% end %>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </span>
+                </div>
+            </span>
         <% end %>
     <% end %>
 
