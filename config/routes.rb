@@ -44,6 +44,8 @@ Noeh::Application.routes.draw do
   get '/encontros_de_grupo', :to => 'grupos#encontros_de_grupo', :as => :encontros_de_grupo, :defaults => { :format => 'js' }
   get '/conjuntos_para_adicionar_pessoa', :to => 'conjuntos_pessoas#conjuntos_para_adicionar_pessoa', :as => :conjuntos_para_adicionar_pessoa, :defaults => { :format => 'js' }
 
+  get '/encontro/:encontro_id/coordenadores', :to => 'conjuntos_pessoas#editar_coordenadores_de_encontro', :as => :coordenacao_encontro
+
   get '/equipe/:id', :to => 'conjuntos_pessoas#edit', :as => :equipe
   post '/equipe/:id', :to => 'conjuntos_pessoas#update', :as => :equipe_post
   get '/equipe/:conjunto_id/pessoas/criar', :to => 'pessoas#new', :as => :equipe_criar_pessoa

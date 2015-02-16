@@ -36,7 +36,9 @@
         <% end %>
 
         <% @usuario_logado.equipes_em_que_esta_participando_agora.each do |equipe| %>
-            <%= link_to equipe.nome, equipe %>
+            <% if equipe.tipo == 'Equipe' %>
+                <%= link_to equipe.nome, equipe %>
+            <% end %>
         <% end %>
 
         <% @usuario_logado.conjuntos_permanentes.each do |conjunto_permanente| %>
