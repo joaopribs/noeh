@@ -3,6 +3,8 @@
 class GruposController < ApplicationController
   before_action :set_grupo, only: [:show, :edit, :update, :destroy]
   before_action :adicionar_breadcrumbs_controller
+  skip_before_filter :precisa_estar_logado, :only => [:encontros_de_grupo]
+  skip_before_action :adicionar_breadcrumbs_controller, only: [:encontros_de_grupo]
 
   def adicionar_breadcrumbs_controller
     if @usuario_logado.eh_super_admin

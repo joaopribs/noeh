@@ -1174,18 +1174,6 @@ class PessoasController < ApplicationController
       return false
     end
 
-    def pode_ver_pessoa pessoa
-      if @usuario_logado.eh_super_admin? ||
-          @usuario_logado.eh_coordenador_de_grupo_de(pessoa) ||
-          @usuario_logado.eh_coordenador_de_encontro_de(pessoa) ||
-          @usuario_logado.grupos_que_coordena.count > 0 ||
-          @usuario_logado == pessoa
-        return true
-      end
-
-      return false
-    end
-
     def precisa_poder_editar_pessoa pessoa
       if !pode_editar_pessoa pessoa
         redirect_to root_url and return
@@ -1193,7 +1181,7 @@ class PessoasController < ApplicationController
     end
 
     def precisa_poder_ver_pessoa pessoa
-      if !pode_ver_pessoa pessoa
+      if !@usuario_logado.permissoes.pode_ver_pessoa(pessoa)
         redirect_to root_url and return
       end
     end
@@ -1220,19 +1208,9 @@ class PessoasController < ApplicationController
       end
     end
 
-    def pode_criar_pessoas_em_grupo grupo_id
-      if @usuario_logado.eh_super_admin? || 
-        @usuario_logado.grupos_que_coordena.collect{|g| g.slug}.include?(grupo_id) || 
-        @usuario_logado.grupos_que_coordena.collect{|g| g.id.to_s}.include?(grupo_id)
-        return true
-      end
-
-      return false
-    end
-
     def precisa_poder_criar_pessoas
       if params[:grupo_id]
-        if !pode_criar_pessoas_em_grupo params[:grupo_id]
+        if !@usuario_logado.permissoes.pode_criar_pessoas_em_grupo(params[:grupo_id])
           redirect_to root_url and return
         end
       else

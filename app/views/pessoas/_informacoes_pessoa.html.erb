@@ -235,51 +235,79 @@
             <% if participacoes.count > 0 %>
                 <ul class="bullets">
                     <% participacoes.each do |conjunto| %>
+                      <% texto_encontro_participacao = "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})" %>
+
                       <% cor = conjunto.cor.present? ? conjunto.cor.hex_cor : nil %>
 
                       <li <% if cor.present? %>style="color: <%= cor %>;"<% end %>><span>
-                        <% coordenador = conjunto.coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
-
                         <% if pode_ver_encontro(conjunto.encontro) %>
-                            <%= link_to "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})", encontro_path(conjunto.encontro) %>
+                            <%= link_to texto_encontro_participacao, encontro_path(conjunto.encontro) %>
                         <% else %>
-                            <%= conjunto.encontro.nome %>
+                            <%= texto_encontro_participacao %>
                         <% end %>
 
                         -
 
-                        <% if conjunto.tipo == 'Equipe' %>
-                            <%= link_to "Equipe #{conjunto.nome}#{coordenador}", equipe_path(conjunto) %>
-                        <% elsif conjunto.tipo == 'CoordenacaoEncontro' %>
-                            <%= link_to "Coordenação do Encontro", encontro_editar_coordenadores_path(conjunto.encontro) %>
+                        <% coordenador = conjunto.coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+
+                        <%
+                          if conjunto.tipo == 'Equipe'
+                            texto_conjunto_participacao = "Equipe #{conjunto.nome}#{coordenador}"
+                            link_conjunto_participacao = equipe_path(conjunto)
+                          elsif conjunto.tipo == 'CoordenacaoEncontro'
+                            texto_conjunto_participacao = "Coordenação do Encontro"
+                            link_conjunto_participacao = encontro_editar_coordenadores_path(conjunto.encontro)
+                          else
+                            texto_conjunto_participacao = "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}"
+                            link_conjunto_participacao = circulo_path(conjunto)
+                          end
+                        %>    
+                        <% if pode_ver_conjunto(conjunto) %>                        
+                          <%= link_to texto_conjunto_participacao, link_conjunto_participacao %>
                         <% else %>
-                            <%= link_to "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}", circulo_path(conjunto) %>
+                          <%= texto_conjunto_participacao %>
                         <% end %>
                       </span></li>
                     <% end %>
                 </ul>
             <% end %>
+
+            <% 
+              encontros_que_esta_coordenando_agora = @usuario_logado.encontros_que_esta_coordenando_agora
+              grupos_que_tem_encontros_que_coordena = @usuario_logado.grupos_que_tem_encontros_que_coordena
+            %>
+
             <% if @usuario_logado.eh_super_admin? ||
-                    @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 ||
-                    @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 %>
+                    encontros_que_esta_coordenando_agora.count > 0 ||
+                    grupos_que_tem_encontros_que_coordena.count > 0 %>
                 <%
-                   grupos = @usuario_logado.eh_super_admin? ? Grupo.where(tem_encontros: true) : @usuario_logado.grupos_que_tem_encontros_que_coordena
-                   primeiro_grupo = grupos.first
+                  if @usuario_logado.eh_super_admin?
+                    grupos = Grupo.where(tem_encontros: true)
+                  elsif encontros_que_esta_coordenando_agora.count > 0
+                    grupos = encontros_que_esta_coordenando_agora.collect{|e| e.grupo}
+                  elsif grupos_que_tem_encontros_que_coordena.count > 0
+                    grupos = grupos_que_tem_encontros_que_coordena
+                  end
 
-                   if primeiro_grupo
-                     encontros = primeiro_grupo.encontros
-                     primeiro_encontro = encontros.first
-                   else
-                     encontros = []
-                     primeiro_encontro = nil
-                   end
+                  primeiro_grupo = grupos.first
 
-                   if primeiro_encontro
-                     conjuntos = primeiro_encontro.conjuntos_que_poderia_adicionar_pessoa(pessoa)
-                   else
-                     conjuntos = []
-                   end
+                  if primeiro_grupo
+                    if @usuario_logado.eh_super_admin? || grupos_que_tem_encontros_que_coordena.count > 0
+                      encontros = primeiro_grupo.encontros
+                    elsif encontros_que_esta_coordenando_agora.count > 0
+                      encontros = @usuario_logado.encontros_que_esta_coordenando_agora.select{|e| e.grupo == primeiro_grupo}
+                    end
+                    primeiro_encontro = encontros.first
+                  else
+                    encontros = []
+                    primeiro_encontro = nil
+                  end
 
+                  if primeiro_encontro
+                    conjuntos = primeiro_encontro.conjuntos_que_poderia_adicionar_pessoa(pessoa)
+                  else
+                    conjuntos = []
+                  end
                 %>
 
                 <%= link_to 'Adicionar participação', '#', class: 'link_novo link_adicionar_participacao' %>

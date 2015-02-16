@@ -127,6 +127,10 @@ module ApplicationHelper
     return @usuario_logado.eh_super_admin? || encontro.coordenadores.include?(@usuario_logado) || encontro.grupo.coordenadores.include?(@usuario_logado)
   end
 
+  def pode_ver_conjunto conjunto
+    return @usuario_logado.eh_super_admin? || conjunto.pessoas.include?(@usuario_logado) || pode_ver_encontro(conjunto.encontro)
+  end
+
   def estados_brasil
     return ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO']
   end

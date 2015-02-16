@@ -1,8 +1,4 @@
 <script>
-    var grupos = <%= raw Grupo.all.to_json(include: {encontros: {include: [:conjuntos_permanentes, :equipes]}}) %>
-
-    var grupoEscolhido = null;
-
     $(function () {
         $('#tem_facebook_<%= tipo_pessoa %>').on('change', function () {
             if ($(this).prop('checked')) {
@@ -96,7 +92,7 @@
                 '<%= raw (render 'form_participacao_auto_inserir', tipo_pessoa: tipo_pessoa, grupo_id: "-1", encontro_id: "-1", sugestao: "", coordenador: "false").gsub("\n", "") %>'
             );
 
-            atualizarFuncoesAutoInserir<%= tipo_pessoa %>();
+            atualizarFuncoesAutoInserir();
         });
 
         atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
@@ -133,95 +129,6 @@
             evento.preventDefault();
 
             $(this).closest('.campos_instrumento').remove();
-        });
-    }
-
-    function atualizarFuncoesAutoInserir<%= tipo_pessoa %>() {
-        $('.grupo_participacao').on('change', function () {
-            var idEscolhido = $(this).val();
-
-            if (idEscolhido == '') {
-                grupoEscolhido = null;
-            }
-            else {
-                $.each(grupos, function (index, item) {
-                    if (item.id == idEscolhido) {
-                        grupoEscolhido = item;
-                    }
-                });
-            }
-
-            var fieldEncontros = $(this).parent().siblings('.wrapper_encontro_participacao');
-            var fieldParticipacoes = $(this).parent().siblings('.wrapper_participacao');
-
-            if (grupoEscolhido != null) {
-                if (grupoEscolhido.tem_encontros) {
-                    var primeiroEncontro = null;
-
-                    $(fieldEncontros).children('select').empty();
-                    $.each(grupoEscolhido.encontros, function (index, item) {
-                        if (primeiroEncontro == null) {
-                            primeiroEncontro = item;
-                        }
-
-                        var ano = item.data_inicio.substr(0, 4);
-
-                        $(fieldEncontros).children('select').append(
-                                        '<option value="' + item.id + '">' + item.nome + ' (' + ano + ')' + '</option>'
-                        );
-                    });
-
-                    $(fieldEncontros).show();
-
-                    if (primeiroEncontro != null) {
-                        $(fieldParticipacoes).children('.campo_texto_sugestao').val('');
-                        $(fieldParticipacoes).show();
-                    }
-                }
-                else {
-                    $(fieldEncontros).children('select').empty();
-                    $(fieldEncontros).children('select').append(
-                            '<option value="-1"></option>'
-                    );
-
-                    $(fieldParticipacoes).children('.campo_texto_sugestao').val('so_grupo');
-
-                    $(fieldEncontros).add(fieldParticipacoes).hide();
-                }
-            }
-            else {
-                $(fieldEncontros).children('select').empty();
-                $(fieldEncontros).children('select').append(
-                        '<option value="-1"></option>'
-                );
-
-                $(fieldEncontros).add(fieldParticipacoes).hide();
-            }
-        });
-
-        $('.encontro_participacao').on('change', function () {
-            var idEscolhido = $(this).val();
-
-            var encontro = null;
-            $.each(grupoEscolhido.encontros, function (index, item) {
-                if (item.id == idEscolhido) {
-                    encontro = item;
-                }
-            });
-        });
-
-        $('.remover_participacao').on('click', function (evento) {
-            evento.preventDefault();
-            $(this).parent().remove();
-        });
-
-        $('.checkbox_coordenador').on('change', function () {
-            if ($(this).prop('checked')) {
-                $(this).siblings('.hidden_coordenador').val("true");
-            }
-            else {
-                $(this).siblings('.hidden_coordenador').val("false");
-            }
         });
     }
 </script>
@@ -454,6 +361,11 @@
         <div class="erro_form"><%= pessoa.errors[:auto_inserir].first %></div>
 
         <div id="participacoes_<%= tipo_pessoa %>">
+
+          <p class="helper_participacao">
+              Preencha todas as suas participações nos grupos abaixo. Quando for o caso, digite o que foi sua participação (equipe, grupo, família, etc), de modo que seja possível a identificação pelos coordenadores.
+          </p>
+        
           <%
              grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_#{tipo_pessoa}")
              encontros_auto_inserir = instance_variable_get("@encontros_auto_inserir_#{tipo_pessoa}")
@@ -475,7 +387,7 @@
           <% end %>
 
           <script>
-              atualizarFuncoesAutoInserir<%= tipo_pessoa %>();
+              atualizarFuncoesAutoInserir();
           </script>
         </div>
 

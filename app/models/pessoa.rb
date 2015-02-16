@@ -58,6 +58,11 @@ class Pessoa < ActiveRecord::Base
   #   Pessoa.unscoped{ super }
   # end
 
+  def permissoes
+    @permissoes = Permissoes.new(self)
+    return @permissoes
+  end
+
   def self.pegar_pessoas array_ids, forcar_conjuges
     pessoas = []
 
