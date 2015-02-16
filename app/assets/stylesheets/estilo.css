@@ -198,6 +198,10 @@ button {
     margin-right: 20px;
 }
 
+.block {
+    display: block;
+}
+
 .actions {
     margin-top: 10px;
     clear: both;
@@ -948,6 +952,16 @@ table.participacoes tr th:not(:nth-of-type(2)) {
 
 .opcoes {
     margin: 3px 0 10px;
+}
+
+table.opcoes_pesquisa {
+    margin: 3px 0 0;
+    width: auto;
+    min-width: 90%;
+}
+
+table.opcoes_pesquisa td {
+    padding: 0;
 }
 
 .contem_opcoes > .opcoes_escolhidas {

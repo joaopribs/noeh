@@ -111,9 +111,9 @@
                 var temEncontros = $(this).data("tem-encontros");
                 if ($(this).is(":checked") && temEncontros) {
                   mostrarPesquisasGrupos = true;
-                  $("#equipes_grupo_" + idGrupo).css("display", "inline-block");
+                  $("#equipes_grupo_" + idGrupo).show();
                   $("#equipes_grupo_" + idGrupo).removeClass("manter_escondido");
-                  $("#recomendacoes_grupo_" + idGrupo).css("display", "inline-block");
+                  $("#recomendacoes_grupo_" + idGrupo).show();
                   $("#recomendacoes_grupo_" + idGrupo).removeClass("manter_escondido");
                 }
                 else {
@@ -132,8 +132,8 @@
 
             if (mostrarPesquisasGrupos) {
               $("#pesquisas_sobre_grupos").show();
-              $(".equipes").css("display", "inline-block");
-              $(".recomendacoes").css("display", "inline-block");
+              $(".equipes").show();
+              $(".recomendacoes").show();
             }
             else {
               $("#pesquisas_sobre_grupos").hide();
@@ -204,7 +204,7 @@
 
     <br/>
 
-    <div class="field">
+    <div class="field block">
 
       <a class="contem_opcoes">
         <div class="titulo">Habilidades Musicais:</div>
@@ -218,22 +218,28 @@
         <span class="seta">▼</span>
       </a>
 
-      <div class="opcoes" style="display: none">
-        <% instrumentos.each do |instrumento| %>
-          <label>
-            <%= check_box_tag('instrumentos[]', instrumento, @parametros_pesquisa_pessoas.instrumentos.include?(instrumento), data: {nome_opcao: instrumento}) %>
-            <%= instrumento %>
-          </label>
+      <table class="opcoes opcoes_pesquisa" style="display: none">
+        <tr>
+        <% instrumentos.each_with_index do |instrumento, indice| %>
+          <% if indice > 0 && indice % 10 == 0 %>
+            </tr><tr>
+          <% end %>
+          
+          <td>
+            <label>
+              <%= check_box_tag('instrumentos[]', instrumento, @parametros_pesquisa_pessoas.instrumentos.include?(instrumento), data: {nome_opcao: instrumento}) %>
+              <%= instrumento %>
+            </label>
+          </td>
         <% end %>
-      </div>
+        </tr>
+      </table>
     </div>
 
     <% grupos_que_pode_pesquisar = @usuario_logado.grupos_que_pode_ver %>
 
     <% if grupos_que_pode_pesquisar.count > 0 %>
-      <br/>
-
-      <div class="field">
+      <div class="field block">
 
         <a class="contem_opcoes">
           <div class="titulo">Grupos:</div>
@@ -248,14 +254,22 @@
           <div class="seta">▼</div>
         </a>
 
-        <div class="opcoes" style="display: none">
-          <% grupos_que_pode_pesquisar.each do |grupo| %>
-            <label>
-              <%= check_box_tag('grupos[]', grupo.id, @parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}"), class: 'checkbox_grupo', data: {id: grupo.id, tem_encontros: grupo.tem_encontros, nome_opcao: grupo.nome}) %>
-              <%= grupo.nome %>
-            </label>
-          <% end %>
-        </div>
+        <table class="opcoes opcoes_pesquisa" style="display: none">
+          <tr>
+            <% grupos_que_pode_pesquisar.each_with_index do |grupo, indice| %>
+              <% if indice > 0 && indice % 7 == 0 %>
+                </tr><tr>
+              <% end %>
+
+              <td>
+                <label>
+                  <%= check_box_tag('grupos[]', grupo.id, @parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}"), class: 'checkbox_grupo', data: {id: grupo.id, tem_encontros: grupo.tem_encontros, nome_opcao: grupo.nome}) %>
+                  <%= grupo.nome %>
+                </label>
+              </td>
+            <% end %>
+          </tr>
+        </table>
       </div>
 
       <% mostrar_equipes = grupos_que_pode_pesquisar.select{|g| g.tem_encontros}.count > 0 %>
@@ -263,7 +277,7 @@
       <% if mostrar_equipes %>
         <div id="pesquisas_sobre_grupos">
 
-          <div class="field">
+          <div class="field block">
 
             <a class="contem_opcoes">
               <div class="titulo">Equipes que já participou:</div>
@@ -275,12 +289,12 @@
                       partes = pesquisa.split("###")
                       id_equipe = partes.first
                       id_grupo = partes.last
-                      grupo = Grupo.find(id_grupo)
                       if id_equipe == 'coordPerm'
+                        grupo = Grupo.find(id_grupo)
                         nomes << "Coord. de #{grupo.encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})"
                       else
                         equipe = Equipe.find(id_equipe)
-                        nomes << "#{equipe.nome} (#{grupo.nome})"
+                        nomes << "#{equipe.nome} (#{equipe.encontro.grupo.nome})"
                       end 
                     end
                   %>
@@ -295,29 +309,46 @@
             <div class="opcoes" style="display: none">
               <% grupos_que_pode_pesquisar.each do |grupo| %>
                 <% if grupo.tem_encontros && grupo.encontro_padrao.present? %>
-                  <% encontro_padrao = grupo.encontro_padrao %>
-                  <div class="equipes" id="equipes_grupo_<%= grupo.id %>" style="display: <% if @parametros_pesquisa_pessoas.grupos.count > 0 && !@parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}") %>none<% else %>inline-block<% end %>;">
-                    <label>
-                      <% opcao = "Coord. de #{encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})" %>
-                      <%= check_box_tag('equipes[]', "coordPerm####{grupo.id}", @parametros_pesquisa_pessoas.equipes.include?("coordPerm####{grupo.id}"), data: {nome_opcao: opcao}) %>
-                      <%= opcao %>
-                    </label>
-                    <% encontro_padrao.equipes.each do |equipe| %>
-                      <label>
-                        <% opcao = "#{equipe.nome} (#{grupo.nome})" %>
-                        <%= check_box_tag('equipes[]', equipe.id, @parametros_pesquisa_pessoas.equipes.include?("#{equipe.id}"), data: {nome_opcao: opcao}) %>
-                        <%= opcao %>
-                      </label>
-                    <% end %>
+
+                  <div class="equipes" id="equipes_grupo_<%= grupo.id %>"  <% if @parametros_pesquisa_pessoas.grupos.count > 0 && !@parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}") %>style="display: none;"<% end %>>
+                   
+                    <strong><%= grupo.nome %></strong><br/>
+
+                    <table class="opcoes_pesquisa">
+                      <tr>
+                        <td>
+                          <% encontro_padrao = grupo.encontro_padrao %>
+                          <label>
+                            <% opcao = "Coord. de #{encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})" %>
+                            <%= check_box_tag('equipes[]', "coordPerm####{grupo.id}", @parametros_pesquisa_pessoas.equipes.include?("coordPerm####{grupo.id}"), data: {nome_opcao: opcao}) %>
+                            <%= "Coord. de #{encontro_padrao.denominacao_conjuntos_permanentes}" %>
+                          </label>
+                        </td>
+
+                        <% incremento = 1 # Porque já imprimiu 1 campo %>
+
+                        <% encontro_padrao.equipes.each_with_index do |equipe, indice| %>
+                          <% if indice + incremento > 0 && (indice + incremento) % 5 == 0 %>
+                            </tr><tr>
+                          <% end %>
+
+                          <td>
+                            <label>
+                              <% opcao = "#{equipe.nome} (#{grupo.nome})" %>
+                              <%= check_box_tag('equipes[]', equipe.id, @parametros_pesquisa_pessoas.equipes.include?("#{equipe.id}"), data: {nome_opcao: opcao}) %>
+                              <%= equipe.nome %>
+                            </label>
+                          </td>
+                        <% end %>
+                      </tr>
+                    </table>
                   </div>
                 <% end %>
               <% end %>
             </div>
           </div>
 
-          <br/>
-
-          <div class="field">
+          <div class="field block">
 
             <a class="contem_opcoes">
               <div class="titulo">Recomendações do Coordenador:</div>
@@ -329,12 +360,12 @@
                       partes = pesquisa.split("###")
                       id_equipe = partes.first
                       id_grupo = partes.last
-                      grupo = Grupo.find(id_grupo)
                       if id_equipe == 'coordPerm'
+                        grupo = Grupo.find(id_grupo)
                         nomes << "Coord. de #{grupo.encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})"
                       else
                         equipe = Equipe.find(id_equipe)
-                        nomes << "#{equipe.nome} (#{grupo.nome})"
+                        nomes << "#{equipe.nome} (#{equipe.encontro.grupo.nome})"
                       end 
                     end
                   %>
@@ -349,20 +380,40 @@
             <div class="opcoes" style="display: none">
               <% grupos_que_pode_pesquisar.each do |grupo| %>
                 <% if grupo.tem_encontros && grupo.encontro_padrao.present? %>
-                  <% encontro_padrao = grupo.encontro_padrao %>
-                  <div class="recomendacoes" id="recomendacoes_grupo_<%= grupo.id %>" style="display: <% if @parametros_pesquisa_pessoas.grupos.count > 0 && !@parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}") %>none<% else %>inline-block<% end %>;">
-                    <label>
-                      <% opcao = "Coord. de #{encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})" %>
-                      <%= check_box_tag('recomendacoes[]', "coordPerm####{grupo.id}", @parametros_pesquisa_pessoas.recomendacoes.include?("coordPerm####{grupo.id}"), data: {nome_opcao: opcao}) %>
-                      <%= opcao %>
-                    </label>
-                    <% encontro_padrao.equipes.each do |equipe| %>
-                      <label>
-                        <% opcao = "#{equipe.nome} (#{grupo.nome})" %>
-                        <%= check_box_tag('recomendacoes[]', equipe.id, @parametros_pesquisa_pessoas.recomendacoes.include?("#{equipe.id}"), data: {nome_opcao: opcao}) %>
-                        <%= opcao %>
-                      </label>
-                    <% end %>
+
+                  <div class="recomendacoes" id="recomendacoes_grupo_<%= grupo.id %>" <% if @parametros_pesquisa_pessoas.grupos.count > 0 && !@parametros_pesquisa_pessoas.grupos.include?("#{grupo.id}") %>style="display: none;"<% end %>>
+
+                    <% encontro_padrao = grupo.encontro_padrao %>
+
+                    <strong><%= grupo.nome %></strong><br/>
+
+                    <table class="opcoes_pesquisa">
+                      <tr>
+                        <td>
+                          <label>
+                            <% opcao = "Coord. de #{encontro_padrao.denominacao_conjuntos_permanentes} (#{grupo.nome})" %>
+                            <%= check_box_tag('recomendacoes[]', "coordPerm####{grupo.id}", @parametros_pesquisa_pessoas.recomendacoes.include?("coordPerm####{grupo.id}"), data: {nome_opcao: opcao}) %>
+                            <%= "Coord. de #{encontro_padrao.denominacao_conjuntos_permanentes}" %>
+                          </label>
+                        </td>
+
+                        <% incremento = 1 # Porque já imprimiu 1 campo %>
+
+                        <% encontro_padrao.equipes.each_with_index do |equipe, indice| %>
+                          <% if indice + incremento > 0 && (indice + incremento) % 5 == 0 %>
+                            </tr><tr>
+                          <% end %>
+
+                          <td>
+                            <label>
+                              <% opcao = "#{equipe.nome} (#{grupo.nome})" %>
+                              <%= check_box_tag('recomendacoes[]', equipe.id, @parametros_pesquisa_pessoas.recomendacoes.include?("#{equipe.id}"), data: {nome_opcao: opcao}) %>
+                              <%= equipe.nome %>
+                            </label>
+                          </td>
+                        <% end %>
+                      </tr>
+                    </table>
                   </div>
                 <% end %>
               <% end %>
