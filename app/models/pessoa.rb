@@ -227,7 +227,7 @@ class Pessoa < ActiveRecord::Base
     equipes = []
     self.equipes.each do |equipe|
       if equipe.encontro.data_liberacao.present? && equipe.encontro.data_fechamento.present?
-        if (equipe.encontro.data_liberacao.beginning_of_day..equipe.encontro.data_fechamento.end_of_day).cover?(Time.now)
+        if (equipe.encontro.data_liberacao.beginning_of_day..equipe.encontro.data_fechamento.end_of_day).cover?(Time.zone.now)
           equipes << equipe
         end
       end
@@ -253,7 +253,7 @@ class Pessoa < ActiveRecord::Base
       grupos_que_tem_encontros_que_coordena.each do |grupo|
         grupo.encontros.each do |encontro|
           if encontro.data_liberacao.present? && encontro.data_fechamento.present?
-            if (encontro.data_liberacao.beginning_of_day..encontro.data_fechamento.end_of_day).cover?(Time.now)
+            if (encontro.data_liberacao.beginning_of_day..encontro.data_fechamento.end_of_day).cover?(Time.zone.now)
               encontros << encontro
             end
           end
@@ -266,7 +266,7 @@ class Pessoa < ActiveRecord::Base
         encontro = relacao.conjunto_pessoas.encontro
 
         if encontro.data_liberacao.present? && encontro.data_fechamento.present?
-          if (encontro.data_liberacao.beginning_of_day..encontro.data_fechamento.end_of_day).cover?(Time.now)
+          if (encontro.data_liberacao.beginning_of_day..encontro.data_fechamento.end_of_day).cover?(Time.zone.now)
             encontros << encontro
           end
         end

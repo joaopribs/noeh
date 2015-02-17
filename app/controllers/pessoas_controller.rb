@@ -988,6 +988,8 @@ class PessoasController < ApplicationController
     end
 
     def atualizar_fotos(pessoa, tipo_pessoa)
+debugger
+
       if tipo_pessoa == "pessoa"
         param_foto_grande = "imagem_facebook_pessoa"
         param_foto_pequena = "url_foto_pequena_pessoa"
@@ -996,9 +998,12 @@ class PessoasController < ApplicationController
         param_foto_pequena = "url_foto_pequena_conjuge"
       end
 
+      limpar_foto_pequena = false
+
       if params[param_foto_grande].present?
         nome_do_arquivo = URI::split(params[param_foto_grande])[5].split("/").last
         if pessoa.foto_grande_file_name != nome_do_arquivo
+          limpar_foto_pequena = true
           begin
             pessoa.foto_grande = open(params[param_foto_grande])
           rescue
@@ -1007,9 +1012,12 @@ class PessoasController < ApplicationController
         end
       else
         pessoa.foto_grande.clear
+        limpar_foto_pequena = true
       end
 
-      if params[param_foto_pequena].present?
+      if limpar_foto_pequena || params[param_foto_pequena].blank?
+        pessoa.foto_pequena.clear
+      else
         nome_do_arquivo = URI::split(params[param_foto_pequena])[5].split("/").last
         if pessoa.foto_pequena_file_name != nome_do_arquivo
           begin
@@ -1017,9 +1025,7 @@ class PessoasController < ApplicationController
           rescue
           end
           foto_pequena_file_name = nome_do_arquivo
-        end
-      else
-        pessoa.foto_pequena.clear
+        end        
       end
 
       return pessoa
@@ -1031,6 +1037,8 @@ class PessoasController < ApplicationController
         pessoa.url_facebook = nil
         pessoa.email_facebook = nil
         pessoa.url_imagem_facebook = nil
+        pessoa.foto_grande = nil
+        pessoa.foto_pequena = nil
       end
 
       return pessoa

@@ -146,81 +146,65 @@
       <img src="<%= imagem_pessoa %>" id="imagem_<%= tipo_pessoa %>" class="imagem_pessoa_form"/>
     </td>
     <td>
-      <% if defined?(modo) && modo == "cadastrar_novo" && pessoa.nome_facebook.present? %>
+      <% editar_facebook = (defined?(modo) && modo == "cadastrar_novo" && !pessoa.tem_informacoes_facebook) ||
+              @usuario_logado.permissoes.pode_editar_facebook_de_pessoa(pessoa) %>
 
+      <% if editar_facebook %>
+        <% if pessoa.tem_informacoes_facebook %>
+            <input type="hidden" id="esta_tirando_facebook_<%= tipo_pessoa %>" value="0" />
+        <% end %>
+
+        <label class="label_tem_facebook">
+          <input type="checkbox" id="tem_facebook_<%= tipo_pessoa %>" name="tem_facebook_<%= tipo_pessoa %>"
+              <% if pessoa.tem_facebook || pessoa.url_facebook.present? %>
+                  checked="checked"
+              <% end %>
+          />Tem Facebook
+        </label>
+
+        <div class="campos_de_facebook" id="campos_de_facebook_<%= tipo_pessoa %>"
+          <% if !pessoa.tem_facebook && !pessoa.url_facebook.present? %>
+              style="display: none;"
+          <% end %>
+        >
+          <div style="position: relative;">
+              <div class="field">
+                <label for="nome_facebook_<%= tipo_pessoa %>">
+                  Nome no Facebook (IMPORTANTE: O nome deve ser <u>exatamente</u> como está no Facebook para que o usuário tenha acesso)
+                </label><br>
+                <span class="erro_form"><%= pessoa.errors[:nome_facebook].first %></span>
+                <input type="text" name="nome_facebook_<%= tipo_pessoa %>" id="nome_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.nome_facebook %>" />
+              </div>
+
+              <div class="ajuda_form_facebook">
+                Ajuda: Como obter essas informações do Facebook?
+              </div>
+          </div>
+
+          <div class="field">
+            <%= label_tag "link_facebook_#{tipo_pessoa}", 'Link para Facebook' %><br>
+            <span class="erro_form"><%= pessoa.errors[:url_facebook].first %></span>
+            <input type="text" name="url_facebook_<%= tipo_pessoa %>" id="url_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.url_facebook %>" />
+          </div>
+
+          <div class="field">
+            <%= label_tag "imagem_facebook_#{tipo_pessoa}", 'Link para imagem do Facebook' %><br>
+            <span class="erro_form"><%= pessoa.errors[:url_imagem_facebook].first %></span>
+            <input type="text" name="imagem_facebook_<%= tipo_pessoa %>" id="imagem_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.url_imagem_facebook %>" />
+            <a href="#" class="link_procurar_fb" id="carregar_imagem_<%= tipo_pessoa %>">Carregar</a>
+          </div>
+
+          <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.foto_pequena.url %>" />
+        </div>
+      <% else %>
         <input type="hidden" name="tem_facebook_<%= tipo_pessoa %>" value="1" />
         <input type="hidden" name="nome_facebook_<%= tipo_pessoa %>" value="<%= pessoa.nome_facebook %>" />
-        <input type="hidden" name="email_facebook_<%= tipo_pessoa %>" value="<%= pessoa.email_facebook %>" />
         <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
-        <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= foto_grande_pessoa %>" />
-        <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= foto_pequena_pessoa %>" />
-
-      <% elsif (defined?(modo) && modo == "cadastrar_novo" && pessoa.nome_facebook.blank?) ||
-              @usuario_logado.permissoes.pode_editar_facebook_de_pessoa(pessoa) %>
-          <% if pessoa.tem_informacoes_facebook %>
-              <input type="hidden" id="esta_tirando_facebook_<%= tipo_pessoa %>" value="0" />
-          <% end %>
-
-          <label class="label_tem_facebook">
-            <input type="checkbox" id="tem_facebook_<%= tipo_pessoa %>" name="tem_facebook_<%= tipo_pessoa %>"
-                <% if pessoa.tem_facebook || pessoa.url_facebook.present? %>
-                    checked="checked"
-                <% end %>
-            />Tem Facebook
-          </label>
-
-          <div class="campos_de_facebook" id="campos_de_facebook_<%= tipo_pessoa %>"
-            <% if !pessoa.tem_facebook && !pessoa.url_facebook.present? %>
-                style="display: none;"
-            <% end %>
-          >
-            <div style="position: relative;">
-                <div class="field">
-                  <label for="nome_facebook_<%= tipo_pessoa %>">
-                    Nome no Facebook (IMPORTANTE: O nome deve ser <u>exatamente</u> como está no Facebook para que o usuário tenha acesso)
-                  </label><br>
-                  <span class="erro_form"><%= pessoa.errors[:nome_facebook].first %></span>
-                  <input type="text" name="nome_facebook_<%= tipo_pessoa %>" id="nome_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.nome_facebook %>" />
-                </div>
-
-                <div class="ajuda_form_facebook">
-                  Ajuda: Como obter essas informações do Facebook?
-                </div>
-            </div>
-
-            <div class="field">
-              <%= label_tag "link_facebook_#{tipo_pessoa}", 'Link para Facebook' %><br>
-              <span class="erro_form"><%= pessoa.errors[:url_facebook].first %></span>
-              <input type="text" name="url_facebook_<%= tipo_pessoa %>" id="url_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.url_facebook %>" />
-            </div>
-
-            <div class="field">
-              <%= label_tag "imagem_facebook_#{tipo_pessoa}", 'Link para imagem do Facebook' %><br>
-              <span class="erro_form"><%= pessoa.errors[:url_imagem_facebook].first %></span>
-              <input type="text" name="imagem_facebook_<%= tipo_pessoa %>" id="imagem_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.url_imagem_facebook %>" />
-              <a href="#" class="link_procurar_fb" id="carregar_imagem_<%= tipo_pessoa %>">Carregar</a>
-            </div>
-          </div>
-      <% else %>
-        <%
-            if pessoa.tem_informacoes_facebook
-                valor_tem_facebook = 'on'
-        %>
-              <input type="hidden" name="nome_facebook_<%= tipo_pessoa %>" value="<%= pessoa.nome_facebook %>" />
-              <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
-              <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.foto_grande.url %>" />
-              <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.foto_pequena.url %>" />
-        <%
-            else
-                valor_tem_facebook = 'off'
-            end
-        %>
-        <input type="hidden" name="tem_facebook_<%= tipo_pessoa %>" value="<%= valor_tem_facebook %>" />
+        <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.foto_grande.url %>" />
+        <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.foto_pequena.url %>" />
       <% end %>
 
-      <%
-         acompanhar = pessoa.nome.present? ? '0' : '1'
-      %>
+      <% acompanhar = pessoa.nome.present? ? '0' : '1' %>
 
       <div class="field">
         <%= label_tag "nome_#{tipo_pessoa}", 'Nome Completo*' %><br>

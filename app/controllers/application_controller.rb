@@ -36,15 +36,17 @@ class ApplicationController < ActionController::Base
              "roxo", "amarelo", "branco", "verde", "branco", "preto", "laranja", "branco", "roxo", "preto", "verde",
              "laranja", "amarelo"]
 
-    indice = Time.now.day - 1
-    if indice > 23
-      indice -= 23
-    end
+    # indice = Time.zone.now.day - 1
+    # if indice > 23
+    #   indice -= 23
+    # end
 
-    indice += Time.now.hour
-    if indice > 23
-      indice -= 23
-    end
+    # indice += Time.zone.now.hour
+    # if indice > 23
+    #   indice -= 23
+    # end
+
+    indice = Time.zone.now.hour
 
     @cor = cores[indice]
 

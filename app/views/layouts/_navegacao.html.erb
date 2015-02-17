@@ -54,7 +54,7 @@
             <span class="tem_submenu">
                 <a href="#">Encontros Abertos ▼</a>
                 <div class="submenu">
-                    <span class="titulo">Encontros Abertos ▲</span>
+                    <span class="titulo">Encontros Abertos ▼</span>
                     <div class="conteudo">
                         <table>
                             <tr>
@@ -73,13 +73,13 @@
             </span>
         <% end %>
 
-        <% equipes_em_que_esta_participando_agora = @usuario_logado.equipes_em_que_esta_participando_agora %>
+        <% equipes_em_que_esta_participando_agora = @usuario_logado.equipes_em_que_esta_participando_agora.select{|e| e.tipo == 'Equipe'} %>
 
         <% if equipes_em_que_esta_participando_agora.count > 0 %>
             <span class="tem_submenu">
                 <a href="#">Equipes atuais ▼</a>
                 <div class="submenu">
-                    <span class="titulo">Equipes atuais ▲</span>
+                    <span class="titulo">Equipes atuais ▼</span>
                     <div class="conteudo">
                         <table>
                             <tr>
@@ -88,9 +88,7 @@
                                 </td>
                                 <td nowrap>
                                     <% equipes_em_que_esta_participando_agora.each do |equipe| %>
-                                        <% if equipe.tipo == 'Equipe' %>
-                                            <%= link_to "#{equipe.nome} - #{equipe.encontro.nome}", equipe %><br/>
-                                        <% end %>
+                                        <%= link_to "#{equipe.nome} - #{equipe.encontro.nome}", equipe %><br/>
                                     <% end %>
                                 </td>
                             </tr>
@@ -106,7 +104,7 @@
             <span class="tem_submenu">
                 <a href="#">Grupos ▼</a>
                 <div class="submenu">
-                    <span class="titulo">Grupos ▲</span>
+                    <span class="titulo">Grupos ▼</span>
                     <div class="conteudo">
                         <table>
                             <tr>
@@ -131,7 +129,7 @@
             <span class="tem_submenu">
                 <a href="#">Famílias ▼</a>
                 <div class="submenu">
-                    <span class="titulo">Famílias ▲</span>
+                    <span class="titulo">Famílias ▼</span>
                         <div class="conteudo">
                             <table>
                                 <tr>
