@@ -147,7 +147,7 @@
     </td>
     <td>
       <% editar_facebook = (defined?(modo) && modo == "cadastrar_novo" && !pessoa.tem_informacoes_facebook) ||
-              @usuario_logado.permissoes.pode_editar_facebook_de_pessoa(pessoa) %>
+              (defined?(@usuario_logado) && @usuario_logado.permissoes.pode_editar_facebook_de_pessoa(pessoa)) %>
 
       <% if editar_facebook %>
         <% if pessoa.tem_informacoes_facebook %>
