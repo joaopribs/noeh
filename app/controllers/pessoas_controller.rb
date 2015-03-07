@@ -988,8 +988,6 @@ class PessoasController < ApplicationController
     end
 
     def atualizar_fotos(pessoa, tipo_pessoa)
-debugger
-
       if tipo_pessoa == "pessoa"
         param_foto_grande = "imagem_facebook_pessoa"
         param_foto_pequena = "url_foto_pequena_pessoa"
