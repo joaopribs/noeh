@@ -16,8 +16,8 @@ class PessoasController < ApplicationController
     carregar_pessoas(Pessoa.all)
     @tipo_pagina = "lista_pessoas"
   end
-
   # GET /pessoas/1
+
   # GET /pessoas/1.json
   def show
     precisa_poder_ver_pessoa @pessoa
@@ -378,6 +378,8 @@ class PessoasController < ApplicationController
     @pessoa.nome_facebook = session[:nome_facebook]
     @pessoa.email_facebook = session[:email_facebook]
     @pessoa.url_facebook = session[:url_facebook]
+    @pessoa.foto_grande = open(session[:url_foto_grande])
+    @pessoa.foto_pequena = open(session[:url_foto_pequena])
 
     @foto_grande_pessoa = session[:url_foto_grande]
     @foto_pequena_pessoa = session[:url_foto_pequena]

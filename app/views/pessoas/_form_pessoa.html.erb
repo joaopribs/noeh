@@ -200,8 +200,8 @@
         <input type="hidden" name="tem_facebook_<%= tipo_pessoa %>" value="1" />
         <input type="hidden" name="nome_facebook_<%= tipo_pessoa %>" value="<%= pessoa.nome_facebook %>" />
         <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
-        <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.foto_grande.url %>" />
-        <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.foto_pequena.url %>" />
+        <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= instance_variable_get("@foto_grande_#{tipo_pessoa}") %>" />
+        <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= instance_variable_get("@foto_pequena_#{tipo_pessoa}") %>" />
       <% end %>
 
       <% acompanhar = pessoa.nome.present? ? '0' : '1' %>
