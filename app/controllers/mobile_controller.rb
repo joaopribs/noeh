@@ -38,6 +38,13 @@ class MobileController < ApplicationController
     return if performed?
   end
 
+  def encontro
+    @encontro = Encontro.find(params[:id])
+
+    precisa_poder_gerenciar_encontro(@encontro)
+    return if performed?
+  end
+
   private 
 
     def precisa_poder_ver_pessoa pessoa
@@ -54,6 +61,12 @@ class MobileController < ApplicationController
 
     def precisa_poder_gerenciar_conjunto conjunto
       if !@usuario_logado.permissoes.pode_gerenciar_conjunto(conjunto)
+        redirect_to root_url and return
+      end
+    end
+
+    def precisa_poder_gerenciar_encontro encontro
+      if !@usuario_logado.permissoes.pode_gerenciar_encontro(encontro)
         redirect_to root_url and return
       end
     end

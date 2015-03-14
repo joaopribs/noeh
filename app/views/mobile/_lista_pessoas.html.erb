@@ -1,74 +1,51 @@
-<table class="zebra">
-    <thead>
-        <tr>
-            <th align="left">Pessoa</th>
-            <th align="left">Cônjuge</th>
-            <% if tipo_pagina == 'pessoas_no_conjunto' %>
-                <% if conjunto.tipo != "CoordenacaoEncontro" %>
-                    <th>Coord.</th>
-                <% end %>
-            <% end %>
-        </tr>
-    </thead>
-    <tbody>
-        <% pessoas.each do |pessoa| %>
+<% ids_pessoas_ja_mostradas = [] %>
 
-            <%
-               if tipo_pagina == "pessoas_no_grupo" || tipo_pagina == "pessoas_no_conjunto"
-                 if tipo_pagina == "pessoas_no_grupo"
-                    relacionamento = RelacaoPessoaGrupo.where({:pessoa => pessoa, :grupo => grupo}).first
-                 elsif tipo_pagina == "pessoas_no_conjunto"
-                    relacionamento = RelacaoPessoaConjunto.where({:pessoa => pessoa, :conjunto_pessoas => conjunto}).first
-                 end
-                 eh_coordenador = relacionamento.eh_coordenador
-               end
-            %>
+<% pessoas.each do |pessoa| %>
 
-            <tr>
-                <td>
-                    <table class="informacoes_pessoa_lista">
-                      <tr valign="top">
-                        <td>
-                          <%= image_tag pessoa.url_imagem(30), class: 'imagem_pessoa_lista' %>
-                        </td>
-                        <td>
-                          <%= link_to "#{pessoa.nome} (#{pessoa.nome_usual})", mobile_pessoa_path(pessoa) %>
-                          <div class="subtitulo_lista_pessoas">
-                            Tel.: <%= pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
-                </td>
+  <% if !ids_pessoas_ja_mostradas.include?(pessoa.id) %>
+    <% ids_pessoas_ja_mostradas << pessoa.id %>
 
-                <td>
-                    <% if pessoa.conjuge.present? %>
-                        <table class="informacoes_pessoa_lista">
-                          <tr valign="top">
-                            <td>
-                              <%= image_tag pessoa.conjuge.url_imagem(30), class: 'imagem_pessoa_lista' %>
-                            </td>
-                            <td>
-                              <%= link_to "#{pessoa.conjuge.nome} (#{pessoa.conjuge.nome_usual})", mobile_pessoa_path(pessoa.conjuge) %>
-                              <div class="subtitulo_lista_pessoas">
-                                Tel.: <%= pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
-                              </div>
-                            </td>
-                          </tr>
-                        </table>
-                    <% end %>
-                </td>
+    <%
+       if tipo_pagina == "pessoas_no_grupo" || tipo_pagina == "pessoas_no_conjunto"
+         if tipo_pagina == "pessoas_no_grupo"
+            relacionamento = RelacaoPessoaGrupo.where({:pessoa => pessoa, :grupo => grupo}).first
+         elsif tipo_pagina == "pessoas_no_conjunto"
+            relacionamento = RelacaoPessoaConjunto.where({:pessoa => pessoa, :conjunto_pessoas => conjunto}).first
+         end
+         eh_coordenador = relacionamento.eh_coordenador
+       end
+    %>
 
-                <% if tipo_pagina == "pessoas_no_conjunto" %>
+    <% nome = "#{pessoa.nome_usual}" %>
+    <%= image_tag pessoa.url_imagem(30), class: 'imagem_pessoa_lista' %>
 
-                    <% if conjunto.tipo != "CoordenacaoEncontro" %>
-                        <td align="center">
-                            <%= eh_coordenador ? "Coord." : "" %>
-                        </td>
-                    <% end %>
+    <% if pessoa.conjuge.present? && pessoas.include?(pessoa.conjuge) %>
+      <% ids_pessoas_ja_mostradas << pessoa.conjuge.id %>
+      <%= image_tag pessoa.conjuge.url_imagem(30), class: 'imagem_pessoa_lista' %>
+      <% nome = "#{pessoa.nome_usual} / #{pessoa.conjuge.nome_usual}" %>
+    <% end %>
 
-                <% end %>
-            </tr>
+    <div class="dados_pessoa">
+      <%= link_to nome, mobile_pessoa_path(pessoa) %>
+      <% if tipo_pagina == "pessoas_no_conjunto" %>
+          <% if conjunto.tipo != "CoordenacaoEncontro" && eh_coordenador%>
+            - Coord.
+          <% end %>
+      <% end %>
+
+      <br/>
+
+      <span class="telefones">
+        <%= pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
+
+        <% if pessoa.conjuge.present? %>
+          <%= pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
         <% end %>
-    </tbody>
-</table>
+      </span>
+    </div>
+
+    <p/>
+
+  <% end %>
+
+<% end %>

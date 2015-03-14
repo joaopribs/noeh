@@ -1,14 +1,19 @@
 body {
-    font-family: 'Roboto', Arial;
-    /*font-size: 10pt;*/
+    font-family: 'Roboto', Helvetica, Arial;
+    font-size: 5vmin;
 	background-color: #444;
 	color: #fff;
     padding: 0;
     margin: 0;
 }
 
+a {
+    color: #0084ff;
+}
+
 h1 {
     margin-top: 0;
+    line-height: 1.2em;
 }
 
 table {
@@ -16,6 +21,7 @@ table {
     border-spacing: 0;
     width: 100%;
     margin: 0;
+    font-size: 3vmin;
 }
 
 table.zebra {
@@ -49,7 +55,7 @@ table.informacoes_pessoa_lista td {
 }
 
 table.informacoes_pessoa_lista td:first-of-type {
-    padding-right: 3px;
+    padding-right: 1vmin;
 }
 
 ul.bullets {
@@ -67,31 +73,25 @@ ul.bullets li span {
 }
 
 .imagem_pessoa_lista {
-    height: 30px;
-    margin: 0 3px 0 0;
-    vertical-align: middle;
+    height: 10vmin;
+    float: left;
 }
 
-#imagem_noeh_deslogado {
-	background-image: url(/assets/noeh_amarelo.png);
-	background-size: 250px 170px;
-    width: 250px;
-    height: 170px;
-    display: inline-block;
+#imagem_noeh_deslogado img {
+    width: 50%;
 }
 
 .link_entrar_pelo_facebook {
     color: #fff;
     width: 80%;
-    min-height: 50px;
-    padding: 10px;
-    padding-right: 60px;
+    min-height: 12vmin;
+    padding: 1vmin;
+    padding-right: 12vmin;
     background: url(/assets/facebook.png) no-repeat #425691;
-    background-size: 40px;
-    background-position: right 10px center;
+    background-size: 12vmin;
+    background-position: right 10px top 10px;
     margin: auto;
     text-align: left;
-    font-size: 10pt;
     font-weight: normal;
     display: inline-block;
 }
@@ -103,7 +103,7 @@ ul.bullets li span {
 
 .link_entrar_pelo_facebook .imagem_usuario_facebook {
     float: left;
-    height: 50px;
+    height: 12vmin;
     margin-right: 10px;
     display: none;
 }
@@ -118,66 +118,65 @@ a.link_entrar_pelo_facebook {
     top: 0;
     left: 0;
     width: 100%;
-    height: 40px;
     z-index: 99998;
+    display: block;
+}
+
+#faixa_superior a {
+    text-decoration: none;
 }
 
 #area_superior_direita {
     float: right;
-    line-height: 40px;
 }
 
 #link_usuario_logado {
-    font-weight: normal;
-    line-height: 20px;
+    font-weight: bold;
     display: inline-block;
-    text-decoration: none;
-    padding-left: 8px;
-    margin-right: 5px;
     background-color: #96a800;
     color: #fff;
+    line-height: 9vmin;
+    padding-left: 1vmin;
 }
 
 #link_usuario_logado img {
-    height: 25px;
-    line-height: 25px;
+    height: 9vmin;
     vertical-align: middle;
 }
 
 #sair_fb {
-    text-decoration: none;
     font-weight: bold;
-    padding: 2px 8px;
+    display: inline-block;
     background-color: #d41111;
     color: #fff;
-    margin-right: 5px;
+    line-height: 9vmin;
+    padding: 0 2vmin;
+    margin-left: 2vmin;
 }
 
-#link_logo {
-    width: 140px;
-    height: 40px;
-    background-image: url(/assets/noeh25_amarelo.png);
-    background-repeat: no-repeat;
-    background-position: center center;
+#link_logo img {
+    height: 6vmin;
+    padding: 1vmin 1vmin 1vmin 0;
     display: inline-block;
 }
 
 #conteudo {
     background-color: #fff;
     color: #000;
-    padding: 20px;
-    padding-top: 60px;
+    padding: 2vmin;
+    padding-top: 14vmin;
     min-height: 100px;
-    line-height: 1.5em;
+    line-height: 1.3em;
 }
 
 #rodape {
     width: 100%;
     margin: 0 auto;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-top: 10vmin;
+    padding-bottom: 10vmin;
     color: #999;
     text-align: center;
+    font-size: 3vmin;
 }
 
 #rodape a {
@@ -187,6 +186,15 @@ a.link_entrar_pelo_facebook {
 
 .imagem_facebook_detalhe {
     float: left;
-    margin: 0 20px 20px 0;
-    height: 150px;
+    margin: 0 2vmin 2vmin 0;
+    height: 20vmin;
+}
+
+.dados_pessoa {
+    padding-left: 2vmin;
+    display: table-cell;
+}
+
+.dados_pessoa .telefones {
+    font-size: 3vmin;
 }

@@ -1,0 +1,57 @@
+<h1><%= @encontro.nome %></h1>
+
+<b>Tema:</b> <%= @encontro.tema %><br/>
+<b>Data de realização:</b> <%= @encontro.data %><br/>
+<b>Liberação do sistema:</b> <%= @encontro.data_liberacao.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
+<b>Fechamento do sistema:</b> <%= @encontro.data_fechamento.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
+
+<% qtd_encontreiros = @encontro.equipes.inject(0) {|soma, equipe| equipe.pessoas.count} %>
+<b>Encontreiros:</b> <%= qtd_encontreiros %> pessoa<%= "s" if qtd_encontreiros != 1 %>,
+em <%= @encontro.equipes.count %> equipes<br/>
+
+<% qtd_encontristas = @encontro.conjuntos_permanentes.inject(0) {|soma, conjunto_permanente| conjunto_permanente.relacoes_pessoa_conjunto.where(eh_coordenador: false).count} %>
+<b>Encontristas:</b> <%= qtd_encontristas %> pessoa<%= "s" if qtd_encontristas != 1 %>,
+em <%= @encontro.conjuntos_permanentes.count %> <%= denominacoes_conjuntos_permanentes.select{|d| d[:nome] == @encontro.denominacao_conjuntos_permanentes}[0][:plural].downcase %><br/>
+
+<h2>Equipes</h2>
+
+<ul class="bullets">
+	<% @encontro.equipes.each do |equipe| %>
+		<% cor = equipe.cor.present? ? equipe.cor.hex_cor : nil %>
+		<% 
+			if cor.present? 
+				style = "color: #{cor};"
+			else
+				style = ""
+			end 
+		%>
+
+		<li style="<%= style %>"><span>
+			<%= link_to equipe.nome, mobile_conjunto_path(equipe), style: style %> (<%= equipe.pessoas.count %>)
+		</span></li>
+	<% end %>
+</ul>
+
+<h2><%= denominacoes_conjuntos_permanentes.select{|c| c[:nome] == @encontro.denominacao_conjuntos_permanentes}[0][:plural] %></h2>
+
+<ul class="bullets">
+	<% @encontro.conjuntos_permanentes.each do |conjunto_permanente| %>
+		<% cor = conjunto_permanente.cor.present? ? conjunto_permanente.cor.hex_cor : nil %>
+		<% 
+			if cor.present? 
+				style = "color: #{cor};"
+			else
+				style = ""
+			end 
+		%>
+
+		<li style="<%= style %>"><span>
+			<%= link_to conjunto_permanente.nome, mobile_conjunto_path(conjunto_permanente), style: style %> (<%= conjunto_permanente.pessoas.count %>)
+		</span></li>
+	<% end %>
+</ul>
+
+<h2>Coordenadores do Encontro</h2>
+
+<%= render 'lista_pessoas', pessoas: @encontro.coordenadores.sort_by{|a| [a.conjuge.nil? ? 0 : 1, a]}, tipo_pagina: 'pessoas_na_coordenacao' %>
+

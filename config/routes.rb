@@ -84,5 +84,6 @@ Noeh::Application.routes.draw do
   get 'mobile/index', :to => 'mobile#index', :as => :mobile_index
   get 'mobile/pessoa/:id', :to => 'mobile#pessoa', :as => :mobile_pessoa
   get 'mobile/conjunto/:id', :to => 'mobile#conjunto', :as => :mobile_conjunto
+  get 'mobile/encontro/:id', :to => 'mobile#encontro', :as => :mobile_encontro
 
 end

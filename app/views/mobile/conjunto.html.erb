@@ -1,8 +1,15 @@
 <h1><%= "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}" %></h1>
 
+<% if @conjunto.cor.present? %>
+	<b>Cor:</b> <span style="color: <%= @conjunto.cor.hex_cor %>;"><%= @conjunto.cor.nome %></span><br/>
+<% end %>
+
 <b>Encontro:</b> <%= @conjunto.encontro.nome %><br/>
 <b>Data:</b> <%= @conjunto.encontro.data %>
 
-<p/>
+
+
+<br/>
+<br/>
 
 <%= render 'lista_pessoas', conjunto: @conjunto, pessoas: @conjunto.pessoas, tipo_pagina: 'pessoas_no_conjunto' %>

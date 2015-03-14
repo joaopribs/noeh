@@ -1,3 +1,12 @@
+<h1>
+	<%= @pessoa.nome_usual %>
+
+	<% if @pessoa.conjuge.present? %>
+		/ <%= @pessoa.conjuge.nome_usual %>
+	<% end %>
+
+</h1>
+
 <%= render 'informacoes_pessoa', pessoa: @pessoa, participacoes: @participacoes %>
 
 <% if @pessoa.conjuge.present? %>

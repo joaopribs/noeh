@@ -166,7 +166,7 @@
 
        function atualizarBotaoFacebook(nomeFacebook, emailFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
                                        nomeFacebookConjuge, emailFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
-           $("#msg_principal").html("Entrar como " + nomeFacebook + "<br/>(usuário logado no Facebook no momento)");
+           $("#msg_principal").html("Entrar como<br/><b>" + nomeFacebook + "</b>");
 
            if (urlFotoPequena != null) {
                $("#imagem_usuario_facebook").attr("src", urlFotoPequena);
@@ -216,7 +216,9 @@
 </script>
 
 <div style="width: 100%; text-align: center; position: absolute; top: 50px;">
-  <div id="imagem_noeh_deslogado"></div><br/>
+  <div id="imagem_noeh_deslogado">
+    <%= image_tag 'noeh_amarelo.png' %>
+  </div>
   Sistema de cadastro na igreja
   <p/>
   <a class="link_entrar_pelo_facebook" id="link_fb" href="#">

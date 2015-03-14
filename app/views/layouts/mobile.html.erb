@@ -40,19 +40,23 @@
     </script>
 
     <div id="faixa_superior">
-        <a href="<%= mobile_index_url %>" id="link_logo"></a>
+        <a href="<%= mobile_index_url %>" id="link_logo">
+            <%= image_tag 'noeh25_amarelo.png' %>
+        </a>
 
         <div id="area_superior_direita">
 
             <% if defined? @usuario_logado %>
                 <a id="link_usuario_logado" href="<%= mobile_pessoa_path(@usuario_logado) %>">
-                    Logado como <b><%= @usuario_logado.nome_usual %></b>
+                    <%= @usuario_logado.nome_usual %>
                     <img src="<%= @usuario_logado.url_imagem(25) %>" />
                 </a>
 
                 <%= link_to "Sair", log_out_path, id: "sair_fb" %>
             <% end %>
         </div>
+
+        <br style="clear: both;" />
     </div>
 
     <div id="conteudo">
