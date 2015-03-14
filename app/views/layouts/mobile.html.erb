@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <%= favicon_link_tag 'favicon.ico' %>
+
+    <title>noeh</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+
+    <%= stylesheet_link_tag "mobile_estilo.css" %>
+    <%= stylesheet_link_tag "ui-darkness/jquery-ui-1.10.4.custom.min.css" %>
+
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+
+    <div id="fb-root"></div>
+
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '<%= APP_CONFIG['id_app_facebook'] %>',
+                version    : 'v2.0',
+                status     : false, // check login status
+                cookie     : false, // enable cookies to allow the server to access the session
+                xfbml      : true  // parse XFBML
+            });
+        };
+
+        // Load the SDK Asynchronously
+        (function(d){
+            var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+            js = d.createElement('script'); js.id = id; js.async = true;
+            js.src = "//connect.facebook.com/pt_BR/all.js";
+            d.getElementsByTagName('head')[0].appendChild(js);
+        }(document));
+    </script>
+
+    <div id="faixa_superior">
+        <a href="<%= mobile_index_url %>" id="link_logo"></a>
+
+        <div id="area_superior_direita">
+
+            <% if defined? @usuario_logado %>
+                <a id="link_usuario_logado" href="<%= mobile_pessoa_path(@usuario_logado) %>">
+                    Logado como <b><%= @usuario_logado.nome_usual %></b>
+                    <img src="<%= @usuario_logado.url_imagem(25) %>" />
+                </a>
+
+                <%= link_to "Sair", log_out_path, id: "sair_fb" %>
+            <% end %>
+        </div>
+    </div>
+
+    <div id="conteudo">
+
+        <%= yield %>
+
+        <br style="clear: both;" />
+
+    </div>
+
+    <div id="rodape">
+      Desenvolvido por <a href="http://jpribeiro.com" target="_blank">João Paulo Ribeiro</a><br/>
+      <a href="http://jpribeiro.com" target="_blank">jpribeiro.com</a>
+      | <a href="mailto: joao@jpribeiro.com">joao@jpribeiro.com</a>
+      | <%= link_to 'Política de privacidade', privacidade_path %>
+    </div>
+
+    <div id="dialog">
+        <div id="dialog_overlay"></div>
+        <div id="dialog_conteudo"></div>
+    </div>
+
+</body>
+</html>

@@ -5,7 +5,35 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  before_filter :setar_super_admin, :precisa_estar_logado, :escolher_cor, :iniciar_breadcrumbs, :notificacao
+  before_filter :detectar_browser, :setar_super_admin, :precisa_estar_logado, :escolher_cor, :iniciar_breadcrumbs, :notificacao, :nao_pode_ser_mobile
+
+  MOBILE_BROWSERS = ["playbook", "windows phone", "android", "ipod", "iphone", "opera mini", "blackberry", "palm","hiptop","avantgo","plucker", "xiino","blazer","elaine", "windows ce; ppc;", "windows ce; smartphone;","windows ce; iemobile", "up.browser","up.link","mmp","symbian","smartphone", "midp","wap","vodafone","o2","pocket","kindle", "mobile","pda","psp","treo"]
+
+  def detectar_browser
+    agent = request.headers["HTTP_USER_AGENT"].downcase
+  
+    achou_nos_mobile = false
+
+    MOBILE_BROWSERS.each do |m|
+      if agent.match(m)
+        achou_nos_mobile = true
+        if session[:mobile].nil?
+          session[:mobile] = true
+        end
+      end
+    end
+    
+    if !achou_nos_mobile
+      session[:mobile] = nil
+    end
+  end
+
+  def nao_pode_ser_mobile
+    if session[:mobile]
+      session[:mobile] = nil
+      redirect_to mobile_deslogado_url and return
+    end
+  end
 
   def setar_super_admin
     id_usuario_logado = session[:id_usuario]

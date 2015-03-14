@@ -29,6 +29,7 @@ class PessoasController < ApplicationController
 
     if @pessoa.conjuge.present?
       @participacoes_conjuge = (@pessoa.conjuge.conjuntos_permanentes + @pessoa.conjuge.equipes).select{|c| @usuario_logado.permissoes.pode_ver_participacao(c, @pessoa)}
+      @participacoes_conjuge = @participacoes_conjuge.sort_by!{|c| c.encontro.data_inicio}.reverse
     end
     
     @participacoes = @participacoes.sort_by!{|c| c.encontro.data_inicio}.reverse

@@ -1,0 +1,8 @@
+<h1><%= "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}" %></h1>
+
+<b>Encontro:</b> <%= @conjunto.encontro.nome %><br/>
+<b>Data:</b> <%= @conjunto.encontro.data %>
+
+<p/>
+
+<%= render 'lista_pessoas', conjunto: @conjunto, pessoas: @conjunto.pessoas, tipo_pagina: 'pessoas_no_conjunto' %>

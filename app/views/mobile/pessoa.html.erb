@@ -1,0 +1,5 @@
+<%= render 'informacoes_pessoa', pessoa: @pessoa, participacoes: @participacoes %>
+
+<% if @pessoa.conjuge.present? %>
+    <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, participacoes: @participacoes_conjuge %>
+<% end %>

@@ -79,4 +79,10 @@ Noeh::Application.routes.draw do
   post '/rejeitar_participacao', :to => 'pessoas#rejeitar_auto_sugestao', :as => :rejeitar_auto_sugestao
   get '/pessoas_confirmar', :to => 'pessoas#pessoas_a_confirmar', :as => :pessoas_a_confirmar
 
+  get 'mobile/deslogado', :to => 'mobile#deslogado', :as => :mobile_deslogado
+  get 'mobile/nao_cadastrado', :to => 'mobile#nao_cadastrado', :as => :mobile_nao_cadastrado
+  get 'mobile/index', :to => 'mobile#index', :as => :mobile_index
+  get 'mobile/pessoa/:id', :to => 'mobile#pessoa', :as => :mobile_pessoa
+  get 'mobile/conjunto/:id', :to => 'mobile#conjunto', :as => :mobile_conjunto
+
 end

@@ -1,0 +1,115 @@
+<img src="<%= pessoa.url_imagem(150) %>" class="imagem_facebook_detalhe"/>
+
+<div style="display: table-cell;">
+	<h1>
+		<%= pessoa.nome_usual %>
+	</h1>
+
+	<b>Nome completo:</b> <%= pessoa.nome %><br/>
+	<b>Nome usual:</b> <%= pessoa.nome_usual %><br/>
+	<b>Facebook:</b> <%= link_to "Facebook", pessoa.url_facebook, target: '_blank', class: 'link_facebook' unless pessoa.url_facebook.blank? %><br/>
+	<b>Gênero:</b> <%= (pessoa.eh_homem? ? "Homem" : "Mulher") %><br/>
+	<b>Data de nascimento:</b> <%= pessoa.nascimento.strftime("%d/%m/%Y") unless pessoa.nascimento.blank? %><br/>
+	<b>Email:</b> <%= link_to pessoa.email, "mailto:#{pessoa.email}", target: '_blank' unless pessoa.email.blank? %><br/>
+	<b>Endereço:</b> <%= pessoa.endereco %><br/>
+
+	<%
+	    if pessoa.telefones.count > 1
+	        titulo_telefones = "Telefones"
+	        separador_telefones = "<br/>"
+	        array_telefones = []
+	        pessoa.telefones.each do |telefone|
+	            array_telefones << "#{telefone.telefone} (#{telefone.operadora})"
+	        end
+	        string_telefones = array_telefones.join("<br/>")
+	    else
+	        titulo_telefones = "Telefone"
+	        separador_telefones = " "
+	        if pessoa.telefones.count == 1
+	            telefone = pessoa.telefones.first
+	            string_telefones = "#{telefone.telefone} (#{telefone.operadora})"
+	        else
+	            string_telefones = ""
+	        end
+	    end
+	%>
+
+	<b><%= titulo_telefones %>:</b><%= raw separador_telefones %><%= raw string_telefones %><br/>
+
+	<b>Habilidades musicais:</b> <%= pessoa.instrumentos.collect{|instrumento| instrumento.nome}.join(", ") %>
+</div>
+
+<% if @usuario_logado.grupos_em_que_pode_adicionar_outra_pessoa(pessoa).count + pessoa.grupos.count > 0 &&
+                pessoa.auto_inserido == false %>
+
+	<h2 class="sem_espaco_embaixo">Grupos</h2>
+
+	<% if pessoa.participacoes_em_grupos.count > 0 %>
+	    <ul class="bullets">
+	        <% pessoa.participacoes_em_grupos.each do |participacao| %>
+	          <li>
+	            <% coordenador = participacao[:grupo].coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+
+	            <% if @usuario_logado.permissoes.pode_gerenciar_grupo participacao[:grupo] %>
+	                <%= link_to "#{participacao[:grupo].nome}#{coordenador}", participacao[:grupo] %>
+	            <% else %>
+	                <%= "#{participacao[:grupo].nome}#{coordenador}" %>
+	            <% end %>
+
+	            <% if !participacao[:ativo] %>
+	                (ex-participante)
+	            <% end %>
+	          </li>
+	        <% end %>
+	    </ul>
+	<% end %>
+
+<% end %>
+
+<% if (@usuario_logado.eh_super_admin? ||
+                @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 ||
+                @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 ||
+                participacoes.count > 0) &&
+                pessoa.auto_inserido == false %>
+    <h2 class="sem_espaco_embaixo">Participações em encontros</h2>
+    <% if participacoes.count > 0 %>
+        <ul class="bullets">
+            <% participacoes.each do |conjunto| %>
+              <% texto_encontro_participacao = "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})" %>
+
+              <% cor = conjunto.cor.present? ? conjunto.cor.hex_cor : nil %>
+
+              <li <% if cor.present? %>style="color: <%= cor %>;"<% end %>><span>
+                <% if @usuario_logado.permissoes.pode_gerenciar_encontro(conjunto.encontro) %>
+                    <%= link_to texto_encontro_participacao, encontro_path(conjunto.encontro) %>
+                <% else %>
+                    <%= texto_encontro_participacao %>
+                <% end %>
+
+                -
+
+                <% coordenador = conjunto.coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+
+                <%
+                  if conjunto.tipo == 'Equipe'
+                    texto_conjunto_participacao = "Equipe #{conjunto.nome}#{coordenador}"
+                    link_conjunto_participacao = mobile_conjunto_path(conjunto)
+                  elsif conjunto.tipo == 'CoordenacaoEncontro'
+                    texto_conjunto_participacao = "Coordenação do Encontro"
+                    link_conjunto_participacao = encontro_editar_coordenadores_path(conjunto.encontro)
+                  else
+                    texto_conjunto_participacao = "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}"
+                    link_conjunto_participacao = circulo_path(conjunto)
+                  end
+                %>    
+                <% if @usuario_logado.permissoes.pode_gerenciar_conjunto(conjunto) %>                        
+                  <%= link_to texto_conjunto_participacao, link_conjunto_participacao %>
+                <% else %>
+                  <%= texto_conjunto_participacao %>
+                <% end %>
+              </span></li>
+            <% end %>
+        </ul>
+    <% end %>
+
+<% end %>

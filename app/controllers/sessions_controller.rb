@@ -4,6 +4,7 @@ require "uri"
 
 class SessionsController < ApplicationController
   skip_before_filter :precisa_estar_logado, :only => [:log_in, :log_out]
+  skip_before_filter :nao_pode_ser_mobile, :only => [:log_in, :log_out]
   skip_before_filter :verify_authenticity_token
   skip_before_filter :notificacao
 
