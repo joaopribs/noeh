@@ -64,7 +64,7 @@
 	            <% coordenador = participacao[:grupo].coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
 
 	            <% if @usuario_logado.permissoes.pode_gerenciar_grupo participacao[:grupo] %>
-	                <%= link_to "#{participacao[:grupo].nome}#{coordenador}", participacao[:grupo] %>
+	                <%= link_to "#{participacao[:grupo].nome}#{coordenador}", mobile_grupo_path(participacao[:grupo].id) %>
 	            <% else %>
 	                <%= "#{participacao[:grupo].nome}#{coordenador}" %>
 	            <% end %>

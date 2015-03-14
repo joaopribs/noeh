@@ -27,10 +27,8 @@
 
     <div class="dados_pessoa">
       <%= link_to nome, mobile_pessoa_path(pessoa) %>
-      <% if tipo_pagina == "pessoas_no_conjunto" %>
-          <% if conjunto.tipo != "CoordenacaoEncontro" && eh_coordenador%>
-            - Coord.
-          <% end %>
+      <% if ((tipo_pagina == "pessoas_no_conjunto" && conjunto.tipo != "CoordenacaoEncontro") || tipo_pagina == "pessoas_no_grupo") && eh_coordenador %>
+        - Coord.
       <% end %>
 
       <br/>

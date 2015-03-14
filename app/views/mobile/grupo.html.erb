@@ -1,0 +1,21 @@
+<h1><%= @grupo.nome %></h1>
+
+<% if @grupo.tem_encontros %>
+	
+	<h2>Encontros</h2>
+
+	<ul class="bullets">
+		<% @grupo.encontros.each do |encontro| %>
+			<li>
+				<%= link_to "#{encontro.nome} (#{encontro.data_inicio.year})", mobile_encontro_path(encontro) %>
+			</li>
+		<% end %>
+	</ul>
+
+<% else %>
+
+	<h2>Pessoas</h2>
+
+	<%= render 'lista_pessoas', pessoas: @grupo.pessoas, tipo_pagina: 'pessoas_no_grupo', grupo: @grupo %>
+
+<% end %>
