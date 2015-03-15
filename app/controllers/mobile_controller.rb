@@ -1,5 +1,5 @@
 class MobileController < ApplicationController
-  skip_before_filter :precisa_estar_logado, :only => :deslogado
+  skip_before_filter :precisa_estar_logado, :only => [:deslogado, :nao_cadastrado]
   skip_before_filter :nao_pode_ser_mobile
 
   layout 'mobile'
