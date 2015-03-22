@@ -120,7 +120,7 @@
     <%= render 'form', conjunto: @conjunto %>
 <% end %>
 
-<% if @conjunto.tipo == 'Equipe' %>
+<% if @conjunto.tipo == 'Equipe' && @usuario_logado.permissoes.pode_editar_conjunto(@conjunto) %>
 
   <%= form_tag(:upload_relatorio, :html => { :multipart => true }, :remote => true, class: 'espaco_embaixo') do %>
 

@@ -18,12 +18,12 @@
         <% end %>
     <% end %>
 
-    <% equipes_em_que_esta_participando_agora = @usuario_logado.equipes_em_que_esta_participando_agora.select{|e| e.tipo == 'Equipe'} %>
+    <% equipes_que_esta_coordenando_agora = @usuario_logado.equipes_que_esta_coordenando_agora.select{|e| e.tipo == 'Equipe'} %>
 
-    <% if equipes_em_que_esta_participando_agora.count > 0 %>
+    <% if equipes_que_esta_coordenando_agora.count > 0 %>
         <p/>
         <span class="titulo">Equipes atuais</span>
-        <% equipes_em_que_esta_participando_agora.each do |equipe| %>
+        <% equipes_que_esta_coordenando_agora.each do |equipe| %>
             <%= link_to "#{equipe.nome} - #{equipe.encontro.nome}", mobile_conjunto_path(equipe) %><br/>
         <% end %>
     <% end %>

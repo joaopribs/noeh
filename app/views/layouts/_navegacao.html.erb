@@ -73,9 +73,9 @@
             </span>
         <% end %>
 
-        <% equipes_em_que_esta_participando_agora = @usuario_logado.equipes_em_que_esta_participando_agora.select{|e| e.tipo == 'Equipe'} %>
+        <% equipes_que_esta_coordenando_agora = @usuario_logado.equipes_que_esta_coordenando_agora.select{|e| e.tipo == 'Equipe'} %>
 
-        <% if equipes_em_que_esta_participando_agora.count > 0 %>
+        <% if equipes_que_esta_coordenando_agora.count > 0 %>
             <span class="tem_submenu">
                 <a href="#">Equipes atuais ▼</a>
                 <div class="submenu">
@@ -84,10 +84,10 @@
                         <table>
                             <tr>
                                 <td nowrap>
-                                    Equipes em que você está<br/>trabalhando no momento
+                                    Equipes que você está<br/>coordenando no momento
                                 </td>
                                 <td nowrap>
-                                    <% equipes_em_que_esta_participando_agora.each do |equipe| %>
+                                    <% equipes_que_esta_coordenando_agora.each do |equipe| %>
                                         <%= link_to "#{equipe.nome} - #{equipe.encontro.nome}", equipe %><br/>
                                     <% end %>
                                 </td>

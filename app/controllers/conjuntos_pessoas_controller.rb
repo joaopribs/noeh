@@ -399,6 +399,12 @@ class ConjuntosPessoasController < ApplicationController
       return hash
     end
 
+    def precisa_participar_de_conjunto conjunto
+      if !@usuario_logado.permissoes.participa_de_conjunto(conjunto)
+        redirect_to root_url and return
+      end
+    end
+
     def precisa_poder_gerenciar_conjunto conjunto
       if !@usuario_logado.permissoes.pode_gerenciar_conjunto(conjunto)
         redirect_to root_url and return

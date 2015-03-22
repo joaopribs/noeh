@@ -51,6 +51,10 @@ class Permissoes
     end
   end
 
+  def participa_de_conjunto conjunto
+    return conjunto.pessoas.include?(usuario_logado)
+  end
+
   def pode_gerenciar_encontro encontro
   	return @usuario_logado.eh_super_admin? ||
   		encontro.coordenadores.include?(@usuario_logado) ||
