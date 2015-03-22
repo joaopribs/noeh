@@ -10,7 +10,7 @@ class ConjuntoPessoas < ActiveRecord::Base
   }
 
   has_many :relacoes_pessoa_conjunto, class_name: 'RelacaoPessoaConjunto', dependent: :destroy
-  has_many :pessoas, -> {reorder 'relacoes_pessoa_conjunto.eh_coordenador DESC, pessoas.nome ASC'}, through: :relacoes_pessoa_conjunto
+  has_many :pessoas, -> {reorder 'relacoes_pessoa_conjunto.eh_coordenador DESC, CASE WHEN pessoas.conjuge_id IS NULL THEN 0 ELSE 1 END ASC, pessoas.nome ASC'}, through: :relacoes_pessoa_conjunto
 
   belongs_to :cor
   belongs_to :encontro

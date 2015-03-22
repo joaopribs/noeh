@@ -17,7 +17,7 @@ class Grupo < ActiveRecord::Base
   friendly_id :nome, use: :slugged
 
   has_many :relacoes_pessoa_grupo, -> {where 'relacoes_pessoa_grupo.deixou_de_participar_em IS NULL'}, class_name: 'RelacaoPessoaGrupo', dependent: :destroy
-  has_many :pessoas, -> {reorder 'relacoes_pessoa_grupo.eh_coordenador DESC, pessoas.nome ASC'}, through: :relacoes_pessoa_grupo
+  has_many :pessoas, -> {reorder 'relacoes_pessoa_grupo.eh_coordenador DESC, CASE WHEN pessoas.conjuge_id IS NULL THEN 0 ELSE 1 END ASC, pessoas.nome ASC'}, through: :relacoes_pessoa_grupo
   has_many :encontros, -> { where padrao: false}, dependent: :destroy
   has_many :auto_sugestoes, class_name: 'AutoSugestao', dependent: :destroy
 

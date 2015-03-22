@@ -67,7 +67,13 @@ class Pessoa < ActiveRecord::Base
     pessoas = []
 
     if array_ids.present? && array_ids.count > 0
-      pessoas_do_banco = Pessoa.unscoped.where("pessoas.id IN (#{array_ids.join(", ")})").eager_load(:telefones).order(:nome)
+      string_pra_ordenar = "case pessoas.id"
+      (0..array_ids.count - 1).each do |i|
+        string_pra_ordenar += " when #{array_ids[i]} then #{i}"
+      end
+      string_pra_ordenar += " end"
+
+      pessoas_do_banco = Pessoa.unscoped.where("pessoas.id IN (#{array_ids.join(", ")})").eager_load(:telefones).order(string_pra_ordenar)
       pessoas = pessoas.concat(pessoas_do_banco.to_a);
     end
 
