@@ -4,7 +4,7 @@ require "uri"
 
 class SessionsController < ApplicationController
   skip_before_filter :precisa_estar_logado, :only => [:log_in, :log_out]
-  skip_before_filter :nao_pode_ser_mobile, :only => [:log_in, :log_out]
+  skip_before_filter :nao_pode_ser_mobile, :only => [:log_in, :log_out, :login_com_id]
   skip_before_filter :verify_authenticity_token
   skip_before_filter :notificacao
 
@@ -123,10 +123,18 @@ class SessionsController < ApplicationController
 
     if usuario.present?
       session[:id_usuario] = usuario.id
-      redirect_to root_url and return
+      if params[:mobile]
+        redirect_to mobile_index_url and return
+      else
+        redirect_to root_url and return
+      end
     else
       reset_session
-      redirect_to deslogado_url and return
+      if params[:mobile]
+        redirect_to mobile_deslogado_url and return
+      else
+        redirect_to deslogado_url and return
+      end
     end
   end
 

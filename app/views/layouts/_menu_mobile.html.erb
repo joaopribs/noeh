@@ -1,0 +1,51 @@
+<% if @usuario_logado.eh_super_admin %>
+    <form method="post" action="<%= login_com_id_url %>">
+        <input type="hidden" name="mobile" value="1" />
+        Fazer login como: <input type="text" name="id" id="id" size="3"/> <input type="submit" value="Entrar" id="botao_entrar" />
+    </form>
+
+    <% Grupo.all.each do |grupo| %>
+        <%= link_to grupo.nome, mobile_grupo_path(grupo.id) %> 
+    <% end %>
+<% else %>
+    <% encontros_que_esta_coordenando_agora = @usuario_logado.encontros_que_esta_coordenando_agora %>
+
+    <% if encontros_que_esta_coordenando_agora.count > 0 %>
+        <p/>
+        <span class="titulo">Encontros atuais</span>
+        <% encontros_que_esta_coordenando_agora.each do |encontro| %>
+            <%= link_to encontro.nome, mobile_encontro_path(encontro) %><br/>
+        <% end %>
+    <% end %>
+
+    <% equipes_em_que_esta_participando_agora = @usuario_logado.equipes_em_que_esta_participando_agora.select{|e| e.tipo == 'Equipe'} %>
+
+    <% if equipes_em_que_esta_participando_agora.count > 0 %>
+        <p/>
+        <span class="titulo">Equipes atuais</span>
+        <% equipes_em_que_esta_participando_agora.each do |equipe| %>
+            <%= link_to "#{equipe.nome} - #{equipe.encontro.nome}", mobile_conjunto_path(equipe) %><br/>
+        <% end %>
+    <% end %>
+
+    <% grupos_que_coordena = @usuario_logado.grupos_que_coordena %>
+
+    <% if grupos_que_coordena.count > 0 %>
+        <p/>
+       <span class="titulo">Grupos</span>
+        <% grupos_que_coordena.each do |grupo| %>
+            <%= link_to grupo.nome, mobile_grupo_path(grupo) %><br/>
+        <% end %>
+    <% end %>
+
+    <% conjuntos_permanentes = @usuario_logado.conjuntos_permanentes %>
+
+    <% if conjuntos_permanentes.count > 0 %>
+        <p/>
+        <span class="titulo">Famílias</span>
+        <% conjuntos_permanentes.each do |conjunto_permanente| %>
+            <% classe_css = conjunto_permanente.cor.present? ? conjunto_permanente.cor.classe_css : "" %>
+            <%= link_to "#{conjunto_permanente.encontro.denominacao_conjuntos_permanentes} #{conjunto_permanente.nome}", mobile_conjunto_path(conjunto_permanente) %><br/>
+        <% end %>
+    <% end %>
+<% end %>

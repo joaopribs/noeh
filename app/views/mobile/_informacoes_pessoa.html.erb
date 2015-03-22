@@ -60,7 +60,7 @@
 	<% if pessoa.participacoes_em_grupos.count > 0 %>
 	    <ul class="bullets">
 	        <% pessoa.participacoes_em_grupos.each do |participacao| %>
-	          <li>
+	          <li><span>
 	            <% coordenador = participacao[:grupo].coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
 
 	            <% if @usuario_logado.permissoes.pode_gerenciar_grupo participacao[:grupo] %>
@@ -72,7 +72,7 @@
 	            <% if !participacao[:ativo] %>
 	                (ex-participante)
 	            <% end %>
-	          </li>
+	          </span></li>
 	        <% end %>
 	    </ul>
 	<% end %>

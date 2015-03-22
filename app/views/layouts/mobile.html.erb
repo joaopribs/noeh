@@ -37,26 +37,87 @@
             js.src = "//connect.facebook.com/pt_BR/all.js";
             d.getElementsByTagName('head')[0].appendChild(js);
         }(document));
+
+        $(function () {
+            $("#faixa_superior .link_topo").click(function (e) {
+                e.preventDefault();
+                var url = $(this).data("url");
+                window.location.href = url;
+            });
+
+            $(".link_menu, #faixa_superior_menu .link_logo").click(function (e) {
+                e.preventDefault();
+                $("#menu").toggle();
+                $("#faixa_superior").toggle();
+                $("#conteudo").toggle();
+                $("#rodape").toggle();
+            });
+        });
     </script>
 
-    <div id="faixa_superior">
-        <a href="<%= mobile_index_url %>" id="link_logo">
-            <%= image_tag 'noeh25_amarelo.png' %>
-        </a>
+    <table id="faixa_superior">
+        <tr valign="middle">
+            <td class="link_menu">
+                <%= image_tag 'menu.png' %>
+            </td>
 
-        <div id="area_superior_direita">
+            <td class="filler">
+            </td>
+
+            <td class="link_logo link_topo" data-url="<%= mobile_index_path %>">
+                <%= image_tag 'noeh25_amarelo.png' %>
+            </td>
+
+            <td class="filler">
+            </td>
 
             <% if defined? @usuario_logado %>
-                <a id="link_usuario_logado" href="<%= mobile_pessoa_path(@usuario_logado) %>">
+                <td class="link_usuario_logado link_topo" data-url="<%= mobile_pessoa_path(@usuario_logado) %>">
                     <%= @usuario_logado.nome_usual %>
                     <img src="<%= @usuario_logado.url_imagem(25) %>" />
-                </a>
+                </td>
 
-                <%= link_to "Sair", log_out_path, id: "sair_fb" %>
+                <td class="sair_fb link_topo" data-url="<%= log_out_path %>">
+                    Sair
+                </td>
             <% end %>
+        </tr>
+    </table>
+
+    <div id="menu">
+        <table id="faixa_superior_menu">
+            <tr valign="middle">
+                <td class="link_menu">
+                    <%= image_tag 'menu_amarelo.png' %>
+                </td>
+
+                <td class="filler">
+                </td>
+
+                <td class="link_logo link_topo" data-url="<%= mobile_index_path %>">
+                    <%= image_tag 'noeh25_preto.png' %>
+                </td>
+
+                <td class="filler">
+                </td>
+
+                <% if defined? @usuario_logado %>
+                    <td class="link_usuario_logado link_topo" data-url="<%= mobile_pessoa_path(@usuario_logado) %>">
+                        <%= @usuario_logado.nome_usual %>
+                        <img src="<%= @usuario_logado.url_imagem(25) %>" />
+                    </td>
+
+                    <td class="sair_fb link_topo" data-url="<%= log_out_path %>">
+                        Sair
+                    </td>
+                <% end %>
+            </tr>
+        </table>
+
+        <div id="conteudo_menu">
+            <%= render 'layouts/menu_mobile' %>
         </div>
 
-        <br style="clear: both;" />
     </div>
 
     <div id="conteudo">
