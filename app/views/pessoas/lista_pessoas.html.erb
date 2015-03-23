@@ -60,11 +60,10 @@
 
 <% if @total > 0 %>
     <% if @tipo_pagina == "pesquisar_pessoas" %>
-        Sua pesquisa resultou em
+        Sua pesquisa resultou em <%= @total %> pessoa<%= "s" if plural_pessoas %>
     <% else %>
-        Total de
+        Total de <%= @total %> pessoa<%= "s" if plural_pessoas %><%= texto_casais %>
     <% end %>
-    <%= @total %> pessoa<%= "s" if plural_pessoas %><%= texto_casais %>
 <% else %>
     <% if @tipo_pagina == "pesquisar_pessoas" %>
         Sua pesquisa não resultou em nenhuma pessoa

@@ -19,7 +19,7 @@
     <% nome = "#{pessoa.nome_usual}" %>
     <%= image_tag pessoa.url_imagem(30), class: 'imagem_pessoa_lista' %>
 
-    <% if pessoa.conjuge.present? && pessoas.include?(pessoa.conjuge) %>
+    <% if pessoa.conjuge.present? && (forcar_conjuges || pessoas.include?(pessoa.conjuge)) %>
       <% ids_pessoas_ja_mostradas << pessoa.conjuge.id %>
       <%= image_tag pessoa.conjuge.url_imagem(30), class: 'imagem_pessoa_lista' %>
       <% nome = "#{pessoa.nome_usual} / #{pessoa.conjuge.nome_usual}" %>

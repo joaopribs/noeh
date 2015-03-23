@@ -49,6 +49,18 @@ class MobileController < ApplicationController
     return if performed?
   end
 
+  def pesquisar_pessoas
+    precisa_poder_pesquisar_pessoas
+    return if performed?
+
+    @parametros_pesquisa_pessoas = ParametrosPesquisaPessoas.new
+
+    if params["pesquisa"].present?
+      # pesquisar_pessoas_banco está na super classe
+      @pessoas = pesquisar_pessoas_banco(params)
+    end
+  end
+
   private 
 
     def precisa_poder_ver_pessoa pessoa
@@ -65,19 +77,25 @@ class MobileController < ApplicationController
 
     def precisa_poder_gerenciar_conjunto conjunto
       if !@usuario_logado.permissoes.pode_gerenciar_conjunto(conjunto)
-        redirect_to root_url and return
+        redirect_to mobile_index_url and return
       end
     end
 
     def precisa_poder_gerenciar_encontro encontro
       if !@usuario_logado.permissoes.pode_gerenciar_encontro(encontro)
-        redirect_to root_url and return
+        redirect_to mobile_index_url and return
       end
     end
 
     def precisa_poder_gerenciar_grupo grupo
       if !@usuario_logado.permissoes.pode_gerenciar_grupo(grupo)
-        redirect_to root_url and return
+        redirect_to mobile_index_url and return
+      end
+    end
+
+    def precisa_poder_pesquisar_pessoas
+      if !@usuario_logado.permissoes.pode_pesquisar_pessoas
+        redirect_to mobile_index_url and return
       end
     end
 end

@@ -231,6 +231,14 @@ a.link_entrar_pelo_facebook {
     width: 8vmin;
 }
 
+#menu #conteudo_menu .pesquisar_pessoas {
+    padding-left: 4vmin;
+    background-image: url(procurar.png); 
+    background-size: 4vmin;
+    background-repeat: no-repeat;
+    background-position: left center;
+}
+
 #conteudo {
     background-color: #fff;
     color: #000;
@@ -269,4 +277,17 @@ a.link_entrar_pelo_facebook {
 
 .dados_pessoa .telefones {
     font-size: 3vmin;
+}
+
+.nome_pesquisa_pessoas {
+    width: 98%;
+    font-size: 4vmin;
+    padding: 1vmin;
+}
+
+.botao_pesquisar {
+    width: 80%;
+    font-size: 4vmin;
+    background-color: #fcff00;
+    color: #000;
 }

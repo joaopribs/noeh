@@ -111,4 +111,142 @@ class ApplicationController < ActionController::Base
     session[:id_pessoas_antes_do_filtro] = nil
   end
 
+  def pesquisar_pessoas_banco params
+    pessoas = []
+
+    if @parametros_pesquisa_pessoas.nil?
+      @parametros_pesquisa_pessoas = ParametrosPesquisaPessoas.new
+    end
+
+    if params["pesquisa"].present?
+      @parametros_pesquisa_pessoas.submeteu = true
+
+      pesquisar_em_grupos = false
+      pesquisar_em_instrumentos = false
+      pesquisar_em_conjuntos = false
+      pesquisar_recomendacoes_do_coordenador_permanente = false
+      pesquisar_recomendacoes_equipes = false
+
+      filtros_total = []
+
+      filtros_pessoas = []
+
+      if params[:nome].present?
+        @parametros_pesquisa_pessoas.nome = params[:nome]
+        filtros_pessoas << "(pessoas.nome LIKE '%#{@parametros_pesquisa_pessoas.nome}%' OR pessoas.nome_usual LIKE '%#{@parametros_pesquisa_pessoas.nome}%')"
+      end
+
+      if params[:generos].present?
+        @parametros_pesquisa_pessoas.generos = params[:generos]
+        if @parametros_pesquisa_pessoas.generos.count == 1
+          filtros_pessoas << "pessoas.eh_homem = #{@parametros_pesquisa_pessoas.generos[0] == 'homem'}"
+        end
+      end
+
+      if params[:estados_civis].present?
+        @parametros_pesquisa_pessoas.estados_civis = params[:estados_civis]
+        if @parametros_pesquisa_pessoas.estados_civis.count == 1
+          filtros_pessoas << "pessoas.conjuge_id IS #{@parametros_pesquisa_pessoas.estados_civis[0] == 'casado' ? 'NOT ' : ''}NULL"
+        end
+      end
+
+      if filtros_pessoas.count > 0
+        filtros_total << "(#{filtros_pessoas.join(" AND ")})"
+      end
+
+      if params[:instrumentos].present?
+        @parametros_pesquisa_pessoas.instrumentos = params[:instrumentos]
+        filtros_instrumentos = []
+        params[:instrumentos].each do |instrumento|
+          filtros_instrumentos << "instrumentos.nome LIKE '%#{instrumento}%'"
+        end
+        filtros_total << "(#{filtros_instrumentos.join(" OR ")})"
+        pesquisar_em_instrumentos = true
+      end
+
+      if params[:grupos]
+        pesquisar_em_grupos = true
+        @parametros_pesquisa_pessoas.grupos = params[:grupos]
+        filtros_total << "(grupos.id IN (#{params[:grupos].join(", ")}))"
+      else
+        unless @usuario_logado.eh_super_admin?
+          pesquisar_em_grupos = true
+          filtros_total << "(grupos.id IN (#{@usuario_logado.grupos_que_pode_ver.collect{|g| g.id}.join(", ")}))"
+        end
+      end
+
+      if params[:equipes]
+        @parametros_pesquisa_pessoas.equipes = params[:equipes]
+
+        pesquisar_em_conjuntos = true
+
+        filtros_equipes = []
+
+        params[:equipes].each do |equipe_procurando|
+          partes = equipe_procurando.split("###")
+          equipe = partes.first
+          grupo = partes.last
+
+          if equipe == 'coordPerm'
+            filtros_equipes << "(conjuntos_pessoas.tipo = 'ConjuntoPermanente' AND relacoes_pessoa_conjunto.eh_coordenador = true AND grupos.id = #{grupo})"
+            pesquisar_em_grupos = true
+          else
+            filtros_equipes << "(conjuntos_pessoas.equipe_padrao_relacionada = #{equipe})"
+          end
+        end
+        filtros_total << "(#{filtros_equipes.join(" OR ")})"
+      end
+
+      if params[:recomendacoes]
+        @parametros_pesquisa_pessoas.recomendacoes = params[:recomendacoes]
+
+        filtros_recomendacoes = []
+
+        params[:recomendacoes].each do |recomendacao_procurando|
+          partes = recomendacao_procurando.split("###")
+          equipe = partes.first
+          grupo = partes.last
+
+          if equipe == 'coordPerm'
+            filtros_recomendacoes << "(recomendacoes_do_coordenador_permanente.recomenda_pra_coordenador = true AND recomendacoes_do_coordenador_permanente.conjunto_pessoas_id = conjuntos_pessoas.id AND conjuntos_pessoas.encontro_id = encontros.id AND encontros.grupo_id = #{grupo})"
+            pesquisar_recomendacoes_do_coordenador_permanente = true
+          else
+            filtros_recomendacoes << "(recomendacoes_equipes.conjunto_pessoas_id = #{equipe})"
+            pesquisar_recomendacoes_equipes = true
+          end
+        end
+
+        filtros_total << "(#{filtros_recomendacoes.join(" OR ")})"
+      end
+
+      objetos = Pessoa
+
+      if pesquisar_em_grupos
+        objetos = objetos.joins(:grupos)
+      end
+
+      if pesquisar_em_instrumentos
+        objetos = objetos.joins(:instrumentos)
+      end
+
+      if pesquisar_recomendacoes_do_coordenador_permanente
+        objetos = objetos.joins(:recomendacao_do_coordenador_permanente)
+          .joins('INNER JOIN conjuntos_pessoas ON recomendacoes_do_coordenador_permanente.conjunto_pessoas_id = conjuntos_pessoas.id')
+          .joins('INNER JOIN encontros ON conjuntos_pessoas.encontro_id = encontros.id')
+      end
+
+      if pesquisar_em_conjuntos && !pesquisar_recomendacoes_do_coordenador_permanente
+        objetos = objetos.joins(:conjuntos_pessoas)
+      end
+
+      if pesquisar_recomendacoes_equipes
+        objetos = objetos.joins(:recomendacoes_equipes)
+      end
+
+      pessoas = objetos.where(filtros_total.join(" AND ")).distinct
+    end
+
+    return pessoas
+  end
+
 end

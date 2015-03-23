@@ -1,0 +1,17 @@
+<h1>Pesquisar Pessoas</h1>
+
+<%= form_tag(:mobile_pesquisar_pessoas) do %>
+	<input type="hidden" name="pesquisa" value="1" />
+	Nome<br/>
+	<%= text_field_tag('nome', @parametros_pesquisa_pessoas.nome, class: 'nome_pesquisa_pessoas') %><br/>
+	<center>
+  	<input type="submit" value="Pesquisar" class="botao_pesquisar" />
+	</center>
+<% end %>
+
+<% if @parametros_pesquisa_pessoas.submeteu %>
+	<p/>
+
+	<h2>Resultados</h2>
+	<%= render 'lista_pessoas', pessoas: @pessoas, tipo_pagina: 'pesquisar_pessoas', forcar_conjuges: true %>
+<% end %>

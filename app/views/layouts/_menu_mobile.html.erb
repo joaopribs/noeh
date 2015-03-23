@@ -1,8 +1,16 @@
+<% if @usuario_logado.permissoes.pode_pesquisar_pessoas %>
+    <%= link_to "Pesquisar pessoas", mobile_pesquisar_pessoas_path, class: "pesquisar_pessoas" %>
+<% end %>
+
 <% if @usuario_logado.eh_super_admin %>
+    <p/>
+
     <form method="post" action="<%= login_com_id_url %>">
         <input type="hidden" name="mobile" value="1" />
         Fazer login como: <input type="text" name="id" id="id" size="3"/> <input type="submit" value="Entrar" id="botao_entrar" />
     </form>
+
+    <p/>
 
     <% Grupo.all.each do |grupo| %>
         <%= link_to grupo.nome, mobile_grupo_path(grupo.id) %> 
@@ -34,7 +42,7 @@
         <p/>
        <span class="titulo">Grupos</span>
         <% grupos_que_coordena.each do |grupo| %>
-            <%= link_to grupo.nome, mobile_grupo_path(grupo) %><br/>
+            <%= link_to grupo.nome, mobile_grupo_path(grupo.id) %><br/>
         <% end %>
     <% end %>
 
