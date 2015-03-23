@@ -215,18 +215,21 @@
    }(document));
 </script>
 
-<div style="width: 100%; text-align: center; position: absolute; top: 50px;">
-  <div id="imagem_noeh_deslogado">
-    <%= image_tag 'noeh_amarelo.png' %>
+<div class="main">
+  <div class="wrapper">
+    <div id="imagem_noeh_deslogado">
+      <%= image_tag 'noeh_amarelo.png' %>
+    </div>
+    Sistema de cadastro na igreja
+    <p/>
+    <a class="link_entrar_pelo_facebook" id="link_fb" href="#">
+        <img id="imagem_usuario_facebook" src="" class="imagem_usuario_facebook"/>
+        <span id="msg_principal">Carregando...</span>
+    </a>
+    <div id="erro_login" class="msg_erro erro_login"></div>
   </div>
-  Sistema de cadastro na igreja
-  <p/>
-  <a class="link_entrar_pelo_facebook" id="link_fb" href="#">
-      <img id="imagem_usuario_facebook" src="" class="imagem_usuario_facebook"/>
-      <span id="msg_principal">Carregando...</span>
-  </a>
-  <div id="erro_login" class="msg_erro erro_login"></div>
 </div>
+
 
 </body>
 </html>

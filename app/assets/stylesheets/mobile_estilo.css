@@ -1,3 +1,7 @@
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: 'Roboto', Helvetica, Arial;
     font-size: 5vmin;
@@ -75,6 +79,19 @@ ul.bullets li span {
 .imagem_pessoa_lista {
     height: 10vmin;
     float: left;
+}
+
+.main {
+    height: 100%;
+    width: 100%;
+    display: table;
+}
+
+.wrapper {
+    display: table-cell;
+    height: 100%;
+    vertical-align: middle;
+    text-align: center;
 }
 
 #imagem_noeh_deslogado img {
