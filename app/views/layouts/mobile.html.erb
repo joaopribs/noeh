@@ -57,9 +57,13 @@
 
     <table id="faixa_superior">
         <tr valign="middle">
-            <td class="link_menu">
-                <%= image_tag 'menu.png' %>
-            </td>
+            <% if defined? @usuario_logado %>
+                <% if @usuario_logado.eh_super_admin  || @usuario_logado.permissoes.pode_pesquisar_pessoas || @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 || @usuario_logado.equipes_que_esta_coordenando_agora.select{|e| e.tipo == 'Equipe'}.count > 0 || @usuario_logado.grupos_que_coordena.count > 0 || @usuario_logado.conjuntos_permanentes.count > 0 %>
+                    <td class="link_menu">
+                        <%= image_tag 'menu.png' %>
+                    </td>
+                <% end %>
+            <% end %>
 
             <td class="filler">
             </td>
@@ -84,24 +88,24 @@
         </tr>
     </table>
 
-    <div id="menu">
-        <table id="faixa_superior_menu">
-            <tr valign="middle">
-                <td class="link_menu">
-                    <%= image_tag 'menu_amarelo.png' %>
-                </td>
+    <% if defined? @usuario_logado %>
+        <div id="menu">
+            <table id="faixa_superior_menu">
+                <tr valign="middle">
+                    <td class="link_menu">
+                        <%= image_tag 'menu_amarelo.png' %>
+                    </td>
 
-                <td class="filler">
-                </td>
+                    <td class="filler">
+                    </td>
 
-                <td class="link_logo link_topo" data-url="<%= mobile_index_path %>">
-                    <%= image_tag 'noeh25_preto.png' %>
-                </td>
+                    <td class="link_logo link_topo" data-url="<%= mobile_index_path %>">
+                        <%= image_tag 'noeh25_preto.png' %>
+                    </td>
 
-                <td class="filler">
-                </td>
+                    <td class="filler">
+                    </td>
 
-                <% if defined? @usuario_logado %>
                     <td class="link_usuario_logado link_topo" data-url="<%= mobile_pessoa_path(@usuario_logado) %>">
                         <%= @usuario_logado.nome_usual %>
                         <img src="<%= @usuario_logado.url_imagem(25) %>" />
@@ -110,13 +114,13 @@
                     <td class="sair_fb link_topo" data-url="<%= log_out_path %>">
                         Sair
                     </td>
-                <% end %>
-            </tr>
-        </table>
+                </tr>
+            </table>
 
-        <div id="conteudo_menu">
-            <%= render 'layouts/menu_mobile' %>
-        </div>
+            <div id="conteudo_menu">
+                <%= render 'layouts/menu_mobile' %>
+            </div>
+        <% end %>
 
     </div>
 

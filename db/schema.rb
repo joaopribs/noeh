@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150208213255) do
+ActiveRecord::Schema.define(version: 20150419102300) do
 
   create_table "auto_sugestao", force: :cascade do |t|
     t.integer  "pessoa_id",   limit: 4
@@ -84,36 +84,37 @@ ActiveRecord::Schema.define(version: 20150208213255) do
   end
 
   create_table "pessoas", force: :cascade do |t|
-    t.string   "nome_facebook",             limit: 255
-    t.string   "nome",                      limit: 255
-    t.string   "nome_usual",                limit: 255
+    t.string   "nome",                        limit: 255
+    t.string   "nome_usual",                  limit: 255
     t.date     "nascimento"
-    t.string   "rua",                       limit: 255
-    t.string   "numero",                    limit: 255
-    t.string   "bairro",                    limit: 255
-    t.string   "cidade",                    limit: 255
-    t.string   "estado",                    limit: 255
-    t.string   "cep",                       limit: 255
-    t.boolean  "eh_homem",                  limit: 1
-    t.string   "email",                     limit: 255
+    t.string   "rua",                         limit: 255
+    t.string   "numero",                      limit: 255
+    t.string   "bairro",                      limit: 255
+    t.string   "cidade",                      limit: 255
+    t.string   "estado",                      limit: 255
+    t.string   "cep",                         limit: 255
+    t.boolean  "eh_homem",                    limit: 1
+    t.string   "email",                       limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "eh_super_admin",            limit: 1
-    t.integer  "conjuge_id",                limit: 4
-    t.string   "complemento",               limit: 255
-    t.string   "email_facebook",            limit: 255
-    t.string   "url_facebook",              limit: 255
+    t.boolean  "eh_super_admin",              limit: 1
+    t.integer  "conjuge_id",                  limit: 4
+    t.string   "complemento",                 limit: 255
+    t.string   "url_facebook",                limit: 255
     t.datetime "ultimo_login"
-    t.boolean  "auto_inserido",             limit: 1,   default: false
-    t.string   "foto_grande_file_name",     limit: 255
-    t.string   "foto_grande_content_type",  limit: 255
-    t.integer  "foto_grande_file_size",     limit: 4
+    t.boolean  "auto_inserido",               limit: 1,   default: false
+    t.string   "foto_grande_file_name",       limit: 255
+    t.string   "foto_grande_content_type",    limit: 255
+    t.integer  "foto_grande_file_size",       limit: 4
     t.datetime "foto_grande_updated_at"
-    t.string   "foto_pequena_file_name",    limit: 255
-    t.string   "foto_pequena_content_type", limit: 255
-    t.integer  "foto_pequena_file_size",    limit: 4
+    t.string   "foto_pequena_file_name",      limit: 255
+    t.string   "foto_pequena_content_type",   limit: 255
+    t.integer  "foto_pequena_file_size",      limit: 4
     t.datetime "foto_pequena_updated_at"
-    t.string   "url_imagem_facebook",       limit: 255
+    t.string   "url_imagem_facebook",         limit: 255
+    t.string   "usuario_facebook",            limit: 255
+    t.string   "id_app_facebook",             limit: 255
+    t.string   "url_imagem_facebook_pequena", limit: 255
   end
 
   create_table "recomendacoes_do_coordenador_permanente", force: :cascade do |t|

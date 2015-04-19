@@ -354,15 +354,6 @@
         <input type="hidden" name="auto_inserido" value="1" />
     <% end %>
 
-    <%
-       if !defined?(foto_grande_pessoa)
-         foto_grande_pessoa = @pessoa.url_imagem(120)
-       end
-       if !defined?(foto_pequena_pessoa)
-         foto_pequena_pessoa = @pessoa.url_imagem(50)
-       end
-    %>
-
     <% if defined?(@conjunto) %>
         <input type="hidden" name="conjunto_id" value="<%= @conjunto.id %>" />
     <% elsif defined?(@encontro) %>
@@ -389,7 +380,7 @@
         </div>
     <% end %>
 
-    <%= render 'form_pessoa', pessoa: @pessoa, tipo_pessoa: 'pessoa', modo: modo, foto_grande_pessoa: foto_grande_pessoa, foto_pequena_pessoa: foto_pequena_pessoa %>
+    <%= render 'form_pessoa', pessoa: @pessoa, tipo_pessoa: 'pessoa', modo: modo %>
 
     <div class="campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>>
 
@@ -437,16 +428,9 @@
            else
              conjuge_mostrar = Pessoa.new
            end
-
-           if !defined?(foto_grande_conjuge)
-             foto_grande_conjuge = conjuge_mostrar.url_imagem(120)
-           end
-           if !defined?(foto_pequena_conjuge)
-             foto_pequena_conjuge = conjuge_mostrar.url_imagem(50)
-           end
         %>
 
-        <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge', modo: modo, foto_grande_pessoa: foto_grande_conjuge, foto_pequena_pessoa: foto_pequena_conjuge %>
+        <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge', modo: modo %>
 
       </div>
 

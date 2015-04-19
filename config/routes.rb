@@ -79,6 +79,8 @@ Noeh::Application.routes.draw do
   post '/rejeitar_participacao', :to => 'pessoas#rejeitar_auto_sugestao', :as => :rejeitar_auto_sugestao
   get '/pessoas_confirmar', :to => 'pessoas#pessoas_a_confirmar', :as => :pessoas_a_confirmar
 
+  post '/pegar_informacoes_facebook_pelo_link', :to => 'application#pegar_informacoes_facebook_pelo_link', :as => :pegar_informacoes_facebook_pelo_link
+
   get 'mobile/deslogado', :to => 'mobile#deslogado', :as => :mobile_deslogado
   get 'mobile/nao_cadastrado', :to => 'mobile#nao_cadastrado', :as => :mobile_nao_cadastrado
   get 'mobile/index', :to => 'mobile#index', :as => :mobile_index

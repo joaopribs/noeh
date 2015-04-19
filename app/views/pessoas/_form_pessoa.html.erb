@@ -9,51 +9,26 @@
             }
             else {
                 $('#campos_de_facebook_<%= tipo_pessoa %>').hide();
+                limparInformacoesFacebook<%= tipo_pessoa %>();
                 if ($('#esta_tirando_facebook_<%= tipo_pessoa %>').size() > 0) {
                     $('#esta_tirando_facebook_<%= tipo_pessoa %>').val("1");
                 }
             }
         });
 
-        $('#nome_facebook_<%= tipo_pessoa %>').on('keyup', function () {
-            var nome_facebook = $(this).val().trim();
-
-            if ($('#nome_<%= tipo_pessoa %>').data('acompanhar') == '1') {
-                $('#nome_<%= tipo_pessoa %>').val(nome_facebook);
-            }
-
-            if ($('#nome_usual_<%= tipo_pessoa %>').data('acompanhar') == '1') {
-                var primeiro_nome = nome_facebook.split(" ")[0];
-
-                $('#nome_usual_<%= tipo_pessoa %>').val(primeiro_nome);
-            }
+        $('#carregar_facebook_<%= tipo_pessoa %>').on('click', function (evento) {
+          evento.preventDefault();
+          carregarInformacoesFacebook<%= tipo_pessoa %>();
         });
 
-        $('#nome_<%= tipo_pessoa %>').on('keyup', function () {
-            if ($(this).val() == "") {
-                $(this).data('acompanhar', '1');
-            }
-            else {
-                $(this).data('acompanhar', '0');
-            }
-        });
-
-        $('#nome_usual_<%= tipo_pessoa %>').on('keyup', function () {
-            if ($(this).val() == "") {
-                $(this).data('acompanhar', '1');
-            }
-            else {
-                $(this).data('acompanhar', '0');
-            }
-        });
-
-        $('#imagem_facebook_<%= tipo_pessoa %>').on('blur', function () {
-            carregarImagem<%= tipo_pessoa %>();
-        });
-
-        $('#carregar_imagem_<%= tipo_pessoa %>').on('click', function (evento) {
-            evento.preventDefault();
-            carregarImagem<%= tipo_pessoa %>();
+        $('#url_facebook_<%= tipo_pessoa %>').on('keyup', function () {
+          if ($(this).val() == "") {
+            $('#carregar_facebook_<%= tipo_pessoa %>').hide();
+            limparInformacoesFacebook<%= tipo_pessoa %>();
+          }
+          else {
+            $('#carregar_facebook_<%= tipo_pessoa %>').show();
+          }
         });
 
         $('#novo_telefone_<%= tipo_pessoa %>').on('click', function (evento) {
@@ -99,13 +74,59 @@
         atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
     });
 
-    function carregarImagem<%= tipo_pessoa %>(url) {
-        if (url == null && $('#imagem_facebook_<%= tipo_pessoa %>').val() != "") {
-            $('#imagem_<%= tipo_pessoa %>').attr('src', $('#imagem_facebook_<%= tipo_pessoa %>').val());
-        }
-        else {
-            $('#imagem_<%= tipo_pessoa %>').attr('src', url);
-        }
+    function limparInformacoesFacebook<%= tipo_pessoa %>() {
+      $('#imagem_<%= tipo_pessoa %>').attr('src', '<%= Pessoa.url_imagem_sem_imagem(120) %>');
+      $('#url_facebook_<%= tipo_pessoa %>').val("");
+      $('#url_imagem_facebook_<%= tipo_pessoa %>').val("");
+      $('#url_imagem_facebook_pequena_<%= tipo_pessoa %>').val("");
+      $('#usuario_facebook_<%= tipo_pessoa %>').val("");
+    }
+
+    function carregarInformacoesFacebook<%= tipo_pessoa %>() {
+      var url = $('#url_facebook_<%= tipo_pessoa %>').val();
+
+      if (url != "") {
+        $('#imagem_<%= tipo_pessoa %>').attr('src', '<%= image_path('carregando.png') %>');
+        $("#carregar_facebook_<%= tipo_pessoa %>").hide();
+        $("#carregando_facebook_<%= tipo_pessoa %>").show();
+
+        $.ajax({
+          method: "post", 
+          url: "<%= pegar_informacoes_facebook_pelo_link_url %>",
+          data: {
+            "url": url
+          },
+          dataType: "json", 
+          success: function (resposta) {
+            $("#carregando_facebook_<%= tipo_pessoa %>").hide();
+
+            var imagem_grande = resposta.imagem_grande;
+            var imagem_pequena = resposta.imagem_pequena;
+            var nome = resposta.nome;
+            var usuario = resposta.usuario;
+
+            if (imagem_grande != "") {
+              $('#imagem_<%= tipo_pessoa %>').attr('src', imagem_grande);
+              $('#url_imagem_facebook_<%= tipo_pessoa %>').val(imagem_grande);
+              $('#usuario_facebook_<%= tipo_pessoa %>').val(usuario);
+              if ($('#nome_<%= tipo_pessoa %>').val() == "") {
+                $('#nome_<%= tipo_pessoa %>').val(nome);
+              }
+              if ($('#nome_usual_<%= tipo_pessoa %>').val() == "") {
+                $('#nome_usual_<%= tipo_pessoa %>').val(nome.split(" ")[0]);
+              }
+            }
+            else {
+              alert("Erro ao tentar carregar o Facebook, confira e tente novamente.");
+              limparInformacoesFacebook<%= tipo_pessoa %>();
+            }
+          }
+        });
+      }
+      else {
+        limparInformacoesFacebook<%= tipo_pessoa %>();
+        $("#carregando_facebook_<%= tipo_pessoa %>").hide();
+      }
     }
 
     function atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>() {
@@ -137,10 +158,10 @@
   <tr>
     <td class="imagem_form">
       <%
-         if foto_grande_pessoa.blank?
+         if pessoa.url_imagem_facebook.blank?
            imagem_pessoa = Pessoa.url_imagem_sem_imagem(120)
          else
-           imagem_pessoa = foto_grande_pessoa
+           imagem_pessoa = pessoa.url_imagem_facebook
          end
       %>
       <img src="<%= imagem_pessoa %>" id="imagem_<%= tipo_pessoa %>" class="imagem_pessoa_form"/>
@@ -167,55 +188,38 @@
               style="display: none;"
           <% end %>
         >
-          <div style="position: relative;">
-              <div class="field">
-                <label for="nome_facebook_<%= tipo_pessoa %>">
-                  Nome no Facebook (IMPORTANTE: O nome deve ser <u>exatamente</u> como está no Facebook para que o usuário tenha acesso)
-                </label><br>
-                <span class="erro_form"><%= pessoa.errors[:nome_facebook].first %></span>
-                <input type="text" name="nome_facebook_<%= tipo_pessoa %>" id="nome_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.nome_facebook %>" />
-              </div>
-
-              <div class="ajuda_form_facebook">
-                Ajuda: Como obter essas informações do Facebook?
-              </div>
-          </div>
-
           <div class="field">
             <%= label_tag "link_facebook_#{tipo_pessoa}", 'Link para Facebook' %><br>
             <span class="erro_form"><%= pessoa.errors[:url_facebook].first %></span>
-            <input type="text" name="url_facebook_<%= tipo_pessoa %>" id="url_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.url_facebook %>" />
+            <input type="text" name="url_facebook_<%= tipo_pessoa %>" id="url_facebook_<%= tipo_pessoa %>" style="width: 500px;" value="<%= pessoa.url_facebook %>" />
+            <a href="#" id="carregar_facebook_<%= tipo_pessoa %>" style="display: none;">Carregar</a>
+            <span id="carregando_facebook_<%= tipo_pessoa %>" style="display: none;">Carregando...</span>
           </div>
 
-          <div class="field">
-            <%= label_tag "imagem_facebook_#{tipo_pessoa}", 'Link para imagem do Facebook' %><br>
-            <span class="erro_form"><%= pessoa.errors[:url_imagem_facebook].first %></span>
-            <input type="text" name="imagem_facebook_<%= tipo_pessoa %>" id="imagem_facebook_<%= tipo_pessoa %>" style="width: 400px;" value="<%= pessoa.url_imagem_facebook %>" />
-            <a href="#" class="link_procurar_fb" id="carregar_imagem_<%= tipo_pessoa %>">Carregar</a>
-          </div>
-
-          <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= pessoa.foto_pequena.url %>" />
+          <input type="hidden" name="usuario_facebook_<%= tipo_pessoa %>" id="usuario_facebook_<%= tipo_pessoa %>" value="<%= pessoa.usuario_facebook %>" />
+          <input type="hidden" name="id_app_facebook_<%= tipo_pessoa %>" value="<%= pessoa.id_app_facebook %>" />
+          <input type="hidden" name="url_imagem_facebook_pequena_<%= tipo_pessoa %>" id="url_imagem_facebook_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook_pequena %>" />
+          <input type="hidden" name="url_imagem_facebook_<%= tipo_pessoa %>" id="url_imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook %>" />
         </div>
       <% else %>
         <input type="hidden" name="tem_facebook_<%= tipo_pessoa %>" value="1" />
-        <input type="hidden" name="nome_facebook_<%= tipo_pessoa %>" value="<%= pessoa.nome_facebook %>" />
         <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
-        <input type="hidden" name="imagem_facebook_<%= tipo_pessoa %>" value="<%= instance_variable_get("@foto_grande_#{tipo_pessoa}") %>" />
-        <input type="hidden" name="url_foto_pequena_<%= tipo_pessoa %>" value="<%= instance_variable_get("@foto_pequena_#{tipo_pessoa}") %>" />
+        <input type="hidden" name="usuario_facebook_<%= tipo_pessoa %>" value="<%= pessoa.usuario_facebook %>" />
+        <input type="hidden" name="id_app_facebook_<%= tipo_pessoa %>" value="<%= pessoa.id_app_facebook %>" />
+        <input type="hidden" name="url_imagem_facebook_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook_pequena %>" />
+        <input type="hidden" name="url_imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook %>" />
       <% end %>
-
-      <% acompanhar = pessoa.nome.present? ? '0' : '1' %>
 
       <div class="field">
         <%= label_tag "nome_#{tipo_pessoa}", 'Nome Completo*' %><br>
         <div class="erro_form"><%= pessoa.errors[:nome].first %></div>
-        <input type="text" name="nome_<%= tipo_pessoa %>" id="nome_<%= tipo_pessoa %>" value="<%= pessoa.nome %>" size="40" data-acompanhar="<%= acompanhar %>" />
+        <input type="text" name="nome_<%= tipo_pessoa %>" id="nome_<%= tipo_pessoa %>" value="<%= pessoa.nome %>" size="40" />
       </div>
 
       <div class="field">
         <%= label_tag "nome_usual_#{tipo_pessoa}", 'Nome usual*' %><br>
         <div class="erro_form"><%= pessoa.errors[:nome_usual].first %></div>
-        <input type="text" name="nome_usual_<%= tipo_pessoa %>" id="nome_usual_<%= tipo_pessoa %>" value="<%= pessoa.nome_usual %>" size="40" data-acompanhar="<%= acompanhar %>" />
+        <input type="text" name="nome_usual_<%= tipo_pessoa %>" id="nome_usual_<%= tipo_pessoa %>" value="<%= pessoa.nome_usual %>" size="40" />
       </div>
 
       <div class="field">

@@ -7,6 +7,9 @@ class ApplicationController < ActionController::Base
 
   before_filter :detectar_browser, :setar_super_admin, :precisa_estar_logado, :escolher_cor, :iniciar_breadcrumbs, :notificacao, :nao_pode_ser_mobile
 
+  skip_before_filter :precisa_estar_logado, only: :pegar_informacoes_facebook_pelo_link
+  skip_before_action :verify_authenticity_token, only: :pegar_informacoes_facebook_pelo_link
+
   MOBILE_BROWSERS = ["playbook", "windows phone", "android", "ipod", "iphone", "opera mini", "blackberry", "palm","hiptop","avantgo","plucker", "xiino","blazer","elaine", "windows ce; ppc;", "windows ce; smartphone;","windows ce; iemobile", "up.browser","up.link","mmp","symbian","smartphone", "midp","wap","vodafone","o2","pocket","kindle", "mobile","pda","psp","treo"]
 
   def detectar_browser
@@ -248,5 +251,84 @@ class ApplicationController < ActionController::Base
 
     return pessoas
   end
+
+  def pegar_informacoes_facebook_pelo_link
+    img_grande = ""
+    img_pequena = ""
+    nome = ""
+    usuario_facebook = ""
+
+    if params[:url]
+      begin
+        c = Curl::Easy.http_get(params[:url]) do |curl| 
+          curl.follow_location = true
+          curl.enable_cookies = true
+          curl.cookiefile = "cookie.txt"
+          curl.cookiejar = "cookie.txt"
+        
+          curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+          curl.headers["Referer"] = 'http://www.facebook.com'
+          curl.verbose = true
+        end
+
+        ultima_url = c.last_effective_url
+        usuario_facebook = ultima_url.split("/").last.split("?").first
+
+        conteudo_pagina = c.body_str.force_encoding('UTF-8')
+
+        img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
+        # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
+        nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
+      rescue
+      end
+    end
+
+    render json: {
+      imagem_grande: img_grande, 
+      imagem_pequena: img_pequena, 
+      nome: nome,
+      usuario: usuario_facebook
+    }
+  end
+
+  private 
+
+    def pegar_imagem_pela_classe(classe, conteudo_pagina)
+      img = ""
+
+      indice_classe_imagem = conteudo_pagina.index(classe)
+
+      if indice_classe_imagem.present?
+        indice_src_imagem = conteudo_pagina.index('src', indice_classe_imagem)
+
+        if indice_src_imagem.present?
+          indice_inicio = indice_src_imagem + 5
+          indice_fim = conteudo_pagina.index('"', indice_inicio)
+
+          img = conteudo_pagina[indice_inicio..indice_fim - 1]
+        end
+      end
+
+      return img.gsub("&amp;", "&")
+    end
+
+    def pegar_elemento_pelo_id(id, conteudo_pagina)
+      conteudo = ""
+
+      indice_id = conteudo_pagina.index(id)
+
+      if indice_id.present?
+        indice_fim_tag = conteudo_pagina.index('>', indice_id)
+
+        if indice_fim_tag.present?
+          indice_inicio = indice_fim_tag + 1
+          indice_fim = conteudo_pagina.index('<', indice_inicio)
+
+          conteudo = conteudo_pagina[indice_inicio..indice_fim - 1]
+        end
+      end
+
+      return conteudo
+    end
 
 end

@@ -9,8 +9,7 @@ class SessionsController < ApplicationController
   skip_before_filter :notificacao
 
   def log_in
-    nome_facebook = params[:nome_facebook]
-    email_facebook = params[:email_facebook]
+    id_app_facebook = params[:id_app_facebook]
     nascimento = params[:nascimento]
     eh_homem = params[:eh_homem] == "true"
     url_foto_grande = params[:url_foto_grande]
@@ -21,7 +20,7 @@ class SessionsController < ApplicationController
     usuario = pegar_usuario(params)
 
     if usuario.present?
-      if nascimento.present? || email_facebook.present? || url_foto_grande.present? || url_foto_pequena.present?
+      if nascimento.present? || url_foto_grande.present? || url_foto_pequena.present? || id_app_facebook.present?
         if nascimento.present? && usuario.nascimento.blank?
           elementos = nascimento.split('/')
           mes = elementos[0]
@@ -31,14 +30,6 @@ class SessionsController < ApplicationController
           usuario.dia = dia
           usuario.mes = mes
           usuario.ano = ano
-        end
-
-        if email_facebook.present? && usuario.email.blank?
-          usuario.email = email_facebook
-        end
-
-        if email_facebook.present? && usuario.email_facebook.blank?
-          usuario.email_facebook = email_facebook
         end
 
         if url_foto_grande.present?
@@ -57,6 +48,10 @@ class SessionsController < ApplicationController
             usuario.foto_pequena_file_name = nome_do_arquivo
           end
         end
+
+        if id_app_facebook.present? && usuario.id_app_facebook.blank?
+          usuario.id_app_facebook = id_app_facebook
+        end
       end
 
       usuario.ultimo_login = Time.zone.now
@@ -67,8 +62,7 @@ class SessionsController < ApplicationController
 
       msg = "ok"
     else
-      session[:nome_facebook] = nome_facebook
-      session[:email_facebook] = email_facebook
+      session[:id_app_facebook] = id_app_facebook
       session[:nascimento] = nascimento
       session[:eh_homem] = eh_homem
       session[:url_foto_grande] = url_foto_grande
@@ -77,8 +71,7 @@ class SessionsController < ApplicationController
       session[:casado] = casado
 
       if casado
-        nome_facebook_conjuge = params[:nome_facebook_conjuge]
-        email_facebook_conjuge = params[:email_facebook_conjuge]
+        id_app_facebook_conjuge = params[:id_app_facebook_conjuge]
         nascimento_conjuge = params[:nascimento_conjuge]
         eh_homem_conjuge = params[:eh_homem_conjuge] == "true"
         url_foto_grande_conjuge = params[:url_foto_grande_conjuge]
@@ -87,16 +80,14 @@ class SessionsController < ApplicationController
 
         usuario_conjuge = pegar_usuario(
             {
-              nome_facebook: nome_facebook_conjuge,
-              email_facebook: email_facebook_conjuge
+              id_app_facebook: id_app_facebook_conjuge
             }
         )
 
         if usuario_conjuge.present?
           session[:id_usuario_conjuge] = usuario_conjuge.id
         else
-          session[:nome_facebook_conjuge] = params[:nome_facebook_conjuge]
-          session[:email_facebook_conjuge] = params[:email_facebook_conjuge]
+          session[:id_app_facebook_conjuge] = params[:id_app_facebook_conjuge]
           session[:nascimento_conjuge] = params[:nascimento_conjuge]
           session[:eh_homem_conjuge] = params[:eh_homem_conjuge]
           session[:url_foto_grande_conjuge] = params[:url_foto_grande_conjuge]
@@ -141,35 +132,63 @@ class SessionsController < ApplicationController
   private
 
   def pegar_usuario(params)
-    email_facebook = params[:email_facebook]
-    nome_facebook = params[:nome_facebook]
-    
+    id_app_facebook = params[:id_app_facebook]
+
     usuario = nil
     
     usuarios = []
     
-    if email_facebook.present?
-      usuarios = Pessoa.where(email_facebook: email_facebook)
-    end
-    
-    if usuarios.count == 1
-      usuario = usuarios.first
-    elsif nome_facebook.present?
-      usuarios = Pessoa.where(nome_facebook: nome_facebook)
-    
+    if id_app_facebook.present?
+      usuarios = Pessoa.where(id_app_facebook: id_app_facebook)
+
       if usuarios.count == 1
         usuario = usuarios.first
-      elsif usuarios.count > 1
-        usuarios = Pessoa.where(nome_facebook: nome_facebook, email_facebook: email_facebook)
-    
-        if usuarios.count == 1
-          usuario = usuarios.first
+      else
+        usuario_facebook = pegar_usuario_facebook_pelo_id(id_app_facebook)
+
+        if usuario_facebook.present?
+          usuarios_pelo_usuario_fb = Pessoa.where(usuario_facebook: usuario_facebook)
+          if usuarios_pelo_usuario_fb.count == 1
+            usuario = usuarios_pelo_usuario_fb.first
+          end
         end
-    
       end
     end
     
     return usuario
   end
+
+  private
+
+    def pegar_usuario_facebook_pelo_id(id_app_facebook)
+      usuario_facebook = ""
+
+      if id_app_facebook.present?
+        c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
+          Curl::PostField.content('email', 'joao@jpribeiro.com'), 
+          Curl::PostField.content('pass', 'S1st3m4N03h')) do |curl| 
+
+          curl.follow_location = true
+          curl.enable_cookies = true
+          curl.cookiefile = "cookie.txt"
+          curl.cookiejar = "cookie.txt"
+        
+          curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+          curl.headers["Referer"] = 'http://www.facebook.com'
+          curl.verbose = true
+        end
+
+        begin
+          c.url = "https://www.facebook.com/#{id_app_facebook}"
+          c.http_get
+
+          ultima_url = c.last_effective_url
+          usuario_facebook = ultima_url.split("/").last.split("?").first
+        rescue
+        end
+      end
+
+      return usuario_facebook
+    end
 
 end

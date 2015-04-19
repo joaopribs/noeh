@@ -124,7 +124,7 @@ class Pessoa < ActiveRecord::Base
   end
 
   def tem_informacoes_facebook
-    return self.url_facebook.present? || self.nome_facebook.present? || self.email_facebook.present?
+    return self.url_facebook.present? || self.usuario_facebook.present? || self.id_app_facebook.present?
   end
 
   def eh_coordenador_de_grupo_de(outra_pessoa)
@@ -422,23 +422,21 @@ class Pessoa < ActiveRecord::Base
 
   def validate_facebook
     if self.tem_facebook.present? && (self.tem_facebook == "on")
-      if self.nome_facebook.blank?
-        errors.add(:nome_facebook, "Obrigatório para quem tem Facebook")
-      end
-
       if self.url_facebook.blank?
         errors.add(:url_facebook, "Obrigatório para quem tem Facebook")
-      elsif self.new_record? && !Pessoa.where(:url_facebook => self.url_facebook).empty?
-        errors.add(:url_facebook, "Já há outra pessoa com esse Facebook")
+      else 
+        pessoas = Pessoa.where(:url_facebook => self.url_facebook)
+        if (pessoas.count == 1 && pessoas.first != self) || pessoas.count > 1
+          errors.add(:url_facebook, "Já há outra pessoa com esse Facebook")
+        end
       end
 
-      if self.url_imagem_facebook.blank?
-        errors.add(:url_imagem_facebook, "Obrigatório para quem tem Facebook")
+      if self.usuario_facebook.blank?
+        errors.add(:url_facebook, "Não foi possível adicionar o Facebook")
       else
-        begin
-          open(self.url_imagem_facebook)
-        rescue OpenURI::HTTPError
-          errors.add(:url_imagem_facebook, "A imagem não pôde ser carregada")
+        pessoas = Pessoa.where(:usuario_facebook => self.usuario_facebook)
+        if (pessoas.count == 1 && pessoas.first != self) || pessoas.count > 1
+          errors.add(:url_facebook, "Já há outra pessoa com esse Facebook")
         end
       end
     end

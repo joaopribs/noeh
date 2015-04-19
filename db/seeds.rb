@@ -56,8 +56,8 @@ if joao.nil?
   joao = Pessoa.new({
       nome: 'João Paulo Ribeiro da Silva',
       nome_usual: 'João',
-      nome_facebook: 'João Paulo Ribeiro',
       url_facebook: 'https://www.facebook.com/joaopaulo.ribs',
+      usuario_facebook: 'joaopaulo.ribs',
       eh_super_admin: true
   })
 

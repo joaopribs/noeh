@@ -2,25 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5c9b7b3-033f-4c47-81ad-f04a402dec0a" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/app/assets/stylesheets/pesquisa_pessoas.css" afterPath="$PROJECT_DIR$/app/assets/stylesheets/pesquisa_pessoas_por_nome.css" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/app/views/pessoas/_pesquisa_pessoas.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/_pesquisa_pessoas_por_nome.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/grupos/_form.html.erb" afterPath="$PROJECT_DIR$/app/views/grupos/_form.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/_form.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/_form.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/layouts/_navegacao.html.erb" afterPath="$PROJECT_DIR$/app/views/layouts/_navegacao.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/conjuntos_pessoas/edit.html.erb" afterPath="$PROJECT_DIR$/app/views/conjuntos_pessoas/edit.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/assets/stylesheets/estilo.css" afterPath="$PROJECT_DIR$/app/assets/stylesheets/estilo.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/grupos/ex_participantes.html.erb" afterPath="$PROJECT_DIR$/app/views/grupos/ex_participantes.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/grupo.rb" afterPath="$PROJECT_DIR$/app/models/grupo.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/grupos_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/grupos_controller.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/lista_pessoas.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/lista_pessoas.html.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/lista_pessoas_js.js.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/lista_pessoas_js.js.erb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/assets/javascripts/pesquisa_pessoas.js.erb" afterPath="$PROJECT_DIR$/app/assets/javascripts/pesquisa_pessoas.js.erb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Gemfile.lock" afterPath="$PROJECT_DIR$/Gemfile.lock" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Gemfile" afterPath="$PROJECT_DIR$/Gemfile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/pessoas/_form_pessoa.html.erb" afterPath="$PROJECT_DIR$/app/views/pessoas/_form_pessoa.html.erb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/application_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/application_controller.rb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/homepage/deslogado.html.erb" afterPath="$PROJECT_DIR$/app/views/homepage/deslogado.html.erb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/homepage_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/homepage_controller.rb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/noeh.iml" afterPath="$PROJECT_DIR$/noeh.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/pessoa.rb" afterPath="$PROJECT_DIR$/app/models/pessoa.rb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/pessoas_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/pessoas_controller.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/conjuntos_pessoas/recomendacoes.html.erb" afterPath="$PROJECT_DIR$/app/views/conjuntos_pessoas/recomendacoes.html.erb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/routes.rb" afterPath="$PROJECT_DIR$/config/routes.rb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schema.rb" afterPath="$PROJECT_DIR$/db/schema.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/grupos/show.html.erb" afterPath="$PROJECT_DIR$/app/views/grupos/show.html.erb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/seeds.rb" afterPath="$PROJECT_DIR$/db/seeds.rb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/sessions_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/sessions_controller.rb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="sistema_igreja.iws" />
@@ -98,8 +92,8 @@
       <file leaf-file-name="lista_pessoas.html.erb" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/views/pessoas/lista_pessoas.html.erb">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.33333334" vertical-offset="4410" max-vertical-offset="5190">
-              <caret line="305" column="0" selection-start-line="305" selection-start-column="0" selection-end-line="305" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.36935705" vertical-offset="4395" max-vertical-offset="5175">
+              <caret line="311" column="39" selection-start-line="311" selection-start-column="39" selection-end-line="311" selection-end-column="39" />
               <folding />
             </state>
           </provider>
@@ -108,9 +102,23 @@
       <file leaf-file-name="pessoas_controller.rb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/controllers/pessoas_controller.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="10672" max-vertical-offset="16485">
-              <caret line="723" column="0" selection-start-line="723" selection-start-column="0" selection-end-line="723" selection-end-column="0" />
-              <folding />
+            <state vertical-scroll-proportion="0.0" vertical-offset="10807" max-vertical-offset="17085">
+              <caret line="732" column="0" selection-start-line="732" selection-start-column="0" selection-end-line="732" selection-end-column="0" />
+              <folding>
+                <marker date="1429447954000" expanded="true" signature="1001:1040" placeholder="{ ... }" />
+                <marker date="1429447954000" expanded="true" signature="1230:1246" placeholder="if ... end" />
+                <marker date="1429447954000" expanded="true" signature="1337:1384" placeholder="{ ... }" />
+                <marker date="1429447954000" expanded="true" signature="2666:3438" placeholder="if ... end" />
+                <marker date="1429447954000" expanded="true" signature="3367:3388" placeholder="{ ... }" />
+                <marker date="1429447954000" expanded="true" signature="12256:12305" placeholder="do ... end" />
+                <marker date="1429447954000" expanded="true" signature="12278:12360" placeholder="{ ... }" />
+                <marker date="1429447954000" expanded="true" signature="22848:22904" placeholder="if ... end" />
+                <marker date="1429447954000" expanded="true" signature="23540:23791" placeholder="if ... end" />
+                <marker date="1429447954000" expanded="true" signature="23607:23781" placeholder="begin ... end" />
+                <marker date="1429447954000" expanded="true" signature="27716:28169" placeholder="if ... end" />
+                <marker date="1429447954000" expanded="true" signature="27860:28081" placeholder="if ... end" />
+                <marker date="1429447954000" expanded="true" signature="28363:28519" placeholder="if ... end" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -118,9 +126,69 @@
       <file leaf-file-name="estilo.css" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/assets/stylesheets/estilo.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="12489" max-vertical-offset="12990">
-              <caret line="859" column="16" selection-start-line="859" selection-start-column="16" selection-end-line="859" selection-end-column="16" />
-              <folding />
+            <state vertical-scroll-proportion="0.0" vertical-offset="14109" max-vertical-offset="14610">
+              <caret line="967" column="16" selection-start-line="967" selection-start-column="16" selection-end-line="967" selection-end-column="16" />
+              <folding>
+                <marker date="1424123153000" expanded="true" signature="2154:2230" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="2331:2401" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="2477:2493" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="2559:2659" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="2721:2744" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="2869:2966" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="3054:3068" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="3100:3127" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="3159:3186" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="3241:3364" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="3409:3505" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="3622:3651" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="3784:3836" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="3975:4026" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="4168:4219" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="4361:4409" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="4548:4599" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="4742:4820" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="4880:4883" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="4969:5020" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="5102:5140" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="5207:5275" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="5330:5417" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="5476:5477" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="5563:5646" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="9688:10874" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="10995:11073" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="11127:11252" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="11288:11404" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="11429:11490" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="11588:11694" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="11761:11846" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="11898:11910" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="11987:12130" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="12252:12279" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="12329:12347" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="12400:12465" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="12520:12557" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="12591:12705" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="12757:12779" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="12822:12876" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="12921:12964" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="14645:14675" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="14862:14869" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="14965:15063" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="15152:15231" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="15403:15408" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="15583:15587" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="15624:15645" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="15748:15814" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="15907:16012" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="16061:16085" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="16149:16153" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="16200:16286" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="16485:16520" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="16580:16610" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="16655:16663" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="16808:16829" placeholder="{...}" />
+                <marker date="1424123153000" expanded="true" signature="16869:16892" placeholder="{...}" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -128,9 +196,28 @@
       <file leaf-file-name="pessoa.rb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/models/pessoa.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="2574" max-vertical-offset="6105">
-              <caret line="179" column="22" selection-start-line="179" selection-start-column="22" selection-end-line="179" selection-end-column="22" />
-              <folding />
+            <state vertical-scroll-proportion="0.0" vertical-offset="3099" max-vertical-offset="7335">
+              <caret line="214" column="0" selection-start-line="214" selection-start-column="0" selection-end-line="214" selection-end-column="0" />
+              <folding>
+                <marker date="1429389160000" expanded="true" signature="523:547" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="3017:3026" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="3258:3388" placeholder="if ... end" />
+                <marker date="1429389160000" expanded="true" signature="3313:3380" placeholder="do ... end" />
+                <marker date="1429389160000" expanded="true" signature="6110:6123" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="6739:6752" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="6817:7528" placeholder="if ... end" />
+                <marker date="1429389160000" expanded="true" signature="7027:7037" placeholder="do ... end" />
+                <marker date="1429389160000" expanded="true" signature="8713:9022" placeholder="do ... end" />
+                <marker date="1429389160000" expanded="true" signature="8836:9014" placeholder="if ... end" />
+                <marker date="1429389160000" expanded="true" signature="8953:9004" placeholder="if ... end" />
+                <marker date="1429389160000" expanded="true" signature="10315:10558" placeholder="do ... end" />
+                <marker date="1429389160000" expanded="true" signature="10982:11003" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="11011:11029" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="11081:11103" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="11111:11160" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="11954:11985" placeholder="{ ... }" />
+                <marker date="1429389160000" expanded="true" signature="11993:12005" placeholder="{ ... }" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -138,9 +225,12 @@
       <file leaf-file-name="pesquisar_pessoas.html.erb" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/views/pessoas/pesquisar_pessoas.html.erb">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="570" max-vertical-offset="2670">
-              <caret line="61" column="17" selection-start-line="61" selection-start-column="17" selection-end-line="61" selection-end-column="17" />
-              <folding />
+            <state vertical-scroll-proportion="0.0" vertical-offset="2055" max-vertical-offset="6705">
+              <caret line="160" column="17" selection-start-line="160" selection-start-column="17" selection-end-line="160" selection-end-column="17" />
+              <folding>
+                <marker date="1424123948000" expanded="true" signature="4763:6604" placeholder="{...}" />
+                <marker date="1424123948000" expanded="true" signature="6898:17381" placeholder="do ... end" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -205,7 +295,6 @@
         <option value="$PROJECT_DIR$/app/views/grupos/ex_participantes.html.erb" />
         <option value="$PROJECT_DIR$/app/views/grupos/show.html.erb" />
         <option value="$PROJECT_DIR$/config/routes.rb" />
-        <option value="$PROJECT_DIR$/app/views/pessoas/lista_pessoas.html.erb" />
         <option value="$PROJECT_DIR$/db/migrate/20150118220203_create_grupo_pode_ver_equipes_de_outro_grupo.rb" />
         <option value="$PROJECT_DIR$/db/migrate/20150118232828_renomear_grupo_que_pode_ver_equipes_de_outros_grupos.rb" />
         <option value="$PROJECT_DIR$/app/controllers/grupos_controller.rb" />
@@ -217,6 +306,7 @@
         <option value="$PROJECT_DIR$/app/assets/stylesheets/estilo.css" />
         <option value="$PROJECT_DIR$/app/models/pessoa.rb" />
         <option value="$PROJECT_DIR$/app/views/pessoas/pesquisar_pessoas.html.erb" />
+        <option value="$PROJECT_DIR$/app/views/pessoas/lista_pessoas.html.erb" />
       </list>
     </option>
   </component>
@@ -280,99 +370,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope">
-        <subPane subId="Problems" />
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="noeh">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="RailsProjectView">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Models" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.folders.ModelsFolderNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Controllers" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.folders.ControllersFolderNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Controllers" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.folders.ControllersFolderNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="GruposController" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.ControllerClassNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="noeh" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Controllers" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.folders.ControllersFolderNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="EncontrosController" />
-              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.ControllerClassNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -479,6 +476,99 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="assets" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope">
+        <subPane subId="Problems" />
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="noeh">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="RailsProjectView">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Models" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.folders.ModelsFolderNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Controllers" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.folders.ControllersFolderNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Controllers" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.folders.ControllersFolderNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="GruposController" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.ControllerClassNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="noeh" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.RailsModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Controllers" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.folders.ControllersFolderNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="EncontrosController" />
+              <option name="myItemType" value="org.jetbrains.plugins.ruby.rails.projectView.v2.nodes.ControllerClassNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -902,9 +992,9 @@
     </list>
     <recent_temporary>
       <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Rake.db:migrate: noeh" />
-        <item index="1" class="java.lang.String" itemvalue="Rake.db:seed: noeh" />
-        <item index="2" class="java.lang.String" itemvalue="Ruby.seeds" />
+        <item index="0" class="java.lang.String" itemvalue="Rake.db:seed: noeh" />
+        <item index="1" class="java.lang.String" itemvalue="Ruby.seeds" />
+        <item index="2" class="java.lang.String" itemvalue="Rake.db:migrate: noeh" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -938,9 +1028,7 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21527778" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18311875" sideWeight="0.69893897" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.30140486" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32439336" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18526466" sideWeight="0.69893897" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.46478873" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920793" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -948,12 +1036,14 @@
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="CDI" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32439336" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32439336" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.30140486" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1305,7 +1395,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.6820809" vertical-offset="756" max-vertical-offset="1275">
           <caret line="74" column="0" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1318,9 +1407,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/controllers/pessoas_controller.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="10672" max-vertical-offset="16485">
-          <caret line="723" column="0" selection-start-line="723" selection-start-column="0" selection-end-line="723" selection-end-column="0" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="10807" max-vertical-offset="17085">
+          <caret line="732" column="0" selection-start-line="732" selection-start-column="0" selection-end-line="732" selection-end-column="0" />
+          <folding>
+            <marker date="1429447954000" expanded="true" signature="1001:1040" placeholder="{ ... }" />
+            <marker date="1429447954000" expanded="true" signature="1230:1246" placeholder="if ... end" />
+            <marker date="1429447954000" expanded="true" signature="1337:1384" placeholder="{ ... }" />
+            <marker date="1429447954000" expanded="true" signature="2666:3438" placeholder="if ... end" />
+            <marker date="1429447954000" expanded="true" signature="3367:3388" placeholder="{ ... }" />
+            <marker date="1429447954000" expanded="true" signature="12256:12305" placeholder="do ... end" />
+            <marker date="1429447954000" expanded="true" signature="12278:12360" placeholder="{ ... }" />
+            <marker date="1429447954000" expanded="true" signature="22848:22904" placeholder="if ... end" />
+            <marker date="1429447954000" expanded="true" signature="23540:23791" placeholder="if ... end" />
+            <marker date="1429447954000" expanded="true" signature="23607:23781" placeholder="begin ... end" />
+            <marker date="1429447954000" expanded="true" signature="27716:28169" placeholder="if ... end" />
+            <marker date="1429447954000" expanded="true" signature="27860:28081" placeholder="if ... end" />
+            <marker date="1429447954000" expanded="true" signature="28363:28519" placeholder="if ... end" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1333,32 +1436,114 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/assets/stylesheets/estilo.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="12489" max-vertical-offset="12990">
-          <caret line="859" column="16" selection-start-line="859" selection-start-column="16" selection-end-line="859" selection-end-column="16" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="14109" max-vertical-offset="14610">
+          <caret line="967" column="16" selection-start-line="967" selection-start-column="16" selection-end-line="967" selection-end-column="16" />
+          <folding>
+            <marker date="1424123153000" expanded="true" signature="2154:2230" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="2331:2401" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="2477:2493" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="2559:2659" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="2721:2744" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="2869:2966" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="3054:3068" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="3100:3127" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="3159:3186" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="3241:3364" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="3409:3505" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="3622:3651" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="3784:3836" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="3975:4026" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="4168:4219" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="4361:4409" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="4548:4599" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="4742:4820" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="4880:4883" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="4969:5020" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="5102:5140" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="5207:5275" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="5330:5417" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="5476:5477" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="5563:5646" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="9688:10874" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="10995:11073" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="11127:11252" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="11288:11404" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="11429:11490" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="11588:11694" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="11761:11846" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="11898:11910" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="11987:12130" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="12252:12279" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="12329:12347" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="12400:12465" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="12520:12557" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="12591:12705" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="12757:12779" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="12822:12876" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="12921:12964" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="14645:14675" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="14862:14869" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="14965:15063" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="15152:15231" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="15403:15408" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="15583:15587" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="15624:15645" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="15748:15814" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="15907:16012" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="16061:16085" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="16149:16153" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="16200:16286" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="16485:16520" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="16580:16610" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="16655:16663" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="16808:16829" placeholder="{...}" />
+            <marker date="1424123153000" expanded="true" signature="16869:16892" placeholder="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/models/pessoa.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2574" max-vertical-offset="6105">
-          <caret line="179" column="22" selection-start-line="179" selection-start-column="22" selection-end-line="179" selection-end-column="22" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="3099" max-vertical-offset="7335">
+          <caret line="214" column="0" selection-start-line="214" selection-start-column="0" selection-end-line="214" selection-end-column="0" />
+          <folding>
+            <marker date="1429389160000" expanded="true" signature="523:547" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="3017:3026" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="3258:3388" placeholder="if ... end" />
+            <marker date="1429389160000" expanded="true" signature="3313:3380" placeholder="do ... end" />
+            <marker date="1429389160000" expanded="true" signature="6110:6123" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="6739:6752" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="6817:7528" placeholder="if ... end" />
+            <marker date="1429389160000" expanded="true" signature="7027:7037" placeholder="do ... end" />
+            <marker date="1429389160000" expanded="true" signature="8713:9022" placeholder="do ... end" />
+            <marker date="1429389160000" expanded="true" signature="8836:9014" placeholder="if ... end" />
+            <marker date="1429389160000" expanded="true" signature="8953:9004" placeholder="if ... end" />
+            <marker date="1429389160000" expanded="true" signature="10315:10558" placeholder="do ... end" />
+            <marker date="1429389160000" expanded="true" signature="10982:11003" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="11011:11029" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="11081:11103" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="11111:11160" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="11954:11985" placeholder="{ ... }" />
+            <marker date="1429389160000" expanded="true" signature="11993:12005" placeholder="{ ... }" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/views/pessoas/pesquisar_pessoas.html.erb">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="570" max-vertical-offset="2670">
-          <caret line="61" column="17" selection-start-line="61" selection-start-column="17" selection-end-line="61" selection-end-column="17" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="2055" max-vertical-offset="6705">
+          <caret line="160" column="17" selection-start-line="160" selection-start-column="17" selection-end-line="160" selection-end-column="17" />
+          <folding>
+            <marker date="1424123948000" expanded="true" signature="4763:6604" placeholder="{...}" />
+            <marker date="1424123948000" expanded="true" signature="6898:17381" placeholder="do ... end" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/views/pessoas/lista_pessoas.html.erb">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33333334" vertical-offset="4410" max-vertical-offset="5190">
-          <caret line="305" column="0" selection-start-line="305" selection-start-column="0" selection-end-line="305" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.36935705" vertical-offset="4395" max-vertical-offset="5175">
+          <caret line="311" column="39" selection-start-line="311" selection-start-column="39" selection-end-line="311" selection-end-column="39" />
           <folding />
         </state>
       </provider>
