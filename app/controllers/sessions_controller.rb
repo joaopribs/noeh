@@ -3,7 +3,7 @@ require "open-uri"
 require "uri"
 
 class SessionsController < ApplicationController
-  skip_before_filter :precisa_estar_logado, :only => [:log_in, :log_out]
+  skip_before_filter :precisa_estar_logado, :only => [:log_in, :log_out, :pegar_usuario_facebook]
   skip_before_filter :nao_pode_ser_mobile, :only => [:log_in, :log_out, :login_com_id]
   skip_before_filter :verify_authenticity_token
   skip_before_filter :notificacao
@@ -129,36 +129,38 @@ class SessionsController < ApplicationController
     end
   end
 
-  private
-
-  def pegar_usuario(params)
-    id_app_facebook = params[:id_app_facebook]
-
-    usuario = nil
-    
-    usuarios = []
-    
-    if id_app_facebook.present?
-      usuarios = Pessoa.where(id_app_facebook: id_app_facebook)
-
-      if usuarios.count == 1
-        usuario = usuarios.first
-      else
-        usuario_facebook = pegar_usuario_facebook_pelo_id(id_app_facebook)
-
-        if usuario_facebook.present?
-          usuarios_pelo_usuario_fb = Pessoa.where(usuario_facebook: usuario_facebook)
-          if usuarios_pelo_usuario_fb.count == 1
-            usuario = usuarios_pelo_usuario_fb.first
-          end
-        end
-      end
-    end
-    
-    return usuario
+  def pegar_usuario_facebook
+    render text: pegar_usuario_facebook_pelo_id(params[:id_app_facebook])
   end
 
   private
+
+    def pegar_usuario(params)
+      id_app_facebook = params[:id_app_facebook]
+
+      usuario = nil
+      
+      usuarios = []
+      
+      if id_app_facebook.present?
+        usuarios = Pessoa.where(id_app_facebook: id_app_facebook)
+
+        if usuarios.count == 1
+          usuario = usuarios.first
+        else
+          usuario_facebook = pegar_usuario_facebook_pelo_id(id_app_facebook)
+
+          if usuario_facebook.present?
+            usuarios_pelo_usuario_fb = Pessoa.where(usuario_facebook: usuario_facebook)
+            if usuarios_pelo_usuario_fb.count == 1
+              usuario = usuarios_pelo_usuario_fb.first
+            end
+          end
+        end
+      end
+      
+      return usuario
+    end
 
     def pegar_usuario_facebook_pelo_id(id_app_facebook)
       usuario_facebook = ""

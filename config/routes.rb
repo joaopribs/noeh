@@ -90,4 +90,8 @@ Noeh::Application.routes.draw do
   get 'mobile/grupo/:id', :to => 'mobile#grupo', :as => :mobile_grupo
   match 'mobile/pesquisar_pessoas', :to => 'mobile#pesquisar_pessoas', :as => :mobile_pesquisar_pessoas, via: [:get, :post]
 
+
+  post '/pegar_usuario_facebook', :to => 'sessions#pegar_usuario_facebook', :as => :pegar_usuario_facebook
+  get '/teste', :to => 'homepage#teste', :as => :teste
+
 end
