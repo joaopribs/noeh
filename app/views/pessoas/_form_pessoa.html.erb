@@ -309,7 +309,15 @@
       <br style="clear: right;" />
 
       <div class="field">
-        <%= label_tag 'Telefones' %><br/>
+        <%= label_tag "whatsapp_#{tipo_pessoa}", 'Número WhatsApp' %><br>
+        <div class="erro_form"><%= pessoa.errors[:whatsapp].first %></div>
+        <input type="text" name="whatsapp_<%= tipo_pessoa %>" value="<%= pessoa.whatsapp %>" class="mascara_telefone" size="20" />
+      </div>
+
+      <br style="clear: right;" />
+
+      <div class="field">
+        <%= label_tag 'Telefones de contato (adicionar mesmo que já tenha adicionado WhatsApp)' %><br/>
 
         <span id="telefones_<%= tipo_pessoa %>">
             <% pessoa.telefones.each do |telefone| %>

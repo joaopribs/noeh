@@ -918,6 +918,7 @@ class PessoasController < ApplicationController
                                               url_facebook: params[:url_facebook_pessoa].strip.split("?")[0],
                                               url_imagem_facebook: params[:url_imagem_facebook_pessoa],
                                               url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_pessoa],
+                                              whatsapp: params[:whatsapp_pessoa],
                                               telefones: telefones,
                                               instrumentos: instrumentos})
       hash.permit!
@@ -942,6 +943,7 @@ class PessoasController < ApplicationController
                                               url_facebook: params[:url_facebook_conjuge].strip.split("?")[0],
                                               url_imagem_facebook: params[:url_imagem_facebook_conjuge],
                                               url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_conjuge],
+                                              whatsapp: params[:whatsapp_pessoa_conjuge],
                                               telefones: telefones,
                                               instrumentos: instrumentos)
       hash.permit!

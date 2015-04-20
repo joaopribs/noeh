@@ -46,6 +46,7 @@ class SessionsController < ApplicationController
           if usuario.foto_pequena_file_name != nome_do_arquivo
             usuario.foto_pequena = open(url_foto_pequena)
             usuario.foto_pequena_file_name = nome_do_arquivo
+            usuario.url_imagem_facebook_pequena = url_foto_pequena
           end
         end
 

@@ -34,11 +34,14 @@
       <br/>
 
       <span class="telefones">
-        <%= pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
-
-        <% if pessoa.conjuge.present? %>
-          <%= pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}.join(" / ") %>
-        <% end %>
+      <% 
+        telefones = ["#{pessoa.whatsapp} (WhatsApp)"].concat(pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}) 
+        if pessoa.conjuge.present? && (forcar_conjuges || pessoas.include?(pessoa.conjuge))
+          telefones = telefones.concat("#{pessoa.conjuge.whatsapp} (WhatsApp)").concat(pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"})
+        end        
+      %>
+      
+      <%= telefones.join(" / ") %>
       </span>
     </div>
 

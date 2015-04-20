@@ -7,6 +7,9 @@
 	<b>Nome usual:</b><br/>
 	<%= pessoa.nome_usual %>
 	<p/>
+	<b>WhatsApp:</b><br/>
+	<%= pessoa.whatsapp %>
+	<p/>
 
 	<%
 	    if pessoa.telefones.count > 1
@@ -29,7 +32,7 @@
 	    end
 	%>
 
-	<b><%= titulo_telefones %>:</b>
+	<b><%= titulo_telefones %> de contato:</b>
 	<%= raw separador_telefones %><%= raw string_telefones %>
 	<p/>
 

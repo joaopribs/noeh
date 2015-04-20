@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150419102300) do
+ActiveRecord::Schema.define(version: 20150420112400) do
 
   create_table "auto_sugestao", force: :cascade do |t|
     t.integer  "pessoa_id",   limit: 4
@@ -115,6 +115,7 @@ ActiveRecord::Schema.define(version: 20150419102300) do
     t.string   "usuario_facebook",            limit: 255
     t.string   "id_app_facebook",             limit: 255
     t.string   "url_imagem_facebook_pequena", limit: 255
+    t.string   "whatsapp",                    limit: 255
   end
 
   create_table "recomendacoes_do_coordenador_permanente", force: :cascade do |t|
