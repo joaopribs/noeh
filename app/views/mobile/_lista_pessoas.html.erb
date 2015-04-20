@@ -35,10 +35,19 @@
 
       <span class="telefones">
       <% 
-        telefones = ["#{pessoa.whatsapp} (WhatsApp)"].concat(pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"}) 
+        telefones = []
+
+        if pessoa.whatsapp.present?
+          telefones = telefones.concat("#{pessoa.whatsapp} (WhatsApp)")
+        end
+        telefones.concat(pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"})
+
         if pessoa.conjuge.present? && (forcar_conjuges || pessoas.include?(pessoa.conjuge))
-          telefones = telefones.concat("#{pessoa.conjuge.whatsapp} (WhatsApp)").concat(pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"})
-        end        
+          if pessoa.conjuge.whatsapp.present?
+            telefones = telefones.concat("#{pessoa.conjuge.whatsapp} (WhatsApp)")
+          end
+          telefones.concat(pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"})
+        end
       %>
       
       <%= telefones.join(" / ") %>
