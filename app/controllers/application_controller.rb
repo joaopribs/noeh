@@ -271,14 +271,40 @@ class ApplicationController < ActionController::Base
           curl.verbose = true
         end
 
-        ultima_url = c.last_effective_url
-        usuario_facebook = ultima_url.split("/").last.split("?").first
-
         conteudo_pagina = c.body_str.force_encoding('UTF-8')
 
         img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
         # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
         nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
+
+        if img_grande == "" 
+          # Talvez precise fazer login e tentar de novo
+          c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
+            Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
+            Curl::PostField.content('pass', APP_CONFIG['senha_facebook_request'])) do |curl| 
+
+            curl.follow_location = true
+            curl.enable_cookies = true
+            curl.cookiefile = "cookie.txt"
+            curl.cookiejar = "cookie.txt"
+          
+            curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+            curl.headers["Referer"] = 'http://www.facebook.com'
+            curl.verbose = true
+          end
+
+          c.url = "https://www.facebook.com/#{id_app_facebook}"
+          c.http_get
+
+          conteudo_pagina = c.body_str.force_encoding('UTF-8')
+
+          img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
+          # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
+          nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
+        end
+
+        ultima_url = c.last_effective_url
+        usuario_facebook = ultima_url.split("/").last.split("?").first
       rescue
       end
     end
