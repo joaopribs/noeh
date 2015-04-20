@@ -312,6 +312,8 @@ class ApplicationController < ActionController::Base
 
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
 
+          puts conteudo_pagina
+
           img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
           # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
           nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
