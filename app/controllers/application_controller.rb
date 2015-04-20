@@ -307,6 +307,8 @@ class ApplicationController < ActionController::Base
           end
           puts 'TERMINOU O GET'
           puts '------------------------------------------------------------'
+          puts c.body_str.index('fb-timeline-cover-name')
+          puts c.body_str.index('armento')
 
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
 
