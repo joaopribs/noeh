@@ -294,9 +294,18 @@ class ApplicationController < ActionController::Base
           end
 
           puts '------------------------------------------------------------'
-          c.url = "https://www.facebook.com/#{id_app_facebook}"
-          c.http_get
-
+          puts 'COMECANDO O GET'
+          c = Curl::Easy.http_get(params[:url]) do |curl| 
+            curl.follow_location = true
+            curl.enable_cookies = true
+            curl.cookiefile = "cookie.txt"
+            curl.cookiejar = "cookie.txt"
+          
+            curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+            curl.headers["Referer"] = 'http://www.facebook.com'
+            curl.verbose = true
+          end
+          puts 'TERMINOU O GET'
           puts '------------------------------------------------------------'
 
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
