@@ -293,8 +293,11 @@ class ApplicationController < ActionController::Base
             curl.verbose = true
           end
 
+          puts '------------------------------------------------------------'
           c.url = "https://www.facebook.com/#{id_app_facebook}"
           c.http_get
+
+          puts '------------------------------------------------------------'
 
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
 
