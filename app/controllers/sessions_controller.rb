@@ -167,7 +167,7 @@ class SessionsController < ApplicationController
 
       if id_app_facebook.present?
         c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
-          Curl::PostField.content('email', 'joao@jpribeiro.com'), 
+          Curl::PostField.content('email', 'noehsistemafb@gmail.com'), 
           Curl::PostField.content('pass', 'S1st3m4N03h')) do |curl| 
 
           curl.follow_location = true
