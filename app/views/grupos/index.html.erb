@@ -18,6 +18,8 @@
             });
 
             $(".confirmar_excluir_grupo").on("click", function (evento) {
+                evento.preventDefault();
+
                 var idGrupo = $(this).data("id-grupo");
                 var page = $(this).data("page");
 

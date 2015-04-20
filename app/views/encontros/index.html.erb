@@ -13,6 +13,8 @@
             $("#dialog").show();
 
             $(".dialog_link_confirmar").on("click", function (evento) {
+                evento.preventDefault();
+
                 $.ajax({
                             url: "<%= encontro_url(id: '') %>" + idEncontro,
                             type: "delete",
