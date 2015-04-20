@@ -293,8 +293,6 @@ class ApplicationController < ActionController::Base
             curl.verbose = true
           end
 
-          puts '------------------------------------------------------------'
-          puts 'COMECANDO O GET'
           c = Curl::Easy.http_get(params[:url]) do |curl| 
             curl.follow_location = true
             curl.enable_cookies = true
@@ -305,10 +303,6 @@ class ApplicationController < ActionController::Base
             curl.headers["Referer"] = 'http://www.facebook.com'
             curl.verbose = true
           end
-          puts 'TERMINOU O GET'
-          puts '------------------------------------------------------------'
-          puts c.body_str.index('fb-timeline-cover-name')
-          puts c.body_str.index('armento')
 
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
 
