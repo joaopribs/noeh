@@ -1,24 +1,4 @@
 <script>
-    function resetarFormPessoa() {
-        $("#form_pessoa")
-                .find("input, select")
-                .not("input[name = authenticity_token]")
-                .not("input[type = radio]")
-                .val("");
-        $("input[name = casado_ou_solteiro]")
-                .filter("[value = solteiro]")
-                .prop("checked", true);
-        casadoOuSolteiro();
-        $("input[name = eh_homem_pessoa], input[name = eh_homem_conjuge]")
-                .filter("[value = true]")
-                .prop("checked", true);
-        $(".informacoes_fb").hide();
-        $(".opcoes_conjuge a").removeClass("ativo");
-        $("#form_novo_conjuge").hide();
-        $("#form_conjuge_ja_cadastrado").hide();
-        $("#detalhes_pesquisa_conjuge").hide();
-    }
-
     function setarOpcaoEscolhida(elemento) {
         $(elemento).addClass("ativo");
         $(elemento).siblings("a").removeClass("ativo");
@@ -33,7 +13,27 @@
         }
     }
 
+    function alterarGeneroConjuge() {
+        if ($("#acompanhar_genero_conjuge").val() == "true") {
+            if ($("input[name = eh_homem_pessoa]:checked").val() == "true") {
+                $("input[name = eh_homem_conjuge]").filter("[value = false]").prop("checked", true);
+            }
+            else {
+                $("input[name = eh_homem_conjuge]").filter("[value = true]").prop("checked", true);
+            }
+        }
+    }
+
     $(function () {
+        alterarGeneroConjuge();
+
+        $("input[name = eh_homem_pessoa]").on("change", function () {
+            alterarGeneroConjuge();
+        });
+
+        $("#todos_os_campos_de_conjuge").find("input").on("change", function () {
+            $("#acompanhar_genero_conjuge").val("false");
+        });
 
         $("#link_enviar").on("click", function (e) {
             e.preventDefault();

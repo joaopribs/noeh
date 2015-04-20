@@ -154,7 +154,7 @@
     }
 </script>
 
-<table border="0">
+<table border="0" id="todos_os_campos_de_<%= tipo_pessoa %>">
   <tr>
     <td class="imagem_form">
       <%
@@ -227,6 +227,10 @@
 
         <label><%= radio_button_tag "eh_homem_#{tipo_pessoa}", true, pessoa.eh_homem, :id => "eh_homem_#{tipo_pessoa}" %> Homem</label>
         <label><%= radio_button_tag "eh_homem_#{tipo_pessoa}", false, !pessoa.eh_homem, :id => "eh_mulher_#{tipo_pessoa}" %> Mulher</label>
+
+        <% if tipo_pessoa == 'conjuge' %>
+          <input type="hidden" name="acompanhar_genero_conjuge" id="acompanhar_genero_conjuge" value="<%= pessoa.new_record? ? 'true' : 'false' %>" />
+        <% end %>
       </div>
 
       <div class="field">
