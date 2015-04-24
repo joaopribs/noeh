@@ -1,0 +1,17 @@
+<div class="campos_telefone" style="display: table; margin: auto;">
+
+  <div style="float: left;">
+    <label for="telefone_<%= tipo_pessoa %>">Número</label><br/>
+    <input type="tel" name="telefones_<%= tipo_pessoa %>[]" value="<%= telefone.telefone %>" class="mascara_telefone" size="14" />
+  </div>
+
+  <div style="float: left; margin-left: 2vmin;">
+    <label for="telefone_<%= tipo_pessoa %>">Operadora</label><br/>
+    <%= select_tag "operadoras_#{tipo_pessoa}[]", options_for_select(operadoras_telefone, telefone.operadora) %>
+  </div>
+
+  <div style="float: left; margin-left: 2vmin;">
+    <br/><a href="#" class="link_remover remover_telefone_<%= tipo_pessoa %>">Remover</a>
+  </div>
+
+</div>

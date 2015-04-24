@@ -3,9 +3,12 @@
 <%= form_tag(:mobile_pesquisar_pessoas) do %>
 	<input type="hidden" name="pesquisa" value="1" />
 	Nome<br/>
-	<%= text_field_tag('nome', @parametros_pesquisa_pessoas.nome, class: 'nome_pesquisa_pessoas') %><br/>
+	<%= text_field_tag('nome', @parametros_pesquisa_pessoas.nome, class: 'nome_pesquisa_pessoas') %>
+	
+	<p/>
+
 	<center>
-  	<input type="submit" value="Pesquisar" class="botao_pesquisar" />
+  	<input type="submit" value="Pesquisar" />
 	</center>
 <% end %>
 

@@ -82,14 +82,16 @@ Noeh::Application.routes.draw do
   post '/pegar_informacoes_facebook_pelo_link', :to => 'application#pegar_informacoes_facebook_pelo_link', :as => :pegar_informacoes_facebook_pelo_link
 
   get 'mobile/deslogado', :to => 'mobile#deslogado', :as => :mobile_deslogado
-  get 'mobile/nao_cadastrado', :to => 'mobile#nao_cadastrado', :as => :mobile_nao_cadastrado
+  get 'mobile/nao_cadastrado', :to => 'mobile#cadastro_proprio', :as => :mobile_cadastro_proprio
   get 'mobile/index', :to => 'mobile#index', :as => :mobile_index
   get 'mobile/pessoa/:id', :to => 'mobile#pessoa', :as => :mobile_pessoa
   get 'mobile/conjunto/:id', :to => 'mobile#conjunto', :as => :mobile_conjunto
   get 'mobile/encontro/:id', :to => 'mobile#encontro', :as => :mobile_encontro
   get 'mobile/grupo/:id', :to => 'mobile#grupo', :as => :mobile_grupo
   match 'mobile/pesquisar_pessoas', :to => 'mobile#pesquisar_pessoas', :as => :mobile_pesquisar_pessoas, via: [:get, :post]
-
+  get 'mobile/cadastrar', :to => 'pessoas#cadastrar_novo', :as => :cadastrar_novo_mobile, :mobile => true
+  get 'mobile/confirmacao_cadastro', :to => 'pessoas#cadastrar_novo_confirmacao_mobile', :as => :cadastrar_novo_confirmacao_mobile, :mobile => true
+  get 'mobile/pessoa/:id/editar', :to => 'pessoas#edit', :as => :mobile_editar_pessoa, :mobile => true
 
   post '/pegar_usuario_facebook', :to => 'sessions#pegar_usuario_facebook', :as => :pegar_usuario_facebook
   get '/teste', :to => 'homepage#teste', :as => :teste

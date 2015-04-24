@@ -14,6 +14,7 @@
     <%= csrf_meta_tags %>
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 </head>
 <body>
 
@@ -69,7 +70,7 @@
             </td>
 
             <td class="link_logo link_topo" data-url="<%= mobile_index_path %>">
-                <%= image_tag 'noeh25_amarelo.png' %>
+                <%= image_tag 'noeh25_branco.png' %>
             </td>
 
             <td class="filler">
@@ -93,14 +94,14 @@
             <table id="faixa_superior_menu">
                 <tr valign="middle">
                     <td class="link_menu">
-                        <%= image_tag 'menu_amarelo.png' %>
+                        <%= image_tag 'menu_azul_claro.png' %>
                     </td>
 
                     <td class="filler">
                     </td>
 
                     <td class="link_logo link_topo" data-url="<%= mobile_index_path %>">
-                        <%= image_tag 'noeh25_preto.png' %>
+                        <%= image_tag 'noeh25_azul.png' %>
                     </td>
 
                     <td class="filler">
@@ -124,12 +125,11 @@
 
     </div>
 
-    <div id="conteudo">
-
-        <%= yield %>
-
-        <br style="clear: both;" />
-
+    <div id="container">
+        <div id="conteudo">
+            <%= yield %>
+            <br style="clear: both;" />
+        </div>
     </div>
 
     <div id="rodape">

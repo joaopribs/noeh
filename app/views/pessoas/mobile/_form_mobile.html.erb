@@ -1,0 +1,273 @@
+<script>
+
+	function casadoOuSolteiro() {
+    if ($("input[name=casado_ou_solteiro]:checked").val() == 'casado') {
+      <% if modo == 'cadastrar_novo' %>
+        $("#msg_so_pode_cadastrar_solteiro").show();
+        $("#resto_do_form").hide();
+      <% else %>
+        $(".campos_casado").show();
+      <% end %>
+    }
+    else {
+      <% if modo == 'cadastrar_novo' %>
+        $("#msg_so_pode_cadastrar_solteiro").hide();
+        $("#resto_do_form").show();
+      <% else %>
+        $(".campos_casado").hide();
+      <% end %>
+    }
+	}
+
+	function alterarGeneroConjuge() {
+    if ($("#acompanhar_genero_conjuge").val() == "true") {
+      if ($("input[name = eh_homem_pessoa]:checked").val() == "true") {
+        $("input[name = eh_homem_conjuge]").filter("[value = false]").prop("checked", true);
+      }
+      else {
+        $("input[name = eh_homem_conjuge]").filter("[value = true]").prop("checked", true);
+      }
+    }
+	}
+
+  var grupoEscolhido = null;
+  var grupos = <%= raw Grupo.all.to_json() %>
+  var hash_encontros = {};
+
+  function atualizarFuncoesAutoInserir() {
+    $('.grupo_participacao').on('change', function () {
+      var idEscolhido = $(this).val();
+
+      if (idEscolhido == '') {
+          grupoEscolhido = null;
+      }
+      else {
+          $.each(grupos, function (index, item) {
+              if (item.id == idEscolhido) {
+                  grupoEscolhido = item;
+              }
+          });
+      }
+
+      var fieldEncontros = $(this).parent().siblings('.wrapper_encontro_participacao');
+      var quebraDeLinha = $(this).parent().siblings('.quebra_de_linha_encontros');
+      var fieldParticipacoes = $(this).parent().siblings('.wrapper_participacao');
+
+      if (grupoEscolhido != null) {
+          if (grupoEscolhido.tem_encontros) {
+              var primeiroEncontro = null;
+
+              var encontros = hash_encontros[grupoEscolhido.id];
+
+              if (encontros == undefined) {
+                  // Fazendo chamada SÍNCRONA pra pegar os encontros
+                  $.ajax({
+                      type: 'GET',
+                      url: '<%= encontros_de_grupo_url %>?id=' + grupoEscolhido.id,
+                      dataType: 'json',
+                      success: function(json) { 
+                          encontros = json;
+                          hash_encontros[grupoEscolhido.id] = encontros;
+                      },
+                      async: false
+                  });    
+              }
+
+              $(fieldEncontros).children('select').empty();
+              $.each(encontros, function (index, item) {
+                  if (primeiroEncontro == null) {
+                      primeiroEncontro = item;
+                  }
+
+                  var ano = item.data_inicio.substr(0, 4);
+
+                  $(fieldEncontros).children('select').append(
+                                  '<option value="' + item.id + '">' + item.nome + ' (' + ano + ')' + '</option>'
+                  );
+              });
+
+              $(fieldEncontros).css("display", "inline-block");
+              $(quebraDeLinha).css("display", "inline-block");
+
+              if (primeiroEncontro != null) {
+                  $(fieldParticipacoes).children('.campo_texto_sugestao').val('');
+                  $(fieldParticipacoes).css("display", "inline-block");
+              }
+          }
+          else {
+              $(fieldEncontros).children('select').empty();
+              $(fieldEncontros).children('select').append(
+                      '<option value="-1"></option>'
+              );
+
+              $(fieldParticipacoes).children('.campo_texto_sugestao').val('so_grupo');
+
+              $(fieldEncontros).add(fieldParticipacoes).hide();
+          }
+      }
+      else {
+          $(fieldEncontros).children('select').empty();
+          $(fieldEncontros).children('select').append(
+                  '<option value="-1"></option>'
+          );
+
+          $(fieldEncontros).add(fieldParticipacoes).hide();
+      }
+    });
+
+    $('.remover_participacao').on('click', function (evento) {
+        evento.preventDefault();
+        $(this).closest('.container').remove();
+    });
+
+    $('.checkbox_coordenador').on('change', function () {
+        if ($(this).prop('checked')) {
+            $(this).siblings('.hidden_coordenador').val("true");
+        }
+        else {
+            $(this).siblings('.hidden_coordenador').val("false");
+        }
+    });
+  }
+
+	$(function () {
+    alterarGeneroConjuge();
+
+    $("input[name = eh_homem_pessoa]").on("change", function () {
+      alterarGeneroConjuge();
+    });
+
+    $("#todos_os_campos_de_conjuge").find("input").on("change", function () {
+      $("#acompanhar_genero_conjuge").val("false");
+    });
+
+    $("input[name=casado_ou_solteiro]").on("change", function () {
+      casadoOuSolteiro();
+    });
+
+    $('.mascara_cep').mask(
+        '00.000-000',
+        {
+            clearIfNotMatch: true,
+            placeholder: '__.___-___'
+        }
+    );
+
+    $('#link_adicionar_participacao_casal').on('click', function (evento) {
+        evento.preventDefault();
+
+        $('#participacoes_casal').append(
+            '<%= raw (render 'pessoas/mobile/form_participacao_auto_inserir_mobile', tipo_pessoa: "casal", grupo_id: "-1", encontro_id: "-1", sugestao: "", coordenador: "false").gsub("\n", "") %>'
+        );
+
+        atualizarFuncoesAutoInserir();
+    });
+  });
+
+</script>
+
+<center>
+
+  <%
+    if modo == "cadastrar_novo"  
+      endereco_form = pessoas_url
+      modo_form = :post
+    elsif modo == "editando"
+      endereco_form = pessoa_url(@pessoa)
+      modo_form = :put
+    end
+  %>
+
+	<%= form_tag endereco_form, method: modo_form do %>
+
+    <input type="hidden" name="onde_fez_alteracao" value="celular" />
+
+    <% if !@pessoa.errors.empty? || !@conjuge.errors.empty? %>
+      <div class="erro_form">
+        Suas informações não foram submetidas devido a erros no formulário. Revise e tente novamente.
+      </div>
+      <p/>
+    <% end %>
+
+    <input type="hidden" name="mobile" value="1" />
+
+    <% if defined?(modo) && modo == "cadastrar_novo" %>
+		  <input type="hidden" name="auto_inserido" value="1" />
+    <% end %>
+    
+		<div class="field campo_solteiro_ou_casado">
+	    <label>Estado civil:</label><br/>
+	    <label><%= radio_button_tag :casado_ou_solteiro, 'solteiro', (!@eh_casal) %>Solteiro</label>
+	    <label><%= radio_button_tag :casado_ou_solteiro, 'casado', (@eh_casal) %>Casado</label>
+	  </div>
+
+    <p/>
+
+    <div id="msg_so_pode_cadastrar_solteiro" style="display: none;">
+      No momento, para fazer cadastro de casal, é necessário acessar o sistema Noeh usando um computador. Infelizmente, ainda não é possível fazer o cadastro de pessoas casadas pelo celular, mas estamos trabalhando nisso :)
+    </div>
+
+    <div id="resto_do_form">
+  	  <%= render 'pessoas/mobile/form_pessoa_mobile', pessoa: @pessoa, tipo_pessoa: 'pessoa', modo: modo %>
+
+      <div <% if modo == 'cadastrar_novo' %>style="display: none;"<% end %>>
+    	  <div class="campos_casado" style="<% if !@eh_casal %>display: none;<% end %> border-top: 1vmin solid #ccc; margin-top: 4vmin;">
+    	  	<h2>Cônjuge</h2>
+
+    	  	<% if @conjuge_ja_cadastrado %>
+    	  	<% else %> 
+    				<%= render 'pessoas/mobile/form_pessoa_mobile', pessoa: @conjuge, tipo_pessoa: 'conjuge', modo: modo %>
+    			<% end %>
+
+          <hr style="border-top: 1vmin solid #ccc; margin-top: 4vmin;" />
+
+          <div id="participacoes_casal">
+
+            <h2>Participações dos dois como um casal</h2>
+
+            <%= render 'helper_participacao' %>
+
+            <%
+               grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_casal")
+               encontros_auto_inserir = instance_variable_get("@encontros_auto_inserir_casal")
+               sugestoes_auto_inserir = instance_variable_get("@sugestoes_auto_inserir_casal")
+               coordenadores_auto_inserir = instance_variable_get("@coordenadores_auto_inserir_casal")
+            %>
+
+            <% if grupos_auto_inserir.present? %>
+              <% grupos_auto_inserir.each_with_index do |grupo_id, index| %>
+                <%
+                  encontro_id = encontros_auto_inserir[index]
+                  texto_sugestao = sugestoes_auto_inserir[index]
+                  coordenador = coordenadores_auto_inserir[index]
+                %>
+                <%= render 'pessoas/mobile/form_participacao_auto_inserir_mobile', tipo_pessoa: 'casal', grupo_id: grupo_id, encontro_id: encontro_id, sugestao: texto_sugestao, coordenador: coordenador %>
+              <% end %>
+            <% else %>
+              <%= render 'pessoas/mobile/form_participacao_auto_inserir_mobile', tipo_pessoa: 'casal', grupo_id: '-1', encontro_id: '-1', sugestao: '', coordenador: 'false' %>
+            <% end %>
+
+            <script>
+                atualizarFuncoesAutoInserir();
+            </script>
+          </div>
+
+          <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_casal" do %>
+              Adicionar outra participação dos dois como um casal
+          <% end %>
+        </div>
+  	  </div>
+
+      <% 
+        if modo == "cadastrar_novo"
+          texto_botao = "Cadastrar"
+        elsif modo == "editando"
+          texto_botao = "Alterar"
+        end
+      %>
+
+      <input type="submit" value="<%= texto_botao %>" class="botao_submeter" />
+    </div>
+	<% end %>
+
+</center>

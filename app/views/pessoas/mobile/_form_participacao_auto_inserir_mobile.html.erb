@@ -1,0 +1,42 @@
+<div class="container" style="display: table; margin: auto; margin-bottom: 4vmin; padding-bottom: 4vmin; border-bottom: 1px solid #ccc; width: 100%; text-align: center;">
+
+    <div class="field" style="display: inline-block;">
+        <label for="grupo">Grupo</label><br/>
+        <%= select_tag "grupos_auto_inserir_#{tipo_pessoa}[]", options_for_select(Grupo.all.collect{|g| [g.nome, g.id]}, grupo_id), include_blank: true, class: 'grupo_participacao' %>
+    </div>
+
+    <% grupo = grupo_id != "-1" ? Grupo.find(grupo_id) : nil %>
+
+    <div class="field wrapper_encontro_participacao" style="<% if !(grupo_id != "-1" && grupo.tem_encontros) %>display: none;<% end %> margin-left: 2vmin;">
+        <% if grupo_id != "-1" && grupo.tem_encontros %>
+            <label for="encontros">Encontro</label><br/>
+            <% grupo = Grupo.find(grupo_id) %>
+            <%= select_tag "encontros_auto_inserir_#{tipo_pessoa}[]", options_for_select(grupo.encontros.collect{|e| [e.nome, e.id]}, encontro_id), include_blank: false, class: 'encontro_participacao' %>
+        <% else %>
+            <label for="encontros">Encontro</label><br/>
+            <select name="encontros_auto_inserir_<%= tipo_pessoa %>[]" class="encontro_participacao">
+              <option value="-1"></option>
+            </select>
+        <% end %>
+    </div>
+
+    <br class="quebra_de_linha_encontro" style="clear: both; display: none;" />
+
+    <div class="field wrapper_participacao" style="display: <% if encontro_id == "-1" || !grupo.tem_encontros %>none<% else %>inline-block<% end %>; margin-left: 2vmin;">
+        <label for="participacao">Participação</label><br/>
+        <input type="text" name="sugestoes_auto_inserir_<%= tipo_pessoa %>[]" value="<%= sugestao %>" class="campo_texto_sugestao" style="text-align: center;" />
+    </div>
+
+    <div class="field" style="display: inline-block; margin-left: 2vmin;">
+        <label>
+            <input type="hidden" name="coordenadores_auto_inserir_<%= tipo_pessoa %>[]" value="<%= coordenador %>" class="hidden_coordenador" />
+            Coord.<br/>
+            <%= check_box_tag "radio", "true", coordenador == "true", class: 'checkbox_coordenador' %>
+        </label>
+    </div>
+
+    <div style="display: inline-block; margin-left: 2vmin;">
+        <br />
+        <a href="#" class="link_remover remover_participacao">Remover</a>
+    </div>
+</div>

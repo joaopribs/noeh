@@ -291,18 +291,7 @@
           <div class="field">
             <%= label_tag "cep_#{tipo_pessoa}", 'CEP' %><br>
             <div class="erro_form"><%= pessoa.errors[:cep].first %></div>
-
-            <%
-               cep1 = ''
-               cep2 = ''
-               if pessoa.cep.present?
-                 elementos = pessoa.cep.split('-')
-                 cep1 = elementos[0]
-                 cep2 = elementos[1]
-               end
-            %>
-
-            <%= text_field_tag "cep1_#{tipo_pessoa}", cep1, size: 5, maxlength: 5 %>-<%= text_field_tag "cep2_#{tipo_pessoa}", cep2, size: 3, maxlength: 3 %>
+            <input type="text" name="cep_<%= tipo_pessoa %>" value="<%= pessoa.cep %>" class="mascara_cep" size="10" />
           </div>
       <% end %>
 
@@ -362,9 +351,7 @@
 
         <div id="participacoes_<%= tipo_pessoa %>">
 
-          <p class="helper_participacao">
-              Preencha todas as suas participações nos grupos abaixo. Quando for o caso, digite o que foi sua participação (equipe, grupo, família, etc), de modo que seja possível a identificação pelos coordenadores.
-          </p>
+          <%= render 'helper_participacao' %>
         
           <%
              grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_#{tipo_pessoa}")

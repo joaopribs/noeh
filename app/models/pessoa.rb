@@ -449,7 +449,7 @@ class Pessoa < ActiveRecord::Base
   end
 
   def validate_cep
-    if !self.cep.blank? && ((self.cep =~ /[0-9]{5}-[0-9]{3}/) == nil)
+    if !self.cep.blank? && ((self.cep =~ /[0-9]{2}.[0-9]{3}-[0-9]{3}/) == nil)
       errors.add(:cep, "CEP inválido")
     end
   end

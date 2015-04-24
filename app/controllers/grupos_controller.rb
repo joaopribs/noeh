@@ -5,6 +5,7 @@ class GruposController < ApplicationController
   before_action :adicionar_breadcrumbs_controller
   skip_before_filter :precisa_estar_logado, :only => [:encontros_de_grupo]
   skip_before_action :adicionar_breadcrumbs_controller, only: [:encontros_de_grupo]
+  skip_before_filter :nao_pode_ser_mobile, only: [:encontros_de_grupo]
 
   def adicionar_breadcrumbs_controller
     if @usuario_logado.eh_super_admin

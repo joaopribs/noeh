@@ -1,4 +1,4 @@
-<h1>
+<h1 style="display: inline-block;">
 	<%= @pessoa.nome_usual %>
 
 	<% if @pessoa.conjuge.present? %>
@@ -6,6 +6,12 @@
 	<% end %>
 
 </h1>
+
+<%= link_to 'Editar Informações', mobile_editar_pessoa_path(@pessoa), class: 'link_editar' %>
+
+<br style="clear: both;" />
+
+<%= render 'shared/notificacao' %>
 
 <%= render 'informacoes_pessoa', pessoa: @pessoa, participacoes: @participacoes %>
 

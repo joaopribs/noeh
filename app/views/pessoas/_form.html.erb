@@ -225,8 +225,6 @@
         $('#link_adicionar_participacao_casal').on('click', function (evento) {
             evento.preventDefault();
 
-            console.log("clicou");
-
             $('#participacoes_casal').append(
                 '<%= raw (render 'form_participacao_auto_inserir', tipo_pessoa: "casal", grupo_id: "-1", encontro_id: "-1", sugestao: "", coordenador: "false").gsub("\n", "") %>'
             );
@@ -234,6 +232,13 @@
             atualizarFuncoesAutoInserir();
         });
 
+        $('.mascara_cep').mask(
+            '00.000-000',
+            {
+                clearIfNotMatch: true,
+                placeholder: '__.___-___'
+            }
+        );
     });
 
     var grupoEscolhido = null;
@@ -350,6 +355,8 @@
 
 <%= form_tag form_url, method: form_method, id: "form_pessoa" do %>
 
+    <input type="hidden" name="onde_fez_alteracao" value="site" />
+
     <% if defined?(modo) && modo == "cadastrar_novo" %>
         <input type="hidden" name="auto_inserido" value="1" />
     <% end %>
@@ -450,11 +457,10 @@
       <% if defined?(modo) && modo == "cadastrar_novo" %>
         <div id="participacoes_casal">
 
-          <p class="helper_participacao">
-              Preencha todas as suas participações nos grupos abaixo. Quando for o caso, digite o que foi sua participação (equipe, grupo, família, etc), de modo que seja possível a identificação pelos coordenadores.
-          </p>
-
           <h2>Participações dos dois como um casal</h2>
+
+          <%= render 'helper_participacao' %>
+
           <%
              grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_casal")
              encontros_auto_inserir = instance_variable_get("@encontros_auto_inserir_casal")

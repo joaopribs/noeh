@@ -1,0 +1,327 @@
+<script>
+  $(function () {
+    $('#tem_facebook_<%= tipo_pessoa %>').on('change', function () {
+      if ($(this).prop('checked')) {
+        $('#campos_de_facebook_<%= tipo_pessoa %>').show();
+        if ($('#esta_tirando_facebook_<%= tipo_pessoa %>').size() > 0) {
+          $('#esta_tirando_facebook_<%= tipo_pessoa %>').val("0");
+        }
+      }
+      else {
+        $('#campos_de_facebook_<%= tipo_pessoa %>').hide();
+        limparInformacoesFacebook<%= tipo_pessoa %>();
+        if ($('#esta_tirando_facebook_<%= tipo_pessoa %>').size() > 0) {
+          $('#esta_tirando_facebook_<%= tipo_pessoa %>').val("1");
+        }
+      }
+    });
+
+    $('#novo_telefone_<%= tipo_pessoa %>').on('click', function (evento) {
+      evento.preventDefault();
+      $('#telefones_<%= tipo_pessoa %>').append(
+                      '<%= raw (render 'pessoas/mobile/form_telefone_mobile', telefone: Telefone.new, tipo_pessoa: tipo_pessoa).gsub("\n", "") %>'
+      );
+
+      atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
+    });
+
+    $('#novo_instrumento_<%= tipo_pessoa %>').on('click', function (evento) {
+      evento.preventDefault();
+
+      $('#instrumentos_<%= tipo_pessoa %>').append(
+          '<%= raw (render 'pessoas/mobile/form_instrumento_mobile', instrumento: Instrumento.new, tipo_pessoa: tipo_pessoa).gsub("\n", "") %>'
+      );
+
+      atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
+    });
+
+    $('#link_adicionar_participacao_<%= tipo_pessoa %>').on('click', function (evento) {
+        evento.preventDefault();
+
+        $('#participacoes_<%= tipo_pessoa %>').append(
+            '<%= raw (render 'pessoas/mobile/form_participacao_auto_inserir_mobile', tipo_pessoa: tipo_pessoa, grupo_id: "-1", encontro_id: "-1", sugestao: "", coordenador: "false").gsub("\n", "") %>'
+        );
+
+        atualizarFuncoesAutoInserir();
+    });
+
+    atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
+    atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
+  });
+
+  function limparInformacoesFacebook<%= tipo_pessoa %>() {
+    $('#imagem_<%= tipo_pessoa %>').attr('src', '<%= Pessoa.url_imagem_sem_imagem(120) %>');
+    $('#url_facebook_<%= tipo_pessoa %>').val("");
+    $('#url_imagem_facebook_<%= tipo_pessoa %>').val("");
+    $('#url_imagem_facebook_pequena_<%= tipo_pessoa %>').val("");
+    $('#usuario_facebook_<%= tipo_pessoa %>').val("");
+  }
+
+  function atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>() {
+    $('.remover_telefone_<%= tipo_pessoa %>').on('click', function (evento) {
+      evento.preventDefault();
+
+      $(this).closest('.campos_telefone').remove();
+    });
+
+    $('.mascara_telefone').mask(
+      '(00) 0000-0000',
+      {
+          clearIfNotMatch: true,
+          placeholder: '(__) ____-____'
+      }
+    );
+  }
+
+  function atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>() {
+        $('.remover_instrumento_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
+
+            $(this).closest('.campos_instrumento').remove();
+        });
+    }
+</script>
+
+<%
+   if pessoa.url_imagem_facebook.blank?
+     imagem_pessoa = Pessoa.url_imagem_sem_imagem(120)
+   else
+     imagem_pessoa = pessoa.url_imagem_facebook
+   end
+%>
+      
+<img src="<%= imagem_pessoa %>" id="imagem_<%= tipo_pessoa %>" class="imagem_pessoa_form"/>
+
+<p/>
+
+<% editar_facebook = (defined?(modo) && modo == "cadastrar_novo" && !pessoa.tem_informacoes_facebook) ||
+        (defined?(@usuario_logado) && @usuario_logado.permissoes.pode_editar_facebook_de_pessoa(pessoa)) %>
+
+<% #if editar_facebook %>
+<% if false %>
+  <% if pessoa.tem_informacoes_facebook %>
+      <input type="hidden" id="esta_tirando_facebook_<%= tipo_pessoa %>" value="0" />
+  <% end %>
+
+  <label class="label_tem_facebook">
+    <input type="checkbox" id="tem_facebook_<%= tipo_pessoa %>" name="tem_facebook_<%= tipo_pessoa %>"
+        <% if pessoa.tem_facebook || pessoa.url_facebook.present? %>
+            checked="checked"
+        <% end %>
+    />Tem Facebook
+  </label>
+
+  <div class="campos_de_facebook" id="campos_de_facebook_<%= tipo_pessoa %>"
+    <% if !pessoa.tem_facebook && !pessoa.url_facebook.present? %>
+        style="display: none;"
+    <% end %>
+  >
+    <div class="field">
+      <%= label_tag "link_facebook_#{tipo_pessoa}", 'Link para Facebook' %><br>
+      <span class="erro_form"><%= pessoa.errors[:url_facebook].first %></span>
+      <input type="text" name="url_facebook_<%= tipo_pessoa %>" id="url_facebook_<%= tipo_pessoa %>" style="width: 90%; text-align: center;" value="<%= pessoa.url_facebook %>" />
+      <br/>
+      <a href="#" id="carregar_facebook_<%= tipo_pessoa %>" style="display: none;">Carregar</a>
+      <span id="carregando_facebook_<%= tipo_pessoa %>" style="display: none;">Carregando...</span>
+    </div>
+
+    <input type="hidden" name="usuario_facebook_<%= tipo_pessoa %>" id="usuario_facebook_<%= tipo_pessoa %>" value="<%= pessoa.usuario_facebook %>" />
+    <input type="hidden" name="id_app_facebook_<%= tipo_pessoa %>" value="<%= pessoa.id_app_facebook %>" />
+    <input type="hidden" name="url_imagem_facebook_pequena_<%= tipo_pessoa %>" id="url_imagem_facebook_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook_pequena %>" />
+    <input type="hidden" name="url_imagem_facebook_<%= tipo_pessoa %>" id="url_imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook %>" />
+  </div>
+<% else %>
+  <input type="hidden" name="tem_facebook_<%= tipo_pessoa %>" value="1" />
+  <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
+  <input type="hidden" name="usuario_facebook_<%= tipo_pessoa %>" value="<%= pessoa.usuario_facebook %>" />
+  <input type="hidden" name="id_app_facebook_<%= tipo_pessoa %>" value="<%= pessoa.id_app_facebook %>" />
+  <input type="hidden" name="url_imagem_facebook_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook_pequena %>" />
+  <input type="hidden" name="url_imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook %>" />
+<% end %>
+
+<p/>
+
+<div class="field">
+  <%= label_tag "nome_#{tipo_pessoa}", 'Nome Completo*' %><br>
+  <div class="erro_form"><%= pessoa.errors[:nome].first %></div>
+  <input type="text" name="nome_<%= tipo_pessoa %>" id="nome_<%= tipo_pessoa %>" value="<%= pessoa.nome %>" style="width: 90%; text-align: center;" />
+</div>
+
+<p/>
+
+<div class="field">
+  <%= label_tag "nome_usual_#{tipo_pessoa}", 'Nome usual*' %><br>
+  <div class="erro_form"><%= pessoa.errors[:nome_usual].first %></div>
+  <input type="text" name="nome_usual_<%= tipo_pessoa %>" id="nome_usual_<%= tipo_pessoa %>" value="<%= pessoa.nome_usual %>" style="width: 90%; text-align: center;" />
+</div>
+
+<p/>
+
+<div class="field">
+  <%= label_tag 'Gênero' %><br>
+
+  <label><%= radio_button_tag "eh_homem_#{tipo_pessoa}", true, pessoa.eh_homem, :id => "eh_homem_#{tipo_pessoa}" %> Homem</label>
+  <label><%= radio_button_tag "eh_homem_#{tipo_pessoa}", false, !pessoa.eh_homem, :id => "eh_mulher_#{tipo_pessoa}" %> Mulher</label>
+
+  <% if tipo_pessoa == 'conjuge' %>
+    <input type="hidden" name="acompanhar_genero_conjuge" id="acompanhar_genero_conjuge" value="<%= pessoa.new_record? ? 'true' : 'false' %>" />
+  <% end %>
+</div>
+
+<p/>
+
+<div class="field">
+  <%= label_tag "dia_#{tipo_pessoa}", 'Data de nascimento' %><br/>
+  <div class="erro_form"><%= pessoa.errors[:nascimento].first %></div>
+
+  <%= select_tag "dia_#{tipo_pessoa}", options_for_select(1..31, pessoa.dia), :include_blank => true %>
+  <%= select_tag "mes_#{tipo_pessoa}", options_for_select(1..12, pessoa.mes), :include_blank => true %>
+  <%= select_tag "ano_#{tipo_pessoa}", options_for_select(Date.today.year.downto(1920).to_a, pessoa.ano), :include_blank => true %>
+</div>
+
+<p/>
+
+<div class="field">
+  <%= label_tag "email_#{tipo_pessoa}", 'Email' %><br/>
+  <div class="erro_form"><%= pessoa.errors[:email].first %></div>
+  <%= text_field_tag "email_#{tipo_pessoa}", pessoa.email, style: "width: 90%; text-align: center;" %>
+</div>
+
+<p/>
+
+<% if tipo_pessoa != 'conjuge' %>
+  <div class="field">
+    <%= label_tag "rua_#{tipo_pessoa}", 'Rua' %><br>
+    <div class="erro_form"><%= pessoa.errors[:rua].first %></div>
+    <%= text_field_tag "rua_#{tipo_pessoa}", pessoa.rua, style: "width: 90%; text-align: center;" %>
+  </div>
+
+  <p/>
+
+  <div class="field">
+    <%= label_tag :"numero_#{tipo_pessoa}", 'Número' %><br>
+    <div class="erro_form"><%= pessoa.errors[:numero].first %></div>
+    <%= text_field_tag "numero_#{tipo_pessoa}", pessoa.numero, style: "width: 90%; text-align: center;" %>
+  </div>
+
+  <p/>
+
+  <div class="field">
+    <%= label_tag :"complemento_#{tipo_pessoa}", 'Complemento' %><br>
+    <div class="erro_form"><%= pessoa.errors[:complemento].first %></div>
+    <%= text_field_tag "complemento_#{tipo_pessoa}", pessoa.complemento, style: "width: 90%; text-align: center;" %>
+  </div>
+
+  <p/>
+
+  <div class="field">
+    <%= label_tag "bairro_#{tipo_pessoa}", 'Bairro' %><br>
+    <div class="erro_form"><%= pessoa.errors[:bairro].first %></div>
+    <%= text_field_tag "bairro_#{tipo_pessoa}", pessoa.bairro, style: "width: 90%; text-align: center;" %>
+  </div>
+
+  <p/>
+
+  <div class="field">
+    <%= label_tag "cidade_#{tipo_pessoa}", 'Cidade' %><br>
+    <div class="erro_form"><%= pessoa.errors[:cidade].first %></div>
+    <%= text_field_tag "cidade_#{tipo_pessoa}", pessoa.cidade, style: "width: 90%; text-align: center;" %>
+  </div>
+
+  <p/>
+
+  <div class="field">
+    <%= label_tag "estado_#{tipo_pessoa}", 'Estado' %><br>
+    <div class="erro_form"><%= pessoa.errors[:estado].first %></div>
+    <%= select_tag "estado_#{tipo_pessoa}", options_for_select(estados_brasil, pessoa.estado), :include_blank => true %>
+  </div>
+
+  <p/>
+
+  <div class="field">
+    <%= label_tag "cep_#{tipo_pessoa}", 'CEP' %><br>
+    <div class="erro_form"><%= pessoa.errors[:cep].first %></div>
+    <input type="tel" name="cep_<%= tipo_pessoa %>" value="<%= pessoa.cep %>" class="mascara_cep" style="text-align: center; width: 90%;" />
+  </div>
+
+  <p/>
+<% end %>
+
+<div class="field">
+  <%= label_tag "whatsapp_#{tipo_pessoa}", 'Número WhatsApp' %><br>
+  <div class="erro_form"><%= pessoa.errors[:whatsapp].first %></div>
+  <input type="tel" name="whatsapp_<%= tipo_pessoa %>" value="<%= pessoa.whatsapp %>" class="mascara_telefone" style="text-align: center; width: 90%;" />
+</div>
+
+<p/>
+
+<div class="field">
+  <%= label_tag 'Telefones de contato (adicionar mesmo que já tenha adicionado WhatsApp)' %><br/>
+
+  <span id="telefones_<%= tipo_pessoa %>">
+      <% pessoa.telefones.each do |telefone| %>
+        <%= render 'pessoas/mobile/form_telefone_mobile', telefone: telefone, tipo_pessoa: tipo_pessoa %>
+      <% end %>
+  </span>
+
+  <a href="#" id="novo_telefone_<%= tipo_pessoa %>" class="link_novo">Adicionar telefone</a>
+</div>
+
+<p/>
+
+<div class="field">
+  <%= label_tag 'Habilidades Musicais' %><br/>
+
+  <span id="instrumentos_<%= tipo_pessoa %>">
+      <% pessoa.instrumentos.each do |instrumento| %>
+          <%= render 'pessoas/mobile/form_instrumento_mobile', instrumento: instrumento, tipo_pessoa: tipo_pessoa %>
+      <% end %>
+  </span>
+
+  <a href="#" id="novo_instrumento_<%= tipo_pessoa %>" class="link_novo">Adicionar habilidade musical</a>
+</div>
+
+<p/>
+
+<% if defined?(modo) && modo == "cadastrar_novo" %>
+
+  <h2 class="sem_espaco_embaixo">Participações individuais dessa pessoa <span class="campos_casado" style="display: none;">(não dos dois como um casal)</span></h2>
+
+  <div class="erro_form"><%= pessoa.errors[:auto_inserir].first %></div>
+
+  <div id="participacoes_<%= tipo_pessoa %>">
+
+    <%= render 'pessoas/mobile/helper_participacao_mobile' %>
+
+    <%
+       grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_#{tipo_pessoa}")
+       encontros_auto_inserir = instance_variable_get("@encontros_auto_inserir_#{tipo_pessoa}")
+       sugestoes_auto_inserir = instance_variable_get("@sugestoes_auto_inserir_#{tipo_pessoa}")
+       coordenadores_auto_inserir = instance_variable_get("@coordenadores_auto_inserir_#{tipo_pessoa}")
+    %>
+
+    <% if grupos_auto_inserir.present? %>
+      <% grupos_auto_inserir.each_with_index do |grupo_id, index| %>
+        <%
+          encontro_id = encontros_auto_inserir[index]
+          texto_sugestao = sugestoes_auto_inserir[index]
+          coordenador = coordenadores_auto_inserir[index]
+        %>
+        <%= render 'pessoas/mobile/form_participacao_auto_inserir_mobile', tipo_pessoa: tipo_pessoa, grupo_id: grupo_id, encontro_id: encontro_id, sugestao: texto_sugestao, coordenador: coordenador %>
+      <% end %>
+    <% else %>
+      <%= render 'pessoas/mobile/form_participacao_auto_inserir_mobile', tipo_pessoa: tipo_pessoa, grupo_id: '-1', encontro_id: '-1', sugestao: '', coordenador: 'false' %>
+    <% end %>
+
+    <script>
+        atualizarFuncoesAutoInserir();
+    </script>
+  </div>
+
+  <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_#{tipo_pessoa}" do %>
+      Adicionar outra participação individual dessa pessoa <span class="campos_casado" style="display: none;">(não dos dois como um casal)</span>
+  <% end %>
+
+<% end %>
+
+

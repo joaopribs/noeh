@@ -1,18 +1,26 @@
+html {
+    -webkit-text-size-adjust: none;
+}
+
 html, body {
     height: 100%;
 }
 
 body {
     font-family: 'Roboto', Helvetica, Arial;
-    font-size: 5vmin;
-	background-color: #000;
+	background-color: #004052;
 	color: #fff;
     padding: 0;
     margin: 0;
 }
 
+input {
+    font-family: 'Roboto', Helvetica, Arial;
+    font-size: 0.8em;
+}
+
 a {
-    color: #0084ff;
+    color: #27ADD3;
 }
 
 h1 {
@@ -25,7 +33,6 @@ table {
     border-spacing: 0;
     width: 100%;
     margin: 0;
-    font-size: 3vmin;
 }
 
 table.zebra {
@@ -140,7 +147,7 @@ a.link_entrar_pelo_facebook {
 }
 
 #faixa_superior {
-    background-color: #000;
+    background-color: #004052;
     z-index: 99998;
 }
 
@@ -156,7 +163,6 @@ a.link_entrar_pelo_facebook {
     color: #fff;
     padding: 0;
     padding-left: 1vmin;
-    font-size: 4vmin;
 }
 
 .link_usuario_logado img {
@@ -170,7 +176,6 @@ a.link_entrar_pelo_facebook {
     font-weight: bold;
     color: #fff;
     padding: 0 1vmin;
-    font-size: 4vmin;
 }
 
 .link_logo {
@@ -201,7 +206,7 @@ a.link_entrar_pelo_facebook {
 }
 
 #faixa_superior .link_menu {
-    background-color: #fcff00;
+    background-color: #27ADD3;
 }
 
 #menu {
@@ -211,7 +216,7 @@ a.link_entrar_pelo_facebook {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #fcff00;
+    background-color: #27ADD3;
     display: none;
 }
 
@@ -221,7 +226,7 @@ a.link_entrar_pelo_facebook {
 }
 
 #faixa_superior_menu .link_menu {
-    background-color: #000;
+    background-color: #004052;
 }
 
 #menu #conteudo_menu {
@@ -231,7 +236,7 @@ a.link_entrar_pelo_facebook {
 }
 
 #menu #conteudo_menu a {
-    color: #000;
+    color: #004052;
 }
 
 #menu #conteudo_menu .titulo {
@@ -240,8 +245,8 @@ a.link_entrar_pelo_facebook {
 }
 
 #menu #conteudo_menu input {
-    height: 4vmin;
-    width: 4vmin;
+    /*height: 4vmin;
+    width: 4vmin;*/
 }
 
 #menu #conteudo_menu #botao_entrar {
@@ -256,12 +261,15 @@ a.link_entrar_pelo_facebook {
     background-position: left center;
 }
 
-#conteudo {
+#container {
     background-color: #fff;
+    min-height: 80%;
+}
+
+#conteudo {
     color: #000;
     padding: 2vmin;
     padding-top: 14vmin;
-    min-height: 100px;
     line-height: 1.3em;
 }
 
@@ -307,4 +315,33 @@ a.link_entrar_pelo_facebook {
     font-size: 4vmin;
     background-color: #fcff00;
     color: #000;
+}
+
+.link_remover {
+    font-size: 0.8em;
+    color: #ff0000;
+}
+
+.imagem_pessoa_form {
+    width: 50vmin;
+}
+
+.botao_submeter {
+    margin-top: 10vmin;
+    width: 80%;
+    background-color: #2e5500;
+    color: #fff;
+}
+
+.notificacao {
+    padding: 15px 0 15px 60px;
+    border: 1px solid #57732f;
+    color: #57732f;
+    background: url(notificacao.png) no-repeat #d4e9b6;
+    background-position: 20px center;
+}
+
+.erro_form {
+    background-color: #ff0000;
+    color: #fff;
 }

@@ -2,10 +2,11 @@
 require "open-uri"
 
 class PessoasController < ApplicationController
-  skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao]
+  skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao, :cadastrar_novo_confirmacao_mobile]
   before_action :set_entidades, :adicionar_breadcrumbs_entidades
-  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :cadastrar_novo_confirmacao]
+  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :cadastrar_novo_confirmacao, :cadastrar_novo_confirmacao_mobile]
   skip_before_action :verify_authenticity_token, only: [:lista_pessoas_js]
+  skip_before_filter :nao_pode_ser_mobile, only: [:cadastrar_novo, :create, :cadastrar_novo_confirmacao_mobile, :edit, :update]
 
   # GET /pessoas
   # GET /pessoas.json
@@ -66,6 +67,12 @@ class PessoasController < ApplicationController
 
     adicionar_breadcrumb_de_ver_pessoa
     adicionar_breadcrumb "Editar", edit_pessoa_url(@pessoa), "editar"
+
+    mobile = params[:mobile]
+
+    if mobile.present?
+      render template: 'pessoas/mobile/editar', layout: 'mobile'
+    end
 
   end
 
@@ -207,7 +214,11 @@ class PessoasController < ApplicationController
         format.json { render action: 'show', status: :created, location: @pessoa }
       else
         if params.has_key?(:auto_inserido)
-          format.html { render action: 'cadastrar_novo' }
+          if params.has_key?(:mobile)
+            format.html { render 'pessoas/mobile/cadastrar_novo', layout: 'mobile' }
+          else
+            format.html { render action: 'cadastrar_novo' }
+          end
         else
           format.html { render action: 'new' }
           format.json { render json: @pessoa.errors, status: :unprocessable_entity }
@@ -323,7 +334,11 @@ class PessoasController < ApplicationController
         format.html { redirect_to pagina_retorno, notice: msg_sucesso }
         format.json { head :no_content }
       else
-        format.html { render action: 'edit' }
+        if params.has_key?(:mobile)
+          format.html { render 'pessoas/mobile/editar', layout: 'mobile' }
+        else
+          format.html { render action: 'edit' }
+        end
         format.json { render json: @pessoa.errors, status: :unprocessable_entity }
       end
     end
@@ -361,7 +376,11 @@ class PessoasController < ApplicationController
     pessoa = Pessoa.unscoped.where(id_app_facebook: session[:id_app_facebook])
 
     if pessoa.count > 0
-      redirect_to cadastrar_novo_confirmacao_url and return
+      if params.has_key?(:mobile)
+        redirect_to cadastrar_novo_confirmacao_mobile_url and return
+      else
+        redirect_to cadastrar_novo_confirmacao_url and return
+      end
     end
 
     @pessoa = Pessoa.new
@@ -395,9 +414,19 @@ class PessoasController < ApplicationController
       @conjuge = Pessoa.new
       @conjuge.eh_homem = !@pessoa.eh_homem
     end
+
+    mobile = params[:mobile]
+
+    if mobile.present?
+      render template: 'pessoas/mobile/cadastrar_novo', layout: 'mobile'
+    end
   end
 
   def cadastrar_novo_confirmacao
+  end
+
+  def cadastrar_novo_confirmacao_mobile
+    render template: 'pessoas/mobile/cadastrar_novo_confirmacao', layout: 'mobile'
   end
 
   def pesquisa_pessoas_por_nome
@@ -806,7 +835,15 @@ class PessoasController < ApplicationController
 
     def pagina_retorno
       if params.has_key?(:auto_inserido)
-        return cadastrar_novo_confirmacao_path
+        if params.has_key?(:mobile)
+          return cadastrar_novo_confirmacao_mobile_path  
+        else
+          return cadastrar_novo_confirmacao_path
+        end
+      end
+
+      if params.has_key?(:mobile)
+        return mobile_pessoa_path(@pessoa)
       end
 
       if defined? @conjunto
@@ -892,10 +929,6 @@ class PessoasController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def pessoa_params
-      if params[:cep1_pessoa].present? || params[:cep2_pessoa].present?
-        cep = "#{params[:cep1_pessoa]}-#{params[:cep2_pessoa]}"
-      end
-
       telefones = pegar_telefones(params[:telefones_pessoa], params[:operadoras_pessoa])
       instrumentos = pegar_instrumentos(params[:instrumentos_pessoa])
 
@@ -911,7 +944,7 @@ class PessoasController < ApplicationController
                                               bairro: (params[:bairro_pessoa] || "").strip,
                                               cidade: (params[:cidade_pessoa] || "").strip,
                                               estado: params[:estado_pessoa],
-                                              cep: (cep || "").strip,
+                                              cep: (params[:cep_pessoa] || "").strip,
                                               tem_facebook: params[:tem_facebook_pessoa],
                                               usuario_facebook: params[:usuario_facebook_pessoa],
                                               id_app_facebook: params[:id_app_facebook_pessoa],
@@ -920,7 +953,8 @@ class PessoasController < ApplicationController
                                               url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_pessoa],
                                               whatsapp: params[:whatsapp_pessoa],
                                               telefones: telefones,
-                                              instrumentos: instrumentos})
+                                              instrumentos: instrumentos, 
+                                              onde_fez_alteracao: params[:onde_fez_alteracao]})
       hash.permit!
       return hash
     end
@@ -945,7 +979,8 @@ class PessoasController < ApplicationController
                                               url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_conjuge],
                                               whatsapp: params[:whatsapp_pessoa_conjuge],
                                               telefones: telefones,
-                                              instrumentos: instrumentos)
+                                              instrumentos: instrumentos, 
+                                              onde_fez_alteracao: params[:onde_fez_alteracao])
       hash.permit!
       return hash
     end
