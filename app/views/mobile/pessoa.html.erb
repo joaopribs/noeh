@@ -1,13 +1,15 @@
-<h1 style="display: inline-block;">
-	<%= @pessoa.nome_usual %>
+<center> 
+	<h1 style="margin: 0;">
+		<%= @pessoa.nome_usual %>
 
-	<% if @pessoa.conjuge.present? %>
-		/ <%= @pessoa.conjuge.nome_usual %>
-	<% end %>
+		<% if @pessoa.conjuge.present? %>
+			/ <%= @pessoa.conjuge.nome_usual %>
+		<% end %>
 
-</h1>
+	</h1>
 
-<%= link_to 'Editar Informações', mobile_editar_pessoa_path(@pessoa), class: 'link_editar' %>
+	<%= link_to 'Editar Informações', mobile_editar_pessoa_path(@pessoa), class: 'link_editar' %>
+</center>
 
 <br style="clear: both;" />
 

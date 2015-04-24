@@ -97,6 +97,7 @@ ul.bullets li span {
 .wrapper {
     display: table-cell;
     height: 100%;
+    width: 100%;
     vertical-align: middle;
     text-align: center;
 }
@@ -290,9 +291,8 @@ a.link_entrar_pelo_facebook {
 }
 
 .imagem_facebook_detalhe {
-    float: left;
     margin: 0 2vmin 2vmin 0;
-    height: 20vmin;
+    width: 50%;
 }
 
 .dados_pessoa {

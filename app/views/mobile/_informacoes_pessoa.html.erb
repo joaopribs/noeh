@@ -1,4 +1,8 @@
-<img src="<%= pessoa.url_imagem(150) %>" class="imagem_facebook_detalhe"/>
+<center>
+	<img src="<%= pessoa.url_imagem(150) %>" class="imagem_facebook_detalhe"/>
+</center>
+
+<p/>
 
 <div style="display: table-cell;">
 	<b>Nome completo:</b><br/>
@@ -55,81 +59,70 @@
 	<%= pessoa.instrumentos.collect{|instrumento| instrumento.nome}.join(", ") %>
 </div>
 
-<% if @usuario_logado.grupos_em_que_pode_adicionar_outra_pessoa(pessoa).count + pessoa.grupos.count > 0 &&
-                pessoa.auto_inserido == false %>
+<% if pessoa.participacoes_em_grupos.count > 0 %>
+		<h2 class="sem_espaco_embaixo">Grupos</h2>
 
-	<h2 class="sem_espaco_embaixo">Grupos</h2>
+    <ul class="bullets">
+        <% pessoa.participacoes_em_grupos.each do |participacao| %>
+          <li><span>
+            <% coordenador = participacao[:grupo].coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
 
-	<% if pessoa.participacoes_em_grupos.count > 0 %>
-	    <ul class="bullets">
-	        <% pessoa.participacoes_em_grupos.each do |participacao| %>
-	          <li><span>
-	            <% coordenador = participacao[:grupo].coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+            <% if @usuario_logado.permissoes.pode_gerenciar_grupo participacao[:grupo] %>
+                <%= link_to "#{participacao[:grupo].nome}#{coordenador}", mobile_grupo_path(participacao[:grupo].id) %>
+            <% else %>
+                <%= "#{participacao[:grupo].nome}#{coordenador}" %>
+            <% end %>
 
-	            <% if @usuario_logado.permissoes.pode_gerenciar_grupo participacao[:grupo] %>
-	                <%= link_to "#{participacao[:grupo].nome}#{coordenador}", mobile_grupo_path(participacao[:grupo].id) %>
-	            <% else %>
-	                <%= "#{participacao[:grupo].nome}#{coordenador}" %>
-	            <% end %>
-
-	            <% if !participacao[:ativo] %>
-	                (ex-participante)
-	            <% end %>
-	          </span></li>
-	        <% end %>
-	    </ul>
-	<% end %>
-
+            <% if !participacao[:ativo] %>
+                (ex-participante)
+            <% end %>
+          </span></li>
+        <% end %>
+    </ul>
 <% end %>
 
-<% if (@usuario_logado.eh_super_admin? ||
-                @usuario_logado.encontros_que_esta_coordenando_agora.count > 0 ||
-                @usuario_logado.grupos_que_tem_encontros_que_coordena.count > 0 ||
-                participacoes.count > 0) &&
-                pessoa.auto_inserido == false %>
-    <h2 class="sem_espaco_embaixo">Participações em encontros</h2>
-    <% if participacoes.count > 0 %>
-        <ul class="bullets">
-            <% participacoes.each do |conjunto| %>
-              <% texto_encontro_participacao = "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})" %>
+<% if participacoes.count > 0 %>
+	<h2 class="sem_espaco_embaixo">Participações em encontros</h2>
 
-              <% cor = conjunto.cor.present? ? conjunto.cor.hex_cor : nil %>
-              <% 
-								if cor.present? 
-									style = "color: #{cor};"
-								else
-									style = ""
-								end 
-							%>
+  <ul class="bullets">
+      <% participacoes.each do |conjunto| %>
+        <% texto_encontro_participacao = "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})" %>
 
-              <li style="<%= style %>"><span>
-                <% if @usuario_logado.permissoes.pode_gerenciar_encontro(conjunto.encontro) %>
-                    <%= link_to texto_encontro_participacao, mobile_encontro_path(conjunto.encontro) %>
-                <% else %>
-                    <%= texto_encontro_participacao %>
-                <% end %>
+        <% cor = conjunto.cor.present? ? conjunto.cor.hex_cor : nil %>
+        <% 
+					if cor.present? 
+						style = "color: #{cor};"
+					else
+						style = ""
+					end 
+				%>
 
-                -
+        <li style="<%= style %>"><span>
+          <% if @usuario_logado.permissoes.pode_gerenciar_encontro(conjunto.encontro) %>
+              <%= link_to texto_encontro_participacao, mobile_encontro_path(conjunto.encontro) %>
+          <% else %>
+              <%= texto_encontro_participacao %>
+          <% end %>
 
-                <% coordenador = conjunto.coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+          -
 
-                <%
-                  if conjunto.tipo == 'Equipe'
-                    texto_conjunto_participacao = "Equipe #{conjunto.nome}#{coordenador}"
-                  elsif conjunto.tipo == 'CoordenacaoEncontro'
-                    texto_conjunto_participacao = "Coordenação do Encontro"
-                  else
-                    texto_conjunto_participacao = "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}"
-                  end
-                %>    
-                <% if @usuario_logado.permissoes.pode_gerenciar_conjunto(conjunto) %>
-                  <%= link_to texto_conjunto_participacao, mobile_conjunto_path(conjunto), style: style %>
-                <% else %>
-                  <%= texto_conjunto_participacao %>
-                <% end %>
-              </span></li>
-            <% end %>
-        </ul>
-    <% end %>
+          <% coordenador = conjunto.coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
 
+          <%
+            if conjunto.tipo == 'Equipe'
+              texto_conjunto_participacao = "Equipe #{conjunto.nome}#{coordenador}"
+            elsif conjunto.tipo == 'CoordenacaoEncontro'
+              texto_conjunto_participacao = "Coordenação do Encontro"
+            else
+              texto_conjunto_participacao = "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}"
+            end
+          %>    
+          <% if @usuario_logado.permissoes.pode_gerenciar_conjunto(conjunto) %>
+            <%= link_to texto_conjunto_participacao, mobile_conjunto_path(conjunto), style: style %>
+          <% else %>
+            <%= texto_conjunto_participacao %>
+          <% end %>
+        </span></li>
+      <% end %>
+  </ul>
 <% end %>
