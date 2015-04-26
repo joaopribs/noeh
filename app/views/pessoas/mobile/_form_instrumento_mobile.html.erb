@@ -1,5 +1,5 @@
 <div class="campos_instrumento">
-  <div class="field">
+  <div>
     <div class="erro_form"><%= instrumento.errors[:nome].first %></div>
     <%= select_tag("instrumentos_#{tipo_pessoa}[]", options_for_select(instrumentos, instrumento.nome)) %>
     <a href="#" class="link_remover remover_instrumento_<%= tipo_pessoa %>">Remover</a>

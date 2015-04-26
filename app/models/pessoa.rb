@@ -333,6 +333,12 @@ class Pessoa < ActiveRecord::Base
     return participacoes
   end
 
+  def participacoes_visiveis(usuario_logado)
+    participacoes = (self.conjuntos_permanentes + self.equipes).select{|c| usuario_logado.permissoes.pode_ver_participacao(c, self)}
+    participacoes = participacoes.sort_by!{|c| c.encontro.data_inicio}.reverse
+    return participacoes
+  end
+
   def auto_sugestoes_ordenadas
     retorno = []
 
@@ -431,9 +437,7 @@ class Pessoa < ActiveRecord::Base
         end
       end
 
-      if self.usuario_facebook.blank?
-        errors.add(:url_facebook, "Não foi possível adicionar o Facebook")
-      else
+      if !self.usuario_facebook.blank?
         pessoas = Pessoa.where(:usuario_facebook => self.usuario_facebook)
         if (pessoas.count == 1 && pessoas.first != self) || pessoas.count > 1
           errors.add(:url_facebook, "Já há outra pessoa com esse Facebook")

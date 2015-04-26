@@ -1,8 +1,10 @@
 <div>
 
+    <input type="hidden" name="auto_inserido_<%= tipo_pessoa %>[]" value="false" class="auto_inserido" />
+
     <div class="field">
         <label for="grupo">Grupo</label><br/>
-        <%= select_tag "grupos_auto_inserir_#{tipo_pessoa}[]", options_for_select(Grupo.all.collect{|g| [g.nome, g.id]}, grupo_id), include_blank: true, class: 'grupo_participacao' %>
+        <%= select_tag "grupos_auto_inserir_#{tipo_pessoa}[]", options_for_select(grupos.collect{|g| [g.nome, g.id]}, grupo_id), include_blank: true, class: 'grupo_participacao' %>
     </div>
 
     <% grupo = grupo_id != "-1" ? Grupo.find(grupo_id) : nil %>
@@ -10,8 +12,7 @@
     <% if grupo_id != "-1" && grupo.tem_encontros %>
         <div class="field wrapper_encontro_participacao">
           <label for="encontros">Encontro</label><br/>
-          <% grupo = Grupo.find(grupo_id) %>
-          <%= select_tag "encontros_auto_inserir_#{tipo_pessoa}[]", options_for_select(grupo.encontros.collect{|e| [e.nome, e.id]}, encontro_id), include_blank: false, class: 'encontro_participacao' %>
+          <%= select_tag "encontros_auto_inserir_#{tipo_pessoa}[]", options_for_select(grupo.encontros.collect{|e| ["#{e.nome} (#{e.data_inicio.year})", e.id]}, encontro_id), include_blank: false, class: 'encontro_participacao' %>
         </div>
     <% else %>
         <div class="field wrapper_encontro_participacao" style="display: none;">
@@ -22,16 +23,23 @@
         </div>
     <% end %>
 
-
-    <div class="field wrapper_participacao"
-    <% if encontro_id == "-1" || !grupo.tem_encontros %>
-        style="display: none;"
-    <% end %>
-    >
+    <div class="field wrapper_participacao" <% if !mostrar_campo_texto %>style="display: none;"<% end %>>
         <label for="participacao">Participação</label><br/>
         <input type="text" name="sugestoes_auto_inserir_<%= tipo_pessoa %>[]" value="<%= sugestao %>" class="campo_texto_sugestao" />
     </div>
 
+    <div class="field wrapper_conjunto_participacao" <% if !mostrar_campo_lista %>style="display: none;"<% end %>>
+        <label for="conjuntos">Participação</label><br/>
+        <% if grupo_id != "-1" && encontro_id != "-1" && grupo.tem_encontros %>
+            <% encontro = encontro_id != "-1" ? Encontro.find(encontro_id) : nil %>
+            <%= select_tag "conjuntos_auto_inserir_#{tipo_pessoa}[]", options_for_select(encontro.conjuntos_que_poderia_adicionar_pessoa.collect{|c| ["#{c.tipo_do_conjunto} #{c.nome}", c.id]}, conjunto_id), include_blank: false, class: 'conjunto_participacao' %>
+        <% else %>
+            <select name="conjuntos_auto_inserir_<%= tipo_pessoa %>[]" class="conjunto_participacao">
+                <option value="-1"></option>
+            </select>
+        <% end %>
+    </div>
+    
     <div class="field">
         <label>
             <input type="hidden" name="coordenadores_auto_inserir_<%= tipo_pessoa %>[]" value="<%= coordenador %>" class="hidden_coordenador" />

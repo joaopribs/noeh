@@ -52,6 +52,7 @@
       var fieldEncontros = $(this).parent().siblings('.wrapper_encontro_participacao');
       var quebraDeLinha = $(this).parent().siblings('.quebra_de_linha_encontros');
       var fieldParticipacoes = $(this).parent().siblings('.wrapper_participacao');
+      var inputAutoInserido = $(this).parent().siblings('.auto_inserido');
 
       if (grupoEscolhido != null) {
           if (grupoEscolhido.tem_encontros) {
@@ -92,6 +93,7 @@
               if (primeiroEncontro != null) {
                   $(fieldParticipacoes).children('.campo_texto_sugestao').val('');
                   $(fieldParticipacoes).css("display", "inline-block");
+                  $(inputAutoInserido).val("true");
               }
           }
           else {
@@ -103,6 +105,8 @@
               $(fieldParticipacoes).children('.campo_texto_sugestao').val('so_grupo');
 
               $(fieldEncontros).add(fieldParticipacoes).hide();
+
+              $(inputAutoInserido).val("false");
           }
       }
       else {
@@ -112,6 +116,8 @@
           );
 
           $(fieldEncontros).add(fieldParticipacoes).hide();
+
+          $(inputAutoInserido).val("false");
       }
     });
 
@@ -191,10 +197,6 @@
 
     <input type="hidden" name="mobile" value="1" />
 
-    <% if defined?(modo) && modo == "cadastrar_novo" %>
-		  <input type="hidden" name="auto_inserido" value="1" />
-    <% end %>
-    
 		<div class="field campo_solteiro_ou_casado">
 	    <label>Estado civil:</label><br/>
 	    <label><%= radio_button_tag :casado_ou_solteiro, 'solteiro', (!@eh_casal) %>Solteiro</label>
@@ -258,15 +260,7 @@
         </div>
   	  </div>
 
-      <% 
-        if modo == "cadastrar_novo"
-          texto_botao = "Cadastrar"
-        elsif modo == "editando"
-          texto_botao = "Alterar"
-        end
-      %>
-
-      <input type="submit" value="<%= texto_botao %>" class="botao_submeter" />
+      <input type="submit" value="<%= texto_link %>" class="botao_submeter" />
     </div>
 	<% end %>
 

@@ -292,9 +292,11 @@ class ConjuntosPessoasController < ApplicationController
   end
 
   def conjuntos_para_adicionar_pessoa
-    pessoa = Pessoa.find(params[:pessoa_id])
+    conjuntos = @encontro.conjuntos_que_poderia_adicionar_pessoa
 
-    conjuntos = @encontro.conjuntos_que_poderia_adicionar_pessoa(pessoa)
+    conjuntos = conjuntos.map do |conjunto|
+      conjunto.as_json.merge({tipo_do_conjunto: conjunto.tipo_do_conjunto})
+    end
 
     render json: conjuntos
   end

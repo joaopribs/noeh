@@ -25,15 +25,6 @@ class PessoasController < ApplicationController
     return if performed?
 
     adicionar_breadcrumb_de_ver_pessoa
-
-    @participacoes = (@pessoa.conjuntos_permanentes + @pessoa.equipes).select{|c| @usuario_logado.permissoes.pode_ver_participacao(c, @pessoa)}
-
-    if @pessoa.conjuge.present?
-      @participacoes_conjuge = (@pessoa.conjuge.conjuntos_permanentes + @pessoa.conjuge.equipes).select{|c| @usuario_logado.permissoes.pode_ver_participacao(c, @pessoa)}
-      @participacoes_conjuge = @participacoes_conjuge.sort_by!{|c| c.encontro.data_inicio}.reverse
-    end
-    
-    @participacoes = @participacoes.sort_by!{|c| c.encontro.data_inicio}.reverse
   end
 
   # GET /pessoas/new
@@ -79,7 +70,7 @@ class PessoasController < ApplicationController
   # POST /pessoas
   # POST /pessoas.json
   def create
-    if !params.has_key?(:auto_inserido)
+    if !eh_auto_inserido
       precisa_poder_criar_pessoas
       return if performed?
     end
@@ -91,24 +82,10 @@ class PessoasController < ApplicationController
     @eh_casal = params[:casado_ou_solteiro] == 'casado'
     @os_dois = params[:os_dois] == 'true'
 
-    pessoa_valida = @pessoa.valid?
+    @pessoa_valida = @pessoa.valid?
 
-    if params.has_key?(:auto_inserido)
-      @pessoa.auto_inserido = true
-
-      if params[:grupos_auto_inserir_pessoa]
-        @grupos_auto_inserir_pessoa = params[:grupos_auto_inserir_pessoa].select{|item| item != '-1' && item != ''}
-      end
-      @encontros_auto_inserir_pessoa = params[:encontros_auto_inserir_pessoa]
-      @sugestoes_auto_inserir_pessoa = params[:sugestoes_auto_inserir_pessoa]
-      @coordenadores_auto_inserir_pessoa = params[:coordenadores_auto_inserir_pessoa]
-
-      if (@grupos_auto_inserir_pessoa.nil? || @grupos_auto_inserir_pessoa.count == 0 ||
-        @sugestoes_auto_inserir_pessoa.select{|item| !item.empty?}.count == 0) && 
-        !@eh_casal
-        @pessoa.errors[:auto_inserir] = 'É obrigatório inserir ao menos uma participação'
-        pessoa_valida = false
-      end
+    if !@eh_casal
+      setar_variaveis_auto_inserido()
     end
 
     if @eh_casal
@@ -124,7 +101,7 @@ class PessoasController < ApplicationController
         @tipo_conjuge = 'form'
       end
 
-      if pessoa_valida
+      if @pessoa_valida
         @conjuge.rua = @pessoa.rua
         @conjuge.numero = @pessoa.numero
         @conjuge.bairro = @pessoa.bairro
@@ -133,39 +110,13 @@ class PessoasController < ApplicationController
         @conjuge.cep = @pessoa.cep
       end
 
-      conjuge_valido = @conjuge.valid?
+      @conjuge_valido = @conjuge.valid?
 
-      if params.has_key?(:auto_inserido)
-        @conjuge.auto_inserido = true
+      setar_variaveis_auto_inserido()
 
-        if params[:grupos_auto_inserir_conjuge]
-          @grupos_auto_inserir_conjuge = params[:grupos_auto_inserir_conjuge].select{|item| item != '-1' && item != ''}
-        end
-        @encontros_auto_inserir_conjuge = params[:encontros_auto_inserir_conjuge]
-        @sugestoes_auto_inserir_conjuge = params[:sugestoes_auto_inserir_conjuge]
-        @coordenadores_auto_inserir_conjuge = params[:coordenadores_auto_inserir_conjuge]
+      @casal_valido = @pessoa_valida && @conjuge_valido
 
-        if params[:grupos_auto_inserir_casal]
-          @grupos_auto_inserir_casal = params[:grupos_auto_inserir_casal].select{|item| item != '-1' && item != ''}
-        end
-        @encontros_auto_inserir_casal = params[:encontros_auto_inserir_casal]
-        @sugestoes_auto_inserir_casal = params[:sugestoes_auto_inserir_casal]
-        @coordenadores_auto_inserir_casal = params[:coordenadores_auto_inserir_casal]
-
-        if (@grupos_auto_inserir_pessoa.nil? || @grupos_auto_inserir_pessoa.count == 0 ||
-            @sugestoes_auto_inserir_pessoa.select{|item| !item.empty?}.count == 0) && 
-            (@grupos_auto_inserir_conjuge.nil? || @grupos_auto_inserir_conjuge.count == 0 ||
-            @sugestoes_auto_inserir_conjuge.select{|item| !item.empty?}.count == 0) && 
-            (@grupos_auto_inserir_casal.nil? || @grupos_auto_inserir_casal.count == 0 ||
-              @sugestoes_auto_inserir_casal.select{|item| !item.empty?}.count == 0)
-          @pessoa.errors[:auto_inserir] = 'É obrigatório inserir ao menos uma participação'
-          conjuge_valido = false
-        end
-      end
-
-      casal_valido = pessoa_valida && conjuge_valido
-
-      if casal_valido
+      if @casal_valido
         @pessoa.conjuge = @conjuge
         @conjuge.conjuge = @pessoa
       end
@@ -175,12 +126,10 @@ class PessoasController < ApplicationController
     end
 
     respond_to do |format|
-      if (@eh_casal && casal_valido && @pessoa.save && @conjuge.save) ||
-        (!@eh_casal && pessoa_valida && @pessoa.save)
+      if (@eh_casal && @casal_valido && @pessoa.save && @conjuge.save) ||
+        (!@eh_casal && @pessoa_valida && @pessoa.save)
 
-        if params.has_key?(:auto_inserido)
-          criar_relacoes_auto_inserir
-        end
+        criar_relacoes_auto_inserir
 
         if defined? @conjunto
           if @conjunto.tipo == 'CoordenacaoEncontro'
@@ -191,7 +140,7 @@ class PessoasController < ApplicationController
             texto_adicionado = "a #{@conjunto.tipo_do_conjunto} #{@conjunto.nome} do encontro #{@conjunto.encontro.nome} e ao grupo #{@conjunto.encontro.grupo.nome}"
           end
 
-          salvar_relacao_conjunto(@pessoa, @grupo, @os_dois)
+          salvar_relacao_conjunto(@pessoa, @conjunto, @os_dois, false)
 
           if @eh_casal
             msg_sucesso = "Casal criado e adicionado #{texto_adicionado} com sucesso"
@@ -201,7 +150,7 @@ class PessoasController < ApplicationController
 
         elsif defined? @grupo
 
-          salvar_relacao_grupo(@pessoa, @grupo, @os_dois)
+          salvar_relacao_grupo(@pessoa, @grupo, @os_dois, false)
           if @eh_casal
             msg_sucesso = "Casal criado e adicionado ao grupo #{@grupo.nome} com sucesso"
           else
@@ -213,7 +162,7 @@ class PessoasController < ApplicationController
         format.html { redirect_to pagina_retorno, notice: msg_sucesso }
         format.json { render action: 'show', status: :created, location: @pessoa }
       else
-        if params.has_key?(:auto_inserido)
+        if eh_auto_inserido
           if params.has_key?(:mobile)
             format.html { render 'pessoas/mobile/cadastrar_novo', layout: 'mobile' }
           else
@@ -249,8 +198,14 @@ class PessoasController < ApplicationController
     @eh_casal = params[:casado_ou_solteiro] == 'casado'
     @os_dois = params[:os_dois] == 'true'
 
+    if !@eh_casal
+      setar_variaveis_auto_inserido()
+    end
+
     if @eh_casal
       precisa_salvar_conjuge = true
+
+      setar_variaveis_auto_inserido()
 
       @tipo_conjuge = params[:tipo_de_conjuge_escolhido]
 
@@ -327,10 +282,13 @@ class PessoasController < ApplicationController
           ((precisa_salvar_conjuge && @conjuge.save) || !precisa_salvar_conjuge) &&
           ((precisa_salvar_velho_conjuge && @velho_conjuge.save) || !precisa_salvar_velho_conjuge)
         if defined? @conjunto
-          salvar_relacao_conjunto(@pessoa, @conjunto, @os_dois)
+          salvar_relacao_conjunto(@pessoa, @conjunto, @os_dois, false)
         elsif defined? @grupo
-          salvar_relacao_grupo(@pessoa, @grupo, @os_dois)
+          salvar_relacao_grupo(@pessoa, @grupo, @os_dois, false)
         end
+
+        criar_relacoes_auto_inserir
+
         format.html { redirect_to pagina_retorno, notice: msg_sucesso }
         format.json { head :no_content }
       else
@@ -778,7 +736,7 @@ class PessoasController < ApplicationController
     end
 
     def adicionar_breadcrumbs_entidades
-      if params.has_key?(:auto_inserido)
+      if eh_auto_inserido
         return
       end
 
@@ -834,7 +792,7 @@ class PessoasController < ApplicationController
     end
 
     def pagina_retorno
-      if params.has_key?(:auto_inserido)
+      if eh_auto_inserido && params[:modo] == 'cadastrar_novo'
         if params.has_key?(:mobile)
           return cadastrar_novo_confirmacao_mobile_path  
         else
@@ -879,6 +837,8 @@ class PessoasController < ApplicationController
       elsif tipo_pessoa == "conjuge"
         pessoa.assign_attributes(conjuge_params)
       end
+
+      pessoa.auto_inserido = false
 
       pessoa = atualizar_fotos(pessoa)
 
@@ -1027,31 +987,55 @@ class PessoasController < ApplicationController
         coordenadores = instance_variable_get("@coordenadores_auto_inserir_#{tipo_pessoa}")
         encontros = instance_variable_get("@encontros_auto_inserir_#{tipo_pessoa}")
         sugestoes = instance_variable_get("@sugestoes_auto_inserir_#{tipo_pessoa}")
+        conjuntos = instance_variable_get("@conjuntos_auto_inserir_#{tipo_pessoa}")
+        eh_auto_inseridos = instance_variable_get("@eh_auto_inseridos_#{tipo_pessoa}")
 
         if grupos.present?
           grupos.each_with_index do |grupo_id, indice|
             eh_coordenador = coordenadores[indice] == "true"
             texto_sugestao = sugestoes[indice]
             encontro_id = encontros[indice]
+            esse_eh_auto_inserido = eh_auto_inseridos[indice] == "true"
 
-            if texto_sugestao != ''
-              auto_sugestao = nil
-              if texto_sugestao == 'so_grupo'
-                auto_sugestao = AutoSugestao.where({pessoa: pessoa, conjuge: conjuge, grupo_id: grupo_id}).first
+            if esse_eh_auto_inserido
+              if texto_sugestao != ''
+                auto_sugestao = nil
+                if texto_sugestao == 'so_grupo'
+                  auto_sugestao = AutoSugestao.where({pessoa: pessoa, conjuge: conjuge, grupo_id: grupo_id}).first
+                end
+
+                if auto_sugestao.nil?
+                  auto_sugestao = AutoSugestao.new({pessoa: pessoa, conjuge: conjuge, grupo_id: grupo_id})
+                end
+
+                if encontro_id != "-1"
+                  auto_sugestao.encontro_id = encontro_id
+                end
+
+                auto_sugestao.sugestao = texto_sugestao
+                auto_sugestao.coordenador = eh_coordenador
+
+                auto_sugestao.save
+              end
+            else
+              conjunto_id = conjuntos[indice]
+
+              if conjunto_id.present? && conjunto_id != "-1"
+                conjunto = ConjuntoPessoas.find(conjunto_id)
               end
 
-              if auto_sugestao.nil?
-                auto_sugestao = AutoSugestao.new({pessoa: pessoa, conjuge: conjuge, grupo_id: grupo_id})
+              if grupo_id.present?
+                grupo = Grupo.find(grupo_id)
               end
 
-              if encontro_id != "-1"
-                auto_sugestao.encontro_id = encontro_id
+              os_dois = tipo_pessoa == 'casal'
+
+              if texto_sugestao == 'so_grupo' && grupo.present?
+                salvar_relacao_grupo(pessoa, grupo, os_dois, eh_coordenador)
+              elsif conjunto.present? 
+                salvar_relacao_conjunto(pessoa, conjunto, os_dois, eh_coordenador)
               end
 
-              auto_sugestao.sugestao = texto_sugestao
-              auto_sugestao.coordenador = eh_coordenador
-
-              auto_sugestao.save
             end
           end
         end
@@ -1100,42 +1084,128 @@ class PessoasController < ApplicationController
       end
     end
 
-    def salvar_relacao_grupo pessoa, grupo, os_dois
+    def salvar_relacao_grupo pessoa, grupo, os_dois, eh_coordenador
       relacao_pessoa = RelacaoPessoaGrupo.where({:pessoa_id => pessoa.id, :grupo_id => grupo.id}).first
 
       if relacao_pessoa.nil?
         relacao_pessoa = RelacaoPessoaGrupo.new({:pessoa_id => pessoa.id, :grupo_id => grupo.id})
-        relacao_pessoa.save
       end
+
+      relacao_pessoa.eh_coordenador = eh_coordenador
+      relacao_pessoa.save
 
       if pessoa.conjuge.present? && os_dois
         relacao_conjuge = RelacaoPessoaGrupo.where({:pessoa_id => pessoa.conjuge.id, :grupo_id => grupo.id}).first
 
         if relacao_conjuge.nil?
           relacao_conjuge = RelacaoPessoaGrupo.new({:pessoa_id => pessoa.conjuge.id, :grupo_id => grupo.id})
-          relacao_conjuge.save
         end
+
+        relacao_conjuge.eh_coordenador = eh_coordenador
+        relacao_conjuge.save
       end
     end
 
-    def salvar_relacao_conjunto pessoa, conjunto, os_dois
+    def salvar_relacao_conjunto pessoa, conjunto, os_dois, eh_coordenador
       relacao_pessoa = RelacaoPessoaConjunto.where({:pessoa_id => pessoa.id, :conjunto_pessoas_id => conjunto.id}).first
 
       if relacao_pessoa.nil?
         relacao_pessoa = RelacaoPessoaConjunto.new({:pessoa_id => pessoa.id, :conjunto_pessoas_id => conjunto.id})
-        relacao_pessoa.save
       end
+
+      relacao_pessoa.eh_coordenador = eh_coordenador
+      relacao_pessoa.save
 
       if pessoa.conjuge.present? && os_dois
         relacao_conjuge = RelacaoPessoaConjunto.where({:pessoa_id => pessoa.conjuge.id, :conjunto_pessoas_id => conjunto.id}).first
 
         if relacao_conjuge.nil?
           relacao_conjuge = RelacaoPessoaConjunto.new({:pessoa_id => pessoa.conjuge.id, :conjunto_pessoas_id => conjunto.id})
-          relacao_conjuge.save
+        end
+
+        relacao_conjuge.eh_coordenador = eh_coordenador
+        relacao_conjuge.save
+      end
+
+      salvar_relacao_grupo(pessoa, conjunto.encontro.grupo, os_dois, false)
+    end
+
+    def setar_variaveis_auto_inserido
+      if eh_auto_inserido && params[:modo] == 'cadastrar_novo'
+        @pessoa.auto_inserido = true
+        if @eh_casal
+          @conjuge.auto_inserido = true
         end
       end
 
-      salvar_relacao_grupo(pessoa, conjunto.encontro.grupo, os_dois)
+      if params[:grupos_auto_inserir_pessoa]
+        @grupos_auto_inserir_pessoa = params[:grupos_auto_inserir_pessoa].select{|item| item != '-1' && item != ''}
+        if @eh_casal
+          @grupos_auto_inserir_conjuge = params[:grupos_auto_inserir_conjuge].select{|item| item != '-1' && item != ''}
+        end
+      end
+
+      @encontros_auto_inserir_pessoa = params[:encontros_auto_inserir_pessoa]
+      @sugestoes_auto_inserir_pessoa = params[:sugestoes_auto_inserir_pessoa]
+      @coordenadores_auto_inserir_pessoa = params[:coordenadores_auto_inserir_pessoa]
+      @conjuntos_auto_inserir_pessoa = params[:conjuntos_auto_inserir_pessoa]
+      @eh_auto_inseridos_pessoa = params[:auto_inserido_pessoa]
+
+      if eh_auto_inserido && 
+        ((@grupos_auto_inserir_pessoa.nil? || @grupos_auto_inserir_pessoa.count == 0 ||
+        @sugestoes_auto_inserir_pessoa.select{|item| !item.empty?}.count == 0) && 
+        !@eh_casal)
+        @pessoa.errors[:auto_inserir] = 'É obrigatório inserir ao menos uma participação'
+        @pessoa_valida = false
+      end
+
+      if @eh_casal
+        if params[:grupos_auto_inserir_conjuge]
+          @grupos_auto_inserir_conjuge = params[:grupos_auto_inserir_conjuge].select{|item| item != '-1' && item != ''}
+        end
+
+        @encontros_auto_inserir_conjuge = params[:encontros_auto_inserir_conjuge]
+        @sugestoes_auto_inserir_conjuge = params[:sugestoes_auto_inserir_conjuge]
+        @coordenadores_auto_inserir_conjuge = params[:coordenadores_auto_inserir_conjuge]
+        @conjuntos_auto_inserir_conjuge = params[:conjuntos_auto_inserir_conjuge]
+        @eh_auto_inseridos_conjuge = params[:auto_inserido_conjuge]
+
+        if params[:grupos_auto_inserir_casal]
+          @grupos_auto_inserir_casal = params[:grupos_auto_inserir_casal].select{|item| item != '-1' && item != ''}
+        end
+
+        @encontros_auto_inserir_casal = params[:encontros_auto_inserir_casal]
+        @sugestoes_auto_inserir_casal = params[:sugestoes_auto_inserir_casal]
+        @coordenadores_auto_inserir_casal = params[:coordenadores_auto_inserir_casal]
+        @conjuntos_auto_inserir_casal = params[:conjuntos_auto_inserir_casal]
+        @eh_auto_inseridos_casal = params[:auto_inserido_casal]
+
+        if eh_auto_inserido && 
+          ((@grupos_auto_inserir_pessoa.nil? || @grupos_auto_inserir_pessoa.count == 0 ||
+            @sugestoes_auto_inserir_pessoa.select{|item| !item.empty?}.count == 0) && 
+            (@grupos_auto_inserir_conjuge.nil? || @grupos_auto_inserir_conjuge.count == 0 ||
+            @sugestoes_auto_inserir_conjuge.select{|item| !item.empty?}.count == 0) && 
+            (@grupos_auto_inserir_casal.nil? || @grupos_auto_inserir_casal.count == 0 ||
+              @sugestoes_auto_inserir_casal.select{|item| !item.empty?}.count == 0))
+          @pessoa.errors[:auto_inserir] = 'É obrigatório inserir ao menos uma participação'
+          @conjuge_valido = false
+        end
+      end
+
+    end
+
+    def eh_auto_inserido
+      ['pessoa', 'conjuge', 'casal'].each do |tipo_pessoa|
+        if params.has_key?("auto_inserido_#{tipo_pessoa}")
+          params["auto_inserido_#{tipo_pessoa}"].each do |auto_inserido|
+            if auto_inserido == "true"
+              return true
+            end
+          end
+        end
+      end
+
+      return false
     end
 
 

@@ -20,7 +20,7 @@
     <% quantas_pessoas_a_confirmar = @usuario_logado.ids_pessoas_a_confirmar.count %>
     <% if quantas_pessoas_a_confirmar > 0 %>
         <%= link_to pessoas_a_confirmar_path, class: 'atencao' do %>
-            <%= quantas_pessoas_a_confirmar %> pessoa<%= "s" if quantas_pessoas_a_confirmar > 1 %> a confirmar
+            <%= quantas_pessoas_a_confirmar %> pendente<%= "s" if quantas_pessoas_a_confirmar > 1 %>
         <% end %>
     <% end %>
 

@@ -1,0 +1,17 @@
+<% if pessoa.participacoes_em_grupos.count > 0 %>
+    <% pessoa.participacoes_em_grupos.each do |participacao| %>
+      <li><span>
+        <% coordenador = participacao[:grupo].coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+
+        <% if @usuario_logado.permissoes.pode_gerenciar_grupo participacao[:grupo] %>
+            <%= link_to "#{participacao[:grupo].nome}#{coordenador}", participacao[:grupo] %>
+        <% else %>
+            <%= "#{participacao[:grupo].nome}#{coordenador}" %>
+        <% end %>
+
+        <% if !participacao[:ativo] %>
+            (ex-participante)
+        <% end %>
+      </span></li>
+    <% end %>
+<% end %>

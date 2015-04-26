@@ -283,7 +283,7 @@
 
 <p/>
 
-<% if defined?(modo) && modo == "cadastrar_novo" %>
+<% if (@usuario_logado.present? && (@usuario_logado == pessoa || @usuario_logado == pessoa.conjuge)) || @usuario_logado.nil? %>
 
   <h2 class="sem_espaco_embaixo">Participações individuais dessa pessoa <span class="campos_casado" style="display: none;">(não dos dois como um casal)</span></h2>
 

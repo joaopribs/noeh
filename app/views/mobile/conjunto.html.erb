@@ -1,4 +1,12 @@
-<h1><%= "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}" %></h1>
+<%
+if @conjunto.tipo == 'CoordenacaoEncontro'
+	titulo_conjunto = "Coordenação do Encontro"
+else
+	titulo_conjunto = "#{@conjunto.tipo_do_conjunto} #{@conjunto.nome}"
+end
+%>
+
+<h1><%= titulo_conjunto %></h1>
 
 <% if @conjunto.cor.present? %>
 	<b>Cor:</b> <span style="color: <%= @conjunto.cor.hex_cor %>;"><%= @conjunto.cor.nome %></span><br/>

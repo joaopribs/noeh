@@ -1,3 +1,11 @@
+<% 
+    if @pessoa.new_record? || @usuario_logado == @pessoa || @usuario_logado == @pessoa.conjuge
+      grupos_pra_inserir = Grupo.all
+    else
+      grupos_pra_inserir = @usuario_logado.grupos_que_coordena
+    end
+%>
+
 <script>
     function setarOpcaoEscolhida(elemento) {
         $(elemento).addClass("ativo");
@@ -226,7 +234,7 @@
             evento.preventDefault();
 
             $('#participacoes_casal').append(
-                '<%= raw (render 'form_participacao_auto_inserir', tipo_pessoa: "casal", grupo_id: "-1", encontro_id: "-1", sugestao: "", coordenador: "false").gsub("\n", "") %>'
+                '<%= raw (render 'form_participacao_auto_inserir', tipo_pessoa: "casal", grupo_id: "-1", encontro_id: "-1", conjunto_id: "-1", sugestao: "", coordenador: "false", grupos: grupos_pra_inserir, mostrar_campo_lista: false, mostrar_campo_texto: false).gsub("\n", "") %>'
             );
 
             atualizarFuncoesAutoInserir();
@@ -242,17 +250,29 @@
     });
 
     var grupoEscolhido = null;
+    var ehGrupoQueCoordena = false;
     var grupos = <%= raw Grupo.all.to_json() %>
     var hash_encontros = {};
+    var hash_conjuntos = {};
 
     function atualizarFuncoesAutoInserir() {
+        <% if @usuario_logado.present? %>
+            var gruposQueCoordena = [<%= raw @usuario_logado.grupos_que_coordena.collect{|g| "\"#{g.id}\""}.join(", ") %>];
+        <% else %>
+            var gruposQueCoordena = [];
+        <% end %>
+
+        $('.grupo_participacao').off('change');
         $('.grupo_participacao').on('change', function () {
+            ehGrupoQueCoordena = false;
+
             var idEscolhido = $(this).val();
 
             if (idEscolhido == '') {
                 grupoEscolhido = null;
             }
             else {
+                ehGrupoQueCoordena = $.inArray(idEscolhido, gruposQueCoordena) != -1;
                 $.each(grupos, function (index, item) {
                     if (item.id == idEscolhido) {
                         grupoEscolhido = item;
@@ -261,9 +281,18 @@
             }
 
             var fieldEncontros = $(this).parent().siblings('.wrapper_encontro_participacao');
+            var fieldConjuntos = $(this).parent().siblings('.wrapper_conjunto_participacao');
             var fieldParticipacoes = $(this).parent().siblings('.wrapper_participacao');
+            var inputAutoInserido = $(this).parent().siblings('.auto_inserido');
 
             if (grupoEscolhido != null) {
+                if (ehGrupoQueCoordena) {
+                    inputAutoInserido.val("false");
+                }
+                else {
+                    inputAutoInserido.val("true");
+                }
+
                 if (grupoEscolhido.tem_encontros) {
                     var primeiroEncontro = null;
 
@@ -299,36 +328,29 @@
                     $(fieldEncontros).show();
 
                     if (primeiroEncontro != null) {
-                        $(fieldParticipacoes).children('.campo_texto_sugestao').val('');
-                        $(fieldParticipacoes).show();
+                        atualizarCampoParticipacao(primeiroEncontro.id, fieldParticipacoes, fieldEncontros, fieldConjuntos);
+                    }
+                    else {
+                        atualizarCampoParticipacao(null, fieldParticipacoes, fieldEncontros, fieldConjuntos);
                     }
                 }
                 else {
-                    $(fieldEncontros).children('select').empty();
-                    $(fieldEncontros).children('select').append(
-                            '<option value="-1"></option>'
-                    );
-
-                    $(fieldParticipacoes).children('.campo_texto_sugestao').val('so_grupo');
-
-                    $(fieldEncontros).add(fieldParticipacoes).hide();
+                    atualizarCampoParticipacao(null, fieldParticipacoes, fieldEncontros, fieldConjuntos);
                 }
             }
             else {
-                $(fieldEncontros).children('select').empty();
-                $(fieldEncontros).children('select').append(
-                        '<option value="-1"></option>'
-                );
-
-                $(fieldEncontros).add(fieldParticipacoes).hide();
+                inputAutoInserido.val("false");
+                atualizarCampoParticipacao(null, fieldParticipacoes, fieldEncontros, fieldConjuntos);
             }
         });
 
+        $('.remover_participacao').off('click');
         $('.remover_participacao').on('click', function (evento) {
             evento.preventDefault();
             $(this).parent().remove();
         });
 
+        $('.checkbox_coordenador').off('change');
         $('.checkbox_coordenador').on('change', function () {
             if ($(this).prop('checked')) {
                 $(this).siblings('.hidden_coordenador').val("true");
@@ -337,6 +359,67 @@
                 $(this).siblings('.hidden_coordenador').val("false");
             }
         });
+
+        $('.encontro_participacao').off('change');
+        $('.encontro_participacao').on('change', function () {
+            var idEscolhido = $(this).val();
+        });
+    }
+
+    function atualizarCampoParticipacao(idEncontro, fieldParticipacoes, fieldEncontros, fieldConjuntos) {
+        if (idEncontro != null) {
+            $(fieldParticipacoes).children('.campo_texto_sugestao').val('');
+
+            if (ehGrupoQueCoordena) {
+                carregarConjuntos(idEncontro, fieldConjuntos);
+            }
+            else {
+                $(fieldParticipacoes).show();
+            }
+        }
+        else {
+            $(fieldEncontros).children('select').empty();
+            $(fieldEncontros).children('select').append(
+                    '<option value="-1"></option>'
+            );
+
+            $(fieldParticipacoes).children('.campo_texto_sugestao').val('so_grupo');
+
+            $(fieldEncontros).add(fieldParticipacoes).hide();
+
+            $(fieldConjuntos).children('select').empty();
+            $(fieldConjuntos).children('select').append(
+                    '<option value="-1"></option>'
+            );
+            $(fieldConjuntos).hide();
+        }
+    }
+
+    function carregarConjuntos(idEncontro, fieldConjuntos) {
+        var conjuntos = hash_conjuntos[idEncontro];
+
+        if (conjuntos == undefined) {
+            // Fazendo chamada SÍNCRONA pra pegar os encontros
+            $.ajax({
+                type: 'GET',
+                url: '<%= conjuntos_para_adicionar_pessoa_url %>?encontro_id=' + idEncontro,
+                dataType: 'json',
+                success: function(json) { 
+                    conjuntos = json;
+                    hash_conjuntos[idEncontro] = conjuntos;
+                },
+                async: false
+            });    
+        }
+
+        $(fieldConjuntos).children('select').empty();
+        $.each(conjuntos, function (index, item) {
+            $(fieldConjuntos).children('select').append(
+                            '<option value="' + item.id + '">' + item.tipo_do_conjunto + ' ' + item.nome + '</option>'
+            );
+        });
+
+        $(fieldConjuntos).show();
     }
 </script>
 
@@ -356,10 +439,7 @@
 <%= form_tag form_url, method: form_method, id: "form_pessoa" do %>
 
     <input type="hidden" name="onde_fez_alteracao" value="site" />
-
-    <% if defined?(modo) && modo == "cadastrar_novo" %>
-        <input type="hidden" name="auto_inserido" value="1" />
-    <% end %>
+    <input type="hidden" name="modo" value="<%= modo %>" />
 
     <% if defined?(@conjunto) %>
         <input type="hidden" name="conjunto_id" value="<%= @conjunto.id %>" />
@@ -391,105 +471,110 @@
 
     <div class="campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>>
 
-      <div class="opcoes_conjuge">
-        <h2>Cônjuge</h2>
+        <div class="opcoes_conjuge">
+            <h2>Cônjuge</h2>
 
-        <%
-            ativar_form_conjuge = false
-            ativar_pesquisa_conjuge = false
-            tipo_de_conjuge_escolhido = ""
-            if defined?(@tipo_conjuge) && @tipo_conjuge == 'form'
-                ativar_form_conjuge = true
-                tipo_de_conjuge_escolhido = "novo"
-            elsif defined?(@tipo_conjuge) && @tipo_conjuge == 'ja_cadastrado'
-                ativar_pesquisa_conjuge = true
-                tipo_de_conjuge_escolhido = "ja_cadastrado"
-            end
-        %>
+            <%
+                ativar_form_conjuge = false
+                ativar_pesquisa_conjuge = false
+                tipo_de_conjuge_escolhido = ""
+                if defined?(@tipo_conjuge) && @tipo_conjuge == 'form'
+                    ativar_form_conjuge = true
+                    tipo_de_conjuge_escolhido = "novo"
+                elsif defined?(@tipo_conjuge) && @tipo_conjuge == 'ja_cadastrado'
+                    ativar_pesquisa_conjuge = true
+                    tipo_de_conjuge_escolhido = "ja_cadastrado"
+                end
+            %>
 
-        <% if modo != 'cadastrar_novo' && @usuario_logado.permissoes.pode_alterar_tipo_de_conjuge(@pessoa) %>
-            <a href="#" id="novo_conjuge" <% if ativar_form_conjuge %>class="ativo"<% end %>>
-                <% if modo == 'editando' && @pessoa.conjuge.present? %>
-                    Editar pessoa
-                <% else %>
-                    Nova pessoa
-                <% end %>
-            </a>
-            <a href="#" id="conjuge_ja_cadastrado" <% if ativar_pesquisa_conjuge %>class="ativo"<% end %>>
-                <% if modo == 'editando' && @pessoa.conjuge.present? %>
-                    Alterar por outra pessoa já cadastrada
-                <% else %>
-                    Pessoa já cadastrada
-                <% end %>
-            </a>
-        <% end %>
+            <% if modo != 'cadastrar_novo' && @usuario_logado.permissoes.pode_alterar_tipo_de_conjuge(@pessoa) %>
+                <a href="#" id="novo_conjuge" <% if ativar_form_conjuge %>class="ativo"<% end %>>
+                    <% if modo == 'editando' && @pessoa.conjuge.present? %>
+                        Editar pessoa
+                    <% else %>
+                        Nova pessoa
+                    <% end %>
+                </a>
+                <a href="#" id="conjuge_ja_cadastrado" <% if ativar_pesquisa_conjuge %>class="ativo"<% end %>>
+                    <% if modo == 'editando' && @pessoa.conjuge.present? %>
+                        Alterar por outra pessoa já cadastrada
+                    <% else %>
+                        Pessoa já cadastrada
+                    <% end %>
+                </a>
+            <% end %>
 
-        <input type="hidden" name="tipo_de_conjuge_escolhido" id="tipo_de_conjuge_escolhido" value="<%= tipo_de_conjuge_escolhido %>" />
-      </div>
+            <input type="hidden" name="tipo_de_conjuge_escolhido" id="tipo_de_conjuge_escolhido" value="<%= tipo_de_conjuge_escolhido %>" />
+        </div>
 
-      <div id="form_novo_conjuge" <% if !ativar_form_conjuge %>style="display: none;"<% end %>>
+        <div id="form_novo_conjuge" <% if !ativar_form_conjuge %>style="display: none;"<% end %>>
 
-        <%
-           if @tipo_conjuge == 'form'
-             conjuge_mostrar = @conjuge
-           else
-             conjuge_mostrar = Pessoa.new
-           end
-        %>
+            <%
+               if @tipo_conjuge == 'form'
+                 conjuge_mostrar = @conjuge
+               else
+                 conjuge_mostrar = Pessoa.new
+               end
+            %>
 
-        <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge', modo: modo %>
+            <%= render 'form_pessoa', pessoa: conjuge_mostrar, tipo_pessoa: 'conjuge', modo: modo %>
 
-      </div>
+        </div>
 
-      <div id="form_conjuge_ja_cadastrado" <% if !ativar_pesquisa_conjuge %>style="display: none;"<% end %>>
+        <div id="form_conjuge_ja_cadastrado" <% if !ativar_pesquisa_conjuge %>style="display: none;"<% end %>>
 
-        <%
-           if @tipo_conjuge == 'ja_cadastrado'
-             @conjuge_mostrar = @conjuge
-           else
-             @conjuge_mostrar = Pessoa.new
-           end
-        %>
+            <%
+               if @tipo_conjuge == 'ja_cadastrado'
+                 @conjuge_mostrar = @conjuge
+               else
+                 @conjuge_mostrar = Pessoa.new
+               end
+            %>
 
-        <%= render 'pessoas/pesquisa_pessoas_por_nome', tipo_pesquisa: "pesquisa_conjuge" %>
-      </div>
+            <%= render 'pessoas/pesquisa_pessoas_por_nome', tipo_pesquisa: "pesquisa_conjuge" %>
+        </div>
 
-      <% if defined?(modo) && modo == "cadastrar_novo" %>
         <div id="participacoes_casal">
 
-          <h2>Participações dos dois como um casal</h2>
+            <h2>Participações dos dois como um casal</h2>
 
-          <%= render 'helper_participacao' %>
+            <%= render 'helper_participacao' %>
 
-          <%
-             grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_casal")
-             encontros_auto_inserir = instance_variable_get("@encontros_auto_inserir_casal")
-             sugestoes_auto_inserir = instance_variable_get("@sugestoes_auto_inserir_casal")
-             coordenadores_auto_inserir = instance_variable_get("@coordenadores_auto_inserir_casal")
-          %>
+            <%
+                grupos_auto_inserir = instance_variable_get("@grupos_auto_inserir_casal")
+                encontros_auto_inserir = instance_variable_get("@encontros_auto_inserir_casal")
+                sugestoes_auto_inserir = instance_variable_get("@sugestoes_auto_inserir_casal")
+                coordenadores_auto_inserir = instance_variable_get("@coordenadores_auto_inserir_casal")
+                conjuntos_auto_inserir = instance_variable_get("@conjuntos_auto_inserir_casal") || ["-1"]
+            %>
 
-          <% if grupos_auto_inserir.present? %>
-            <% grupos_auto_inserir.each_with_index do |grupo_id, index| %>
-              <%
-                encontro_id = encontros_auto_inserir[index]
-                texto_sugestao = sugestoes_auto_inserir[index]
-                coordenador = coordenadores_auto_inserir[index]
-              %>
-              <%= render 'form_participacao_auto_inserir', tipo_pessoa: 'casal', grupo_id: grupo_id, encontro_id: encontro_id, sugestao: texto_sugestao, coordenador: coordenador %>
+            <% if grupos_auto_inserir.present? %>
+                <% grupos_auto_inserir.each_with_index do |grupo_id, index| %>
+                  <%
+                    encontro_id = encontros_auto_inserir[index]
+                    texto_sugestao = sugestoes_auto_inserir[index]
+                    coordenador = coordenadores_auto_inserir[index]
+                    conjunto_id = conjuntos_auto_inserir[index]
+
+                    grupos_que_coordena = @usuario_logado.nil? ? [] : @usuario_logado.grupos_que_coordena.collect{|g| "#{g.id}"}
+
+                    mostrar_campo_lista = grupos_que_coordena.include?(grupo_id)
+                    mostrar_campo_texto = !mostrar_campo_lista
+                  %>
+                  <%= render 'form_participacao_auto_inserir', tipo_pessoa: 'casal', grupo_id: grupo_id, encontro_id: encontro_id, conjunto_id: conjunto_id, sugestao: texto_sugestao, coordenador: coordenador, grupos: grupos_pra_inserir, mostrar_campo_lista: mostrar_campo_lista, mostrar_campo_texto: mostrar_campo_texto %>
+                <% end %>
+            <% else %>
+                <%= render 'form_participacao_auto_inserir', tipo_pessoa: 'casal', grupo_id: '-1', encontro_id: '-1', conjunto_id: '-1', sugestao: '', coordenador: 'false', grupos: grupos_pra_inserir, mostrar_campo_lista: false, mostrar_campo_texto: false %>
             <% end %>
-          <% else %>
-            <%= render 'form_participacao_auto_inserir', tipo_pessoa: 'casal', grupo_id: '-1', encontro_id: '-1', sugestao: '', coordenador: 'false' %>
-          <% end %>
 
-          <script>
+            <script>
               atualizarFuncoesAutoInserir();
-          </script>
+            </script>
         </div>
 
         <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_casal" do %>
             Adicionar outra participação dos dois como um casal
         <% end %>
-      <% end %>
 
     </div>
 

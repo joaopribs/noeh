@@ -8,7 +8,7 @@ html, body {
 
 body {
     font-family: 'Roboto', Helvetica, Arial;
-	background-color: #004052;
+	background-color: #f86f05;
 	color: #fff;
     padding: 0;
     margin: 0;
@@ -17,10 +17,11 @@ body {
 input {
     font-family: 'Roboto', Helvetica, Arial;
     font-size: 0.8em;
+    color: #888;
 }
 
 a {
-    color: #27ADD3;
+    color: #f86f05;
 }
 
 h1 {
@@ -148,7 +149,7 @@ a.link_entrar_pelo_facebook {
 }
 
 #faixa_superior {
-    background-color: #004052;
+    background-color: #f86f05;
     z-index: 99998;
 }
 
@@ -164,6 +165,7 @@ a.link_entrar_pelo_facebook {
     color: #fff;
     padding: 0;
     padding-left: 1vmin;
+    font-size: 0.7em;
 }
 
 .link_usuario_logado img {
@@ -177,6 +179,7 @@ a.link_entrar_pelo_facebook {
     font-weight: bold;
     color: #fff;
     padding: 0 1vmin;
+    font-size: 0.7em;
 }
 
 .link_logo {
@@ -207,7 +210,7 @@ a.link_entrar_pelo_facebook {
 }
 
 #faixa_superior .link_menu {
-    background-color: #27ADD3;
+    background-color: #000;
 }
 
 #menu {
@@ -217,7 +220,7 @@ a.link_entrar_pelo_facebook {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #27ADD3;
+    background-color: #000;
     display: none;
 }
 
@@ -227,27 +230,22 @@ a.link_entrar_pelo_facebook {
 }
 
 #faixa_superior_menu .link_menu {
-    background-color: #004052;
+    background-color: #f86f05;
 }
 
 #menu #conteudo_menu {
     padding: 2vmin;
     padding-top: 14vmin;
-    color: #000;
+    color: #ccc;
 }
 
 #menu #conteudo_menu a {
-    color: #004052;
+    color: #f86f05;
 }
 
 #menu #conteudo_menu .titulo {
     font-weight: bold;
     display: block;
-}
-
-#menu #conteudo_menu input {
-    /*height: 4vmin;
-    width: 4vmin;*/
 }
 
 #menu #conteudo_menu #botao_entrar {
@@ -344,4 +342,8 @@ a.link_entrar_pelo_facebook {
 .erro_form {
     background-color: #ff0000;
     color: #fff;
+}
+
+.field {
+    margin-bottom: 15%;
 }

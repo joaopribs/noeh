@@ -227,10 +227,10 @@
     </p>
 <% end %>
 
-<%= render 'informacoes_pessoa', pessoa: @pessoa, participacoes: @participacoes, tem_conjuge: tem_conjuge, tem_auto_sugestoes: tem_auto_sugestoes %>
+<%= render 'informacoes_pessoa', pessoa: @pessoa, tem_conjuge: tem_conjuge, tem_auto_sugestoes: tem_auto_sugestoes %>
 
 <% if tem_conjuge %>
-    <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, participacoes: @participacoes_conjuge, tem_conjuge: tem_conjuge, tem_auto_sugestoes: tem_auto_sugestoes %>
+    <%= render 'informacoes_pessoa', pessoa: @pessoa.conjuge, tem_conjuge: tem_conjuge, tem_auto_sugestoes: tem_auto_sugestoes %>
 <% end %>
 
 <br style="clear: both;"/>

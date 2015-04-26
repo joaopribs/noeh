@@ -1,0 +1,37 @@
+<% participacoes = pessoa.participacoes_visiveis(@usuario_logado) %>
+
+<% participacoes.each do |conjunto| %>
+  <% texto_encontro_participacao = "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})" %>
+
+  <% cor = conjunto.cor.present? ? conjunto.cor.hex_cor : nil %>
+
+  <li <% if cor.present? %>style="color: <%= cor %>;"<% end %>><span>
+    <% if @usuario_logado.permissoes.pode_gerenciar_encontro(conjunto.encontro) %>
+        <%= link_to texto_encontro_participacao, encontro_path(conjunto.encontro) %>
+    <% else %>
+        <%= texto_encontro_participacao %>
+    <% end %>
+
+    -
+
+    <% coordenador = conjunto.coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
+
+    <%
+      if conjunto.tipo == 'Equipe'
+        texto_conjunto_participacao = "Equipe #{conjunto.nome}#{coordenador}"
+        link_conjunto_participacao = equipe_path(conjunto)
+      elsif conjunto.tipo == 'CoordenacaoEncontro'
+        texto_conjunto_participacao = "Coordenação do Encontro"
+        link_conjunto_participacao = encontro_editar_coordenadores_path(conjunto.encontro)
+      else
+        texto_conjunto_participacao = "#{conjunto.tipo_do_conjunto} #{conjunto.nome}#{coordenador}"
+        link_conjunto_participacao = circulo_path(conjunto)
+      end
+    %>    
+    <% if @usuario_logado.permissoes.pode_gerenciar_conjunto(conjunto) %>                        
+      <%= link_to texto_conjunto_participacao, link_conjunto_participacao %>
+    <% else %>
+      <%= texto_conjunto_participacao %>
+    <% end %>
+  </span></li>
+<% end %>
