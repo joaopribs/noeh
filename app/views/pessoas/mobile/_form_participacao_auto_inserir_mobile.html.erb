@@ -1,4 +1,4 @@
-<div class="container" style="display: table; margin: auto; margin-bottom: 4vmin; padding-bottom: 4vmin; border-bottom: 1px solid #ccc; width: 100%; text-align: center;">
+<div class="container" style="display: table; margin: auto; margin-bottom: 4vmin; padding-bottom: 4vmin; width: 100%; text-align: center;">
 
     <input type="hidden" name="auto_inserido_<%= tipo_pessoa %>[]" value="false" class="auto_inserido" />
 
@@ -6,6 +6,8 @@
         <label for="grupo">Grupo</label><br/>
         <%= select_tag "grupos_auto_inserir_#{tipo_pessoa}[]", options_for_select(Grupo.all.collect{|g| [g.nome, g.id]}, grupo_id), include_blank: true, class: 'grupo_participacao' %>
     </div>
+
+    <br style="clear: both;" />
 
     <% grupo = grupo_id != "-1" ? Grupo.find(grupo_id) : nil %>
 
@@ -22,7 +24,7 @@
         <% end %>
     </div>
 
-    <br class="quebra_de_linha_encontro" style="clear: both; display: none;" />
+    <br style="clear: both;" />
 
     <div class="wrapper_participacao" style="display: <% if encontro_id == "-1" || !grupo.tem_encontros %>none<% else %>inline-block<% end %>; margin-left: 2vmin;">
         <label for="participacao">Participação</label><br/>
@@ -43,8 +45,12 @@
         </label>
     </div>
 
+    <br style="clear: both;" />
+
     <div style="display: inline-block; margin-left: 2vmin;">
         <br />
         <a href="#" class="link_remover remover_participacao">Remover</a>
     </div>
+
+    <hr style="border-bottom: 1px solid #ccc;" />
 </div>

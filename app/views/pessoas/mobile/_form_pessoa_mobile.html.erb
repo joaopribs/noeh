@@ -307,9 +307,13 @@
           texto_sugestao = sugestoes_auto_inserir[index]
           coordenador = coordenadores_auto_inserir[index]
         %>
+        <hr style="border-bottom: 1px solid #ccc;" />
+
         <%= render 'pessoas/mobile/form_participacao_auto_inserir_mobile', tipo_pessoa: tipo_pessoa, grupo_id: grupo_id, encontro_id: encontro_id, sugestao: texto_sugestao, coordenador: coordenador %>
       <% end %>
     <% else %>
+      <hr style="border-bottom: 1px solid #ccc;" />
+
       <%= render 'pessoas/mobile/form_participacao_auto_inserir_mobile', tipo_pessoa: tipo_pessoa, grupo_id: '-1', encontro_id: '-1', sugestao: '', coordenador: 'false' %>
     <% end %>
 
