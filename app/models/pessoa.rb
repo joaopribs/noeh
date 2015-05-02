@@ -6,6 +6,8 @@ class Pessoa < ActiveRecord::Base
   after_initialize :default_values
 
   before_save :atualizar_data
+  after_create :atualizar_quem_criou
+  after_save :atualizar_quem_editou
 
   default_scope {where('pessoas.auto_inserido IS NULL OR pessoas.auto_inserido = false')}
   default_scope {order(:nome)}
@@ -480,6 +482,20 @@ class Pessoa < ActiveRecord::Base
       end
     elsif self.nascimento.present?
       self.nascimento = nil
+    end
+  end
+
+  def atualizar_quem_criou
+    if self.quem_criou.nil?
+      self.quem_criou = self.id
+      self.save
+    end
+  end
+
+  def atualizar_quem_editou
+    if self.quem_editou.nil?
+      self.quem_editou = self.id
+      self.save
     end
   end
 

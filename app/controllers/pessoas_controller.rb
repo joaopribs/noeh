@@ -4,7 +4,7 @@ require "open-uri"
 class PessoasController < ApplicationController
   skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao, :cadastrar_novo_confirmacao_mobile]
   before_action :set_entidades, :adicionar_breadcrumbs_entidades
-  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :cadastrar_novo_confirmacao, :cadastrar_novo_confirmacao_mobile]
+  skip_before_action :adicionar_breadcrumbs_entidades, only: [:cadastrar_novo, :create, :cadastrar_novo_confirmacao, :cadastrar_novo_confirmacao_mobile]
   skip_before_action :verify_authenticity_token, only: [:lista_pessoas_js]
   skip_before_filter :nao_pode_ser_mobile, only: [:cadastrar_novo, :create, :cadastrar_novo_confirmacao_mobile, :edit, :update]
 
@@ -828,6 +828,11 @@ class PessoasController < ApplicationController
 
       pessoa = atualizar_fotos(pessoa)
 
+      if @usuario_logado.present?
+        pessoa.quem_criou = @usuario_logado.id
+        pessoa.quem_editou = @usuario_logado.id
+      end
+
       return pessoa
     end
 
@@ -841,6 +846,10 @@ class PessoasController < ApplicationController
       pessoa.auto_inserido = false
 
       pessoa = atualizar_fotos(pessoa)
+
+      if @usuario_logado.present?
+        pessoa.quem_editou = @usuario_logado.id
+      end
 
       return pessoa
     end
@@ -1195,17 +1204,7 @@ class PessoasController < ApplicationController
     end
 
     def eh_auto_inserido
-      ['pessoa', 'conjuge', 'casal'].each do |tipo_pessoa|
-        if params.has_key?("auto_inserido_#{tipo_pessoa}")
-          params["auto_inserido_#{tipo_pessoa}"].each do |auto_inserido|
-            if auto_inserido == "true"
-              return true
-            end
-          end
-        end
-      end
-
-      return false
+      return params[:modo] == 'cadastrar_novo'
     end
 
 
