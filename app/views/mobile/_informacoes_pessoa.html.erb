@@ -18,7 +18,6 @@
 	<%
 	    if pessoa.telefones.count > 1
 	        titulo_telefones = "Telefones"
-	        separador_telefones = "<br/>"
 	        array_telefones = []
 	        pessoa.telefones.each do |telefone|
 	            array_telefones << "#{telefone.telefone} (#{telefone.operadora})"
@@ -26,7 +25,6 @@
 	        string_telefones = array_telefones.join("<br/>")
 	    else
 	        titulo_telefones = "Telefone"
-	        separador_telefones = " "
 	        if pessoa.telefones.count == 1
 	            telefone = pessoa.telefones.first
 	            string_telefones = "#{telefone.telefone} (#{telefone.operadora})"
@@ -36,8 +34,8 @@
 	    end
 	%>
 
-	<b><%= titulo_telefones %> de contato:</b>
-	<%= raw separador_telefones %><%= raw string_telefones %>
+	<b><%= titulo_telefones %> de contato:</b><br/>
+	<%= raw string_telefones %>
 	<p/>
 
 	<b>Facebook:</b><br/>

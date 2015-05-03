@@ -31,22 +31,33 @@
 	}
 
   var grupoEscolhido = null;
+  var ehGrupoQueCoordena = false;
   var grupos = <%= raw Grupo.all.to_json() %>
   var hash_encontros = {};
 
   function atualizarFuncoesAutoInserir() {
+    <% if @usuario_logado.present? %>
+        var gruposQueCoordena = [<%= raw @usuario_logado.grupos_que_coordena.collect{|g| "\"#{g.id}\""}.join(", ") %>];
+    <% else %>
+        var gruposQueCoordena = [];
+    <% end %>
+
+    $('.grupo_participacao').off('change');
     $('.grupo_participacao').on('change', function () {
+      ehGrupoQueCoordena = false;
+
       var idEscolhido = $(this).val();
 
       if (idEscolhido == '') {
-          grupoEscolhido = null;
+        grupoEscolhido = null;
       }
       else {
-          $.each(grupos, function (index, item) {
-              if (item.id == idEscolhido) {
-                  grupoEscolhido = item;
-              }
-          });
+        ehGrupoQueCoordena = $.inArray(idEscolhido, gruposQueCoordena) != -1;
+        $.each(grupos, function (index, item) {
+          if (item.id == idEscolhido) {
+            grupoEscolhido = item;
+          }
+        });
       }
 
       var fieldEncontros = $(this).parent().siblings('.wrapper_encontro_participacao');
@@ -55,6 +66,13 @@
       var inputAutoInserido = $(this).parent().siblings('.auto_inserido');
 
       if (grupoEscolhido != null) {
+          if (ehGrupoQueCoordena) {
+              inputAutoInserido.val("false");
+          }
+          else {
+              inputAutoInserido.val("true");
+          }
+
           if (grupoEscolhido.tem_encontros) {
               var primeiroEncontro = null;
 
@@ -93,7 +111,6 @@
               if (primeiroEncontro != null) {
                   $(fieldParticipacoes).children('.campo_texto_sugestao').val('');
                   $(fieldParticipacoes).css("display", "inline-block");
-                  $(inputAutoInserido).val("true");
               }
           }
           else {
@@ -105,8 +122,6 @@
               $(fieldParticipacoes).children('.campo_texto_sugestao').val('so_grupo');
 
               $(fieldEncontros).add(fieldParticipacoes).hide();
-
-              $(inputAutoInserido).val("false");
           }
       }
       else {
@@ -116,16 +131,16 @@
           );
 
           $(fieldEncontros).add(fieldParticipacoes).hide();
-
-          $(inputAutoInserido).val("false");
       }
     });
 
+    $('.remover_participacao').off('click');
     $('.remover_participacao').on('click', function (evento) {
         evento.preventDefault();
         $(this).closest('.container').remove();
     });
 
+    $('.checkbox_coordenador').off('change');
     $('.checkbox_coordenador').on('change', function () {
         if ($(this).prop('checked')) {
             $(this).siblings('.hidden_coordenador').val("true");
@@ -197,11 +212,15 @@
 
     <input type="hidden" name="mobile" value="1" />
 
-		<div class="field campo_solteiro_ou_casado">
-	    <label>Estado civil:</label><br/>
-	    <label><%= radio_button_tag :casado_ou_solteiro, 'solteiro', (!@eh_casal) %>Solteiro</label>
-	    <label><%= radio_button_tag :casado_ou_solteiro, 'casado', (@eh_casal) %>Casado</label>
-	  </div>
+    <% if modo == "editando" %>
+      <input type="hidden" name="casado_ou_solteiro" value="<%= @eh_casal ? 'casado' : 'solteiro' %>" />
+    <% else %>
+      <div class="field campo_solteiro_ou_casado">
+        <label>Estado civil:</label><br/>
+        <label><%= radio_button_tag :casado_ou_solteiro, 'solteiro', (!@eh_casal) %>Solteiro</label>
+        <label><%= radio_button_tag :casado_ou_solteiro, 'casado', (@eh_casal) %>Casado</label>
+      </div>
+    <% end %>
 
     <p/>
 
