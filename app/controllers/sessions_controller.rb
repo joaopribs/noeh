@@ -186,7 +186,10 @@ class SessionsController < ApplicationController
           c.http_get
 
           ultima_url = c.last_effective_url
-          usuario_facebook = ultima_url.split("/").last.split("?").first
+          usuario_facebook = ultima_url.split("/").last
+          if !usuario_facebook.starts_with?("profile.php")
+            usuario_facebook = usuario_facebook.split("?").first
+          end
         rescue
         end
       end

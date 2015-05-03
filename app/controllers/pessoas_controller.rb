@@ -898,6 +898,19 @@ class PessoasController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def pessoa_params
+      if params[:url_facebook_pessoa].present? && params[:usuario_facebook_pessoa].blank?
+        informacoes = pegar_informacoes_facebook(params[:url_facebook_pessoa])
+        if informacoes[:imagem_grande].present?
+          params[:url_imagem_facebook_pessoa] = informacoes[:imagem_grande]
+        end
+        if informacoes[:imagem_pequena].present?
+          params[:url_imagem_facebook_pequena_pessoa] = informacoes[:imagem_pequena]
+        end
+        if informacoes[:usuario].present?
+          params[:usuario_facebook_pessoa] = informacoes[:usuario]
+        end
+      end
+
       telefones = pegar_telefones(params[:telefones_pessoa], params[:operadoras_pessoa])
       instrumentos = pegar_instrumentos(params[:instrumentos_pessoa])
 
@@ -917,7 +930,7 @@ class PessoasController < ApplicationController
                                               tem_facebook: params[:tem_facebook_pessoa],
                                               usuario_facebook: params[:usuario_facebook_pessoa],
                                               id_app_facebook: params[:id_app_facebook_pessoa],
-                                              url_facebook: params[:url_facebook_pessoa].strip.split("?")[0],
+                                              url_facebook: params[:url_facebook_pessoa].strip,
                                               url_imagem_facebook: params[:url_imagem_facebook_pessoa],
                                               url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_pessoa],
                                               whatsapp: params[:whatsapp_pessoa],
@@ -930,6 +943,19 @@ class PessoasController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def conjuge_params
+      if params[:url_facebook_conjuge].present? && params[:usuario_facebook_conjuge].blank?
+        informacoes = pegar_informacoes_facebook(params[:url_facebook_conjuge])
+        if informacoes[:imagem_grande].present?
+          params[:url_imagem_facebook_conjuge] = informacoes[:imagem_grande]
+        end
+        if informacoes[:imagem_pequena].present?
+          params[:url_imagem_facebook_pequena_conjuge] = informacoes[:imagem_pequena]
+        end
+        if informacoes[:usuario].present?
+          params[:usuario_facebook_conjuge] = informacoes[:usuario]
+        end
+      end
+
       telefones = pegar_telefones(params[:telefones_conjuge], params[:operadoras_conjuge])
       instrumentos = pegar_instrumentos(params[:instrumentos_conjuge])
 
@@ -943,7 +969,7 @@ class PessoasController < ApplicationController
                                               tem_facebook: params[:tem_facebook_conjuge],
                                               usuario_facebook: params[:usuario_facebook_conjuge].gsub(/\s+/, " ").strip,
                                               id_app_facebook: params[:id_app_facebook_conjuge],
-                                              url_facebook: params[:url_facebook_conjuge].strip.split("?")[0],
+                                              url_facebook: params[:url_facebook_conjuge].strip,
                                               url_imagem_facebook: params[:url_imagem_facebook_conjuge],
                                               url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_conjuge],
                                               whatsapp: params[:whatsapp_pessoa_conjuge],

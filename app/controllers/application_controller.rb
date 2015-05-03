@@ -253,14 +253,18 @@ class ApplicationController < ActionController::Base
   end
 
   def pegar_informacoes_facebook_pelo_link
+    render json: pegar_informacoes_facebook(params[:url])
+  end
+
+  def pegar_informacoes_facebook(url)
     img_grande = ""
     img_pequena = ""
     nome = ""
     usuario_facebook = ""
 
-    if params[:url]
+    if url.present?
       begin
-        c = Curl::Easy.http_get(params[:url]) do |curl| 
+        c = Curl::Easy.http_get(url) do |curl| 
           curl.follow_location = true
           curl.enable_cookies = true
           curl.cookiefile = "cookie.txt"
@@ -293,7 +297,7 @@ class ApplicationController < ActionController::Base
             curl.verbose = true
           end
 
-          c = Curl::Easy.http_get(params[:url]) do |curl| 
+          c = Curl::Easy.http_get(url) do |curl| 
             curl.follow_location = true
             curl.enable_cookies = true
             curl.cookiefile = "cookie.txt"
@@ -314,17 +318,20 @@ class ApplicationController < ActionController::Base
         end
 
         ultima_url = c.last_effective_url
-        usuario_facebook = ultima_url.split("/").last.split("?").first
+        usuario_facebook = ultima_url.split("/").last
+        if !usuario_facebook.starts_with?("profile.php")
+          usuario_facebook = usuario_facebook.split("?").first
+        end
       rescue
       end
-    end
 
-    render json: {
-      imagem_grande: img_grande, 
-      imagem_pequena: img_pequena, 
-      nome: nome,
-      usuario: usuario_facebook
-    }
+      return {
+        imagem_grande: img_grande, 
+        imagem_pequena: img_pequena, 
+        nome: nome,
+        usuario: usuario_facebook
+      }
+    end
   end
 
   private 
