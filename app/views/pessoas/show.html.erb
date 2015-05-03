@@ -216,7 +216,7 @@
       <% elsif conjuge_foi_auto_inserido %>
         O cônjuge dessa pessoa ainda não possui acesso. Seu acesso será liberado a partir do momento que algum coordenador confirmar alguma de suas participações.
       <% else %>
-        <% if auto_sugestoes_pessoa.count > 0 && auto_sugestoes_conjuge.count > 0 %>
+        <% if auto_sugestoes_casal.count > 0 || (auto_sugestoes_pessoa.count > 0 && auto_sugestoes_conjuge.count > 0) %>
           Esse casal tem participações a serem revisadas.
         <% elsif auto_sugestoes_pessoa.count > 0 %>
           Essa pessoa tem participações a serem revisadas.

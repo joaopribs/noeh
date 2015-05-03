@@ -56,7 +56,7 @@ class Grupo < ActiveRecord::Base
   def ids_pessoas_a_confirmar
     auto_sugestoes = self.auto_sugestoes
 
-    return auto_sugestoes.select{|a| a.conjuge == nil}.collect{|a| a.pessoa_id}.uniq
+    return auto_sugestoes.collect{|a| a.pessoa_id}.uniq
   end
 
   def auto_sugestoes_individuais_de_pessoa id_pessoa
