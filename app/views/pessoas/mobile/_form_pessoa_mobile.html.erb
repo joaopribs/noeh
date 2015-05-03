@@ -64,13 +64,7 @@
       $(this).closest('.campos_telefone').remove();
     });
 
-    $('.mascara_telefone').mask(
-      '(00) 0000-0000',
-      {
-          clearIfNotMatch: true,
-          placeholder: '(__) ____-____'
-      }
-    );
+    $('.mascara_telefone').mascaraTelefone();
   }
 
   function atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>() {
