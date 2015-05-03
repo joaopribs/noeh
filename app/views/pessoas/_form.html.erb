@@ -363,6 +363,12 @@
         $('.encontro_participacao').off('change');
         $('.encontro_participacao').on('change', function () {
             var idEscolhido = $(this).val();
+
+            var fieldConjuntos = $(this).parent().siblings('.wrapper_conjunto_participacao');
+            var fieldParticipacoes = $(this).parent().siblings('.wrapper_participacao');
+            var inputAutoInserido = $(this).parent().siblings('.auto_inserido');
+
+            atualizarCampoParticipacao(idEscolhido, fieldParticipacoes, null, fieldConjuntos);
         });
     }
 
