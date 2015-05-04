@@ -222,7 +222,7 @@
     pessoas = Pessoa.where("foto_grande_file_name != ''").sample(50)
 
     if pessoas.count > 0
-        while pessoas.length < 50 do
+        while pessoas.length < 80 do
             pessoas += pessoas
         end
 
