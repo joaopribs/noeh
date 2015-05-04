@@ -277,6 +277,8 @@
         <span class="texto">Salvar</span>
       </a>
 
-      <%= link_to 'Cancelar', @encontro, class: 'link_cancelar' %>
+      <% if !@encontro.new_record? %>
+        <%= link_to 'Cancelar', @encontro, class: 'link_cancelar' %>
+      <% end %>
     </div>
 <% end %>
