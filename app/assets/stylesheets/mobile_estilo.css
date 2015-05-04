@@ -85,6 +85,13 @@ ul.bullets li span {
     color: #000;
 }
 
+.img_spinner {
+    height: 23px;
+    width: 23px;
+    display: inline-block;
+    vertical-align: middle;   
+}
+
 .imagem_pessoa_lista {
     height: 10vmin;
     float: left;

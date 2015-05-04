@@ -12,5 +12,6 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require spin.min
 //= require_tree .
 //= require jquery.remotipart

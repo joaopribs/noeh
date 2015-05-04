@@ -115,7 +115,8 @@
 
         function fazerLoginNoSistema(idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
                                      idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
-            $("#msg_principal").html("Checando login no noeh...");
+            $("#msg_principal #texto").html("Checando login no noeh...");
+            $(".img_spinner").show();
 
             $("#link_fb").off("click");
             $("#link_fb").on("click", function (e) {
@@ -163,7 +164,8 @@
 
        function atualizarBotaoFacebook(nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
                                        idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
-           $("#msg_principal").html("Entrar como<br/><b>" + nome + "</b>");
+           $("#msg_principal #texto").html("Entrar como<br/><b>" + nome + "</b>");
+           $(".img_spinner").hide();
 
            if (urlFotoPequena != null) {
                $("#imagem_usuario_facebook").attr("src", urlFotoPequena);
@@ -183,7 +185,9 @@
                pegarDadosDoFacebookEConsultarNoSistema(true);
            }
            else {
-               $("#msg_principal").html("Entre no sistema usando sua conta de Facebook");
+               $("#msg_principal #texto").html("Entre no sistema usando sua conta de Facebook");
+               $(".img_spinner").hide();
+
                $("#link_fb").off("click");
                $("#link_fb").on("click", function (e) {
                    e.preventDefault();
@@ -221,7 +225,10 @@
     <p/>
     <a class="link_entrar_pelo_facebook" id="link_fb" href="#">
         <img id="imagem_usuario_facebook" src="" class="imagem_usuario_facebook"/>
-        <span id="msg_principal">Carregando...</span>
+        <span id="msg_principal" style="position: relative;">
+          <span class="img_spinner"></span>
+          <span id="texto">Carregando...</span>
+        </span>
     </a>
     <div id="erro_login" class="msg_erro erro_login"></div>
   </div>

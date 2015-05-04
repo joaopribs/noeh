@@ -165,13 +165,11 @@ form.espaco_embaixo {
     padding: 5px;
 }
 
-#img_spinner,
-#img_spinner_upload_relatorio,
-#img_spinner_remover_relatorio {
+.img_spinner {
     height: 23px;
     width: 23px;
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: middle;   
 }
 
 /* Formulários
