@@ -2,27 +2,43 @@
     $(function () {
         $("#link_enviar").on("click", function (e) {
             e.preventDefault();
+
+            $(this).on('click', function (evento) {evento.preventDefault();});
+            $(this).addClass('link_carregando');
+            $(this).children('.texto').html('Carregando...');
+            iniciarSpinners();
+            $('#link_excluir_grupo').hide();
+
             $(this).closest("form").submit();
         });
 
-        $('#link_excluir_grupo').on('click', function (evento) {
-            evento.preventDefault();
-
-            var idGrupo = $(this).data("id-grupo");
-            var nome = $(this).data("nome-grupo");
-
-            $("#dialog_conteudo").html("Tem certeza que deseja excluir o grupo <em>" + nome + "</em> do sistema?<p/>");
-            $("#dialog_conteudo").append("<a href='#' class='confirmar_excluir_grupo dialog_link_confirmar' data-id-grupo='" + idGrupo + "'>Confirmar</a>")
-            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
-            $("#dialog").show();
-
-            $(".dialog_link_cancelar").on("click", function (evento) {
+        <% if !@grupo.new_record? %>
+            $('#link_excluir_grupo').on('click', function (evento) {
                 evento.preventDefault();
-                esconderDialog();
-            });
 
-            <% if !@grupo.new_record? %>
+                var idGrupo = $(this).data("id-grupo");
+                var nome = $(this).data("nome-grupo");
+
+                $("#dialog_conteudo").html("Tem certeza que deseja excluir o grupo <em>" + nome + "</em> do sistema?<p/>");
+                $("#dialog_conteudo").append("<a href='#' class='confirmar_excluir_grupo dialog_link_confirmar' data-id-grupo='" + idGrupo + "' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>Confirmar</span></a>")
+                $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+                $("#dialog").show();
+
+                $(".dialog_link_cancelar").on("click", function (evento) {
+                    evento.preventDefault();
+                    esconderDialog();
+                });
+
+            
                 $(".confirmar_excluir_grupo").on("click", function (evento) {
+                    evento.preventDefault();
+
+                    $(this).on('click', function (evento) {evento.preventDefault();});
+                    $(this).addClass('dialog_link_desativado');
+                    $(this).children('.texto').html('Carregando...');
+                    iniciarSpinners();
+                    $('.dialog_link_cancelar').hide();
+
                     var idGrupo = $(this).data("id-grupo");
                     var page = $(this).data("page");
 
@@ -34,9 +50,8 @@
                             }
                     );
                 });
-            <% end %>
-
-        });
+            });
+        <% end %>
     });
 </script>
 
@@ -72,7 +87,11 @@
 
     <br/>
 
-    <a href="#" id="link_enviar" class="link_submeter">Salvar</a>
+    <a href="#" id="link_enviar" class="link_submeter" style="position: relative;">
+        <span class="img_spinner" style="display: none;" data-corspinner="#aaa"></span>
+        <span class="texto">Salvar</span>
+    </a>
+
     <% if !@grupo.new_record? %>
         <%= link_to 'Excluir', '#', data: { nome_grupo: @grupo.nome, id_grupo: @grupo.id }, class: 'link_excluir', id: 'link_excluir_grupo', style: 'margin-left: 10px;' %>
     <% end %>

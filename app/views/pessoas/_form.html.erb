@@ -83,12 +83,19 @@
                     $("#dialog_conteudo").append("essa pessoa perderá acesso ao sistema.");
                 }
                 $("#dialog_conteudo").append("<br/>Tem certeza que deseja continuar?<p/>");
-                $("#dialog_conteudo").append("<a href='#' class='dialog_link_confirmar'>Confirmar</a>");
+                $("#dialog_conteudo").append("<a href='#' class='dialog_link_confirmar' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>Confirmar</span></a>");
                 $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
                 $("#dialog").show();
 
                 $(".dialog_link_confirmar").on("click", function (evento) {
                     evento.preventDefault();
+
+                    $(this).on('click', function (evento) {evento.preventDefault();});
+                    $(this).addClass('dialog_link_desativado');
+                    $(this).children('.texto').html('Carregando...');
+                    iniciarSpinners();
+                    $('.dialog_link_cancelar').hide();
+
                     form.submit();
                 });
 
@@ -102,12 +109,19 @@
                 <% if modo == 'cadastrar_novo' %>
                     $("#dialog_conteudo").html("Tem <em>certeza</em> de que as informações estão corretas? Você não poderá alterá-las até que algum coordenador confirme uma de suas participações, e informações erradas podem acarretar na rejeição de seu cadastro.");
                     $("#dialog_conteudo").append("<p/>Deseja <em>continuar?</em>");
-                    $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>Confirmar</a>");
+                    $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>Confirmar</span></a>");
                     $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
                     $("#dialog").show();
 
                     $(".dialog_link_confirmar").on("click", function (evento) {
                         evento.preventDefault();
+
+                        $(this).on('click', function (evento) {evento.preventDefault();});
+                        $(this).addClass('dialog_link_desativado');
+                        $(this).children('.texto').html('Carregando...');
+                        iniciarSpinners();
+                        $('.dialog_link_cancelar').hide();
+
                         form.submit();
                     });
 
@@ -116,6 +130,13 @@
                         esconderDialog();
                     });
                 <% else %>
+
+                    $(this).on('click', function (evento) {evento.preventDefault();});
+                    $(this).addClass('link_carregando');
+                    $(this).children('.texto').html('Carregando...');
+                    iniciarSpinners();
+                    $('.link_cancelar').hide();
+
                     form.submit();
                 <% end %>
             }
@@ -146,41 +167,6 @@
 
             $("#form_conjuge_ja_cadastrado").hide();
             $("#form_novo_conjuge").show();
-        });
-
-        $(".link_excluir_pessoa").on("click", function (evento) {
-            evento.preventDefault();
-
-            var pessoaId = $(this).data("pessoa-id");
-            var nomePessoa = $(this).data("nome-pessoa");
-
-            $("#dialog_conteudo").html("Tem certeza que deseja excluir <em>" + nomePessoa + "</em>?<p/>");
-
-            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-pessoa-id='" + pessoaId + "'>Confirmar</a>");
-            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
-            $("#dialog").show();
-
-            $(".dialog_link_confirmar").on("click", function (evento) {
-                $.ajax({
-                        url: "<%= pessoas_url %>/" + pessoaId,
-                        type: "delete",
-                        dataType: "json",
-                        success: function (response) {
-                            <% if defined?(@grupo) %>
-                                window.location.href = "<%= grupo_url(@grupo) %>";
-                            <% else %>
-                                window.location.href = "<%= pessoas_url %>";
-                            <% end %>
-                        }
-                    }
-                );
-            });
-
-            $(".dialog_link_cancelar").on("click", function (evento) {
-                evento.preventDefault();
-                esconderDialog();
-            });
-
         });
 
         $('.ajuda_form_facebook').on('click', function (evento) {
@@ -593,10 +579,13 @@
               nome_dialog = @pessoa.nome
             end
         %>
-        <%= link_to texto_link, '#', id: 'link_enviar', class: 'link_submeter' %>
-
-        <% if modo == "editando" && @usuario_logado.permissoes.pode_excluir_pessoa(@pessoa) %>
-            <%= link_to 'Excluir', '#', data: {pessoa_id: @pessoa.id, nome_pessoa: nome_dialog}, class: 'link_excluir link_excluir_pessoa' %>
+        <a href="#" id="link_enviar" class="link_submeter" style="position: relative;">
+            <span class="img_spinner" style="display: none;" data-corspinner="#aaa"></span>
+            <span class="texto"><%= texto_link %></span>
+        </a>
+        
+        <% if modo == "editando" %>
+            <%= link_to 'Cancelar', @pessoa, class: 'link_cancelar' %>
         <% end %>
 
     </div>

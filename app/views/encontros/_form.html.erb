@@ -25,6 +25,13 @@
     $(function () {
         $("#link_enviar").on("click", function (e) {
             e.preventDefault();
+
+            $(this).on('click', function (evento) {evento.preventDefault();});
+            $(this).addClass('link_carregando');
+            $(this).children('.texto').html('Carregando...');
+            iniciarSpinners();
+            $('.link_cancelar').hide();
+
             $(this).closest("form").submit();
         });
 
@@ -265,6 +272,11 @@
     <% end %>
 
     <div class="actions faixa_horizontal_com_linha_separadora">
-      <%= link_to 'Salvar', '#', id: 'link_enviar', class: 'link_submeter' %>
+      <a href="#" id="link_enviar" class="link_submeter" style="position: relative">
+        <span class="img_spinner" style="display: none;" data-corspinner="#aaa"></span>
+        <span class="texto">Salvar</span>
+      </a>
+
+      <%= link_to 'Cancelar', @encontro, class: 'link_cancelar' %>
     </div>
 <% end %>

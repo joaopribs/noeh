@@ -5,11 +5,19 @@
 
             $("#dialog_conteudo").html("Tem certeza que deseja excluir <em><%= @encontro.nome %></em>?<p/>");
 
-            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>Confirmar</a>");
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>Confirmar</span></a>");
             $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
             $("#dialog").show();
 
             $(".dialog_link_confirmar").on("click", function (evento) {
+                evento.preventDefault();
+
+                $(this).on('click', function (evento) {evento.preventDefault();});
+                $(this).addClass('dialog_link_desativado');
+                $(this).children('.texto').html('Carregando...');
+                iniciarSpinners();
+                $('.dialog_link_cancelar').hide();
+
                 $.ajax({
                             url: "<%= encontro_url(@encontro) %>",
                             type: "delete",
@@ -44,11 +52,19 @@
 
             $("#dialog_conteudo").html(texto);
 
-            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-id-conjunto='" + idConjunto + "'>Confirmar</a>");
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' data-id-conjunto='" + idConjunto + "' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>Confirmar</span></a>");
             $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
             $("#dialog").show();
 
             $(".dialog_link_confirmar").on("click", function (evento) {
+                evento.preventDefault();
+
+                $(this).on('click', function (evento) {evento.preventDefault();});
+                $(this).addClass('dialog_link_desativado');
+                $(this).children('.texto').html('Carregando...');
+                iniciarSpinners();
+                $('.dialog_link_cancelar').hide();
+                
                 $.ajax({
                             url: "<%= destroy_conjunto_url(id: '') %>" + idConjunto,
                             type: "delete",

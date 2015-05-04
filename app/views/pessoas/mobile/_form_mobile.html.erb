@@ -183,6 +183,19 @@
 
         atualizarFuncoesAutoInserir();
     });
+
+    $('.botao_submeter').on('click', function (evento) {
+      evento.preventDefault();
+
+      var form = $(this).closest("form");
+
+      $(this).on('click', function (evento) {evento.preventDefault();});
+      $(this).addClass('botao_carregando');
+      $(this).children('.texto').html('Carregando...');
+      iniciarSpinners();
+
+      form.submit();
+    });
   });
 
 </script>
@@ -283,7 +296,10 @@
         </div>
   	  </div>
 
-      <input type="submit" value="<%= texto_link %>" class="botao_submeter" />
+      <button type="button" class="botao_submeter" style="position: relative;">
+        <span class="img_spinner" style="display: none;"></span>
+        <span class="texto"><%= texto_link %></span>
+      </button>
     </div>
 	<% end %>
 

@@ -2,6 +2,12 @@
     $(function () {
         $(".link_enviar").on("click", function (e) {
             e.preventDefault();
+
+            $(this).on('click', function (evento) {evento.preventDefault();});
+            $(this).addClass('link_carregando');
+            $(this).children('.texto').html('Carregando...');
+            iniciarSpinners();
+            
             $(this).closest("form").submit();
         });
 
@@ -79,12 +85,15 @@
 
     <br/>
 
-    <a href="#" class="link_enviar link_submeter" style="margin-right: 10px">
-      <% if conjunto.new_record? %>
-        Criar
-      <% else %>
-        Salvar
-      <% end %>
+    <a href="#" class="link_enviar link_submeter" style="margin-right: 10px; position: relative;">
+      <span class="img_spinner" style="display: none;" data-corspinner="#aaa"></span>
+      <span class="texto">
+        <% if conjunto.new_record? %>
+          Criar
+        <% else %>
+          Salvar
+        <% end %>
+      </span>
     </a>
 
     <% if conjunto.new_record? %>

@@ -23,7 +23,7 @@ var spinnerOpts = {
     corners: 0, // Corner roundness (0..1)
     rotate: 0, // The rotation offset
     direction: 1, // 1: clockwise, -1: counterclockwise
-    color: '#fff', // #rgb or #rrggbb or array of colors
+    // color: '#fff', // #rgb or #rrggbb or array of colors
     speed: 1, // Rounds per second
     trail: 60, // Afterglow percentage
     shadow: false, // Whether to render a shadow
@@ -34,6 +34,27 @@ var spinnerOpts = {
     left: '12px' // Left position relative to parent
 };
 
+function iniciarSpinners(mostrarSpinner) {
+    if (mostrarSpinner == null) {
+        mostrarSpinner = true;
+    }
+
+    $(".img_spinner").each(function () {
+        var cor = $(this).data("corspinner");
+        if (cor == null) {
+            cor = "#fff";
+        }
+
+        spinnerOpts.color = cor;
+
+        $(this).spin(spinnerOpts);
+
+        if (mostrarSpinner) {
+            $(this).show();
+        }
+    });
+}
+
 $(function () {
-	$(".img_spinner").spin(spinnerOpts);
+	iniciarSpinners(false);
 });

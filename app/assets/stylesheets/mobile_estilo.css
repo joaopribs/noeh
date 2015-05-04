@@ -339,6 +339,11 @@ a.link_entrar_pelo_facebook {
     color: #fff;
 }
 
+.botao_carregando {
+    background-color: #6a6a6a !important;
+    color: #3a3a3a !important;
+}
+
 .notificacao {
     padding: 15px 0 15px 60px;
     border: 1px solid #57732f;

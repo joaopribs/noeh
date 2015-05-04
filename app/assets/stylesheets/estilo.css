@@ -280,11 +280,22 @@ a.link_upload:hover {
 a.link_remover {
     color: #760000;
     padding-left: 20px;
-    background: url(cancelar.png) no-repeat;
+    background: url(remover.png) no-repeat;
     background-position: left center;
 }
 
 a.link_remover:hover {
+    color: #d41111;
+}
+
+a.link_cancelar {
+    color: #760000;
+    padding-left: 20px;
+    background: url(cancelar.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_cancelar:hover {
     color: #d41111;
 }
 
@@ -330,6 +341,14 @@ a.link_relatorio {
     font-size: 8pt;
     height: 15px;
     display: inline-block;
+}
+
+a.link_carregando, 
+a.link_carregando:hover {
+    color: #aaa !important;
+    cursor: text !important;
+    background: none !important;
+    padding: 0 !important;
 }
 
 /* Tipos de arquivo
