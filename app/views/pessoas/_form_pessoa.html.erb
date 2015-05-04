@@ -345,13 +345,14 @@
         <a href="#" id="novo_instrumento_<%= tipo_pessoa %>" class="link_novo">Adicionar habilidade musical</a>
       </div>
 
+      <% if modo != "criando" %>
 
-        <h2 class="sem_espaco_embaixo">Participações<span class="campos_casado" style="display: none;"> individuais dessa pessoa (não dos dois como um casal)</span></h2>
+        <h2 class="sem_espaco_embaixo">Participações<span class="campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>> individuais dessa pessoa (não dos dois como um casal)</span></h2>
 
         <% if !pessoa.new_record? %>
           <ul class="bullets">
-            <%= render 'grupos_de_pessoa', pessoa: pessoa %>
-            <%= render 'participacoes_de_pessoa', pessoa: pessoa %>
+            <%= render 'grupos_de_pessoa', pessoa: pessoa, tipo_participacoes: "so_individuais" %>
+            <%= render 'participacoes_de_pessoa', pessoa: pessoa, tipo_participacoes: "so_individuais" %>
           </ul>
         <% end %>
 
@@ -396,9 +397,10 @@
         <% end %>
 
         <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_#{tipo_pessoa}" do %>
-            Adicionar outra participação individual dessa pessoa <span class="campos_casado" style="display: none;">(não dos dois como um casal)</span>
+            Adicionar outra participação <span class="campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>>individual dessa pessoa (não dos dois como um casal)</span>
         <% end %>
 
+      <% end %>
 
     </td>
   </tr>

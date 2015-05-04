@@ -1,5 +1,7 @@
-<% if pessoa.participacoes_em_grupos.count > 0 %>
-    <% pessoa.participacoes_em_grupos.each do |participacao| %>
+<% grupos = pessoa.participacoes_em_grupos(tipo_participacoes) %>
+
+<% if grupos.count > 0 %>
+    <% grupos.each do |participacao| %>
       <li><span>
         <% coordenador = participacao[:grupo].coordenadores.include?(pessoa) ? ' (Coord.)' : '' %>
 

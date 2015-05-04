@@ -64,12 +64,12 @@
 
         <h2 class="sem_espaco_embaixo">Grupos</h2>
         <ul class="bullets">
-          <%= render 'grupos_de_pessoa', pessoa: pessoa %>
+          <%= render 'grupos_de_pessoa', pessoa: pessoa, tipo_participacoes: "individuais_e_casal" %>
         </ul>
 
         <h2 class="sem_espaco_embaixo">Participações em encontros</h2>
         <ul class="bullets">
-          <%= render 'participacoes_de_pessoa', pessoa: pessoa %>
+          <%= render 'participacoes_de_pessoa', pessoa: pessoa, tipo_participacoes: "individuais_e_casal" %>
         </ul>
 
         <% auto_sugestoes = @usuario_logado.auto_sugestoes_de_outra_pessoa(pessoa.id) %>

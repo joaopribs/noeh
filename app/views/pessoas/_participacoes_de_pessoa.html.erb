@@ -1,4 +1,4 @@
-<% participacoes = pessoa.participacoes_visiveis(@usuario_logado) %>
+<% participacoes = pessoa.participacoes_visiveis(@usuario_logado, tipo_participacoes) %>
 
 <% participacoes.each do |conjunto| %>
   <% texto_encontro_participacao = "#{conjunto.encontro.nome} (#{conjunto.encontro.data_inicio.year})" %>

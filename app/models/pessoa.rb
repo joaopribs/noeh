@@ -313,17 +313,39 @@ class Pessoa < ActiveRecord::Base
     return elementos.join(" - ")
   end
 
-  def participacoes_em_grupos
+  def participacoes_em_grupos(tipo_participacoes)
     participacoes = []
 
-    self.grupos.each do |grupo|
+    grupos_ativos = self.grupos
+    grupos_inativos = self.relacoes_pessoa_grupo.unscoped.where("pessoa_id = #{self.id} AND deixou_de_participar_em IS NOT NULL").collect{|r| r.grupo}.uniq
+
+    grupos_ativos_casal = []
+    grupos_inativos_casal = []
+
+    if self.conjuge.present? && tipo_participacoes != "individuais_e_casal"
+      grupos_ativos_conjuge = self.conjuge.grupos
+      grupos_inativos_conjuge = self.conjuge.relacoes_pessoa_grupo.unscoped.where("pessoa_id = #{self.conjuge.id} AND deixou_de_participar_em IS NOT NULL").collect{|r| r.grupo}.uniq
+
+      grupos_ativos_casal = grupos_ativos.select{|g| grupos_ativos_conjuge.include?(g)}
+      grupos_inativos_casal = grupos_inativos.select{|g| grupos_inativos_conjuge.include?(g)}
+    end
+
+    if tipo_participacoes == "so_individuais"
+      grupos_ativos = grupos_ativos - grupos_ativos_casal
+      grupos_inativos = grupos_inativos - grupos_inativos_casal
+    elsif tipo_participacoes == "so_casal"
+      grupos_ativos = grupos_ativos_casal
+      grupos_inativos = grupos_inativos_casal
+    end
+
+    grupos_ativos.each do |grupo|
       participacoes << {
           grupo: grupo,
           ativo: true
       }
     end
 
-    self.relacoes_pessoa_grupo.unscoped.where("pessoa_id = #{self.id} AND deixou_de_participar_em IS NOT NULL").collect{|r| r.grupo}.uniq.each do |grupo|
+    grupos_inativos.each do |grupo|
       if !self.grupos.include? grupo
         participacoes << {
             grupo: grupo,
@@ -335,9 +357,23 @@ class Pessoa < ActiveRecord::Base
     return participacoes
   end
 
-  def participacoes_visiveis(usuario_logado)
+  def participacoes_visiveis(usuario_logado, tipo_participacoes)
     participacoes = (self.conjuntos_permanentes + self.equipes).select{|c| usuario_logado.permissoes.pode_ver_participacao(c, self)}
     participacoes = participacoes.sort_by!{|c| c.encontro.data_inicio}.reverse
+
+    participacoes_de_casal = []
+
+    if self.conjuge.present? && tipo_participacoes != "individuais_e_casal"
+      participacoes_conjuge = (self.conjuge.conjuntos_permanentes + self.conjuge.equipes).select{|c| usuario_logado.permissoes.pode_ver_participacao(c, self.conjuge)}
+      participacoes_de_casal = participacoes.select{|c| participacoes_conjuge.include?(c)}
+    end
+
+    if tipo_participacoes == "so_individuais"
+      participacoes = participacoes - participacoes_de_casal
+    elsif tipo_participacoes == "so_casal"
+      participacoes = participacoes_de_casal
+    end
+
     return participacoes
   end
 
