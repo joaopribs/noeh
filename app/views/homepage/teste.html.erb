@@ -1,10 +1,35 @@
+<script>
+	function carregarInformacoesFacebook() {
+    var url = $('#url').val();
+
+    $.ajax({
+      method: "post", 
+      url: "<%= pegar_informacoes_facebook_pelo_link_url %>",
+      data: {
+        "url": url
+      },
+      dataType: "json", 
+      success: function (resposta) {
+      	console.log(resposta);
+      }
+    });
+	}
+
+	$(function () {
+		$('#form_pegar_info').on('submit', function (evento) {
+			evento.preventDefault();
+			carregarInformacoesFacebook();
+		});
+	});
+</script>
+
 <%= APP_CONFIG['usuario_facebook_request'] %><br/>
 <%= APP_CONFIG['senha_facebook_request'] %><br/>
 
-<%= form_tag :pegar_informacoes_facebook_pelo_link, method: :post do %>
+<%= form_tag "#", id: "form_pegar_info" do %>
 
 	Pegar informacoes facebook pelo link<br/>
-	URL: <%= text_field_tag :url %>
+	URL: <%= text_field_tag :url, id: "url" %>
 	<%= submit_tag 'OK' %>
 
 <% end %>
