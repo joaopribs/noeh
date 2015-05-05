@@ -331,7 +331,8 @@ class ApplicationController < ActionController::Base
         imagem_pequena: img_pequena, 
         nome: nome,
         usuario: usuario_facebook, 
-        ultima_url: ultima_url
+        ultima_url: ultima_url, 
+        conteudo_pagina: conteudo_pagina
       }
     end
   end
