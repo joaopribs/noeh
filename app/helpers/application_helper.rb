@@ -51,4 +51,12 @@ module ApplicationHelper
     render partial: 'shared/breadcrumbs', locals: { ativo: identificador_ativo }
   end
 
+  def helper_whatsapp(telefone)
+    if telefone.eh_whatsapp
+      return '<span class="whatsapp">WhatsApp</span> '
+    else
+      return ''
+    end
+  end
+
 end

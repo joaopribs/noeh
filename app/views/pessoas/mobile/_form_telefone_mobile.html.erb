@@ -10,6 +10,14 @@
     <%= select_tag "operadoras_#{tipo_pessoa}[]", options_for_select(operadoras_telefone, telefone.operadora) %>
   </div>
 
+  <div class="field">
+    <label>
+        <input type="hidden" name="eh_whatsapps_<%= tipo_pessoa %>[]" value="<%= eh_whatsapp %>" class="hidden_whatsapp" />
+        <%= check_box_tag "radio", "true", eh_whatsapp, class: 'checkbox_whatsapp' %>
+        WhatsApp
+    </label>
+  </div>
+
   <div style="float: left; margin-left: 2vmin;">
     <br/><a href="#" class="link_remover remover_telefone_<%= tipo_pessoa %>">Remover</a>
   </div>

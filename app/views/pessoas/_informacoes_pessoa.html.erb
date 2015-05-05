@@ -31,7 +31,6 @@
         <b>Data de nascimento:</b> <%= pessoa.nascimento.strftime("%d/%m/%Y") unless pessoa.nascimento.blank? %><br/>
         <b>Email:</b> <%= link_to pessoa.email, "mailto:#{pessoa.email}", target: '_blank' unless pessoa.email.blank? %><br/>
         <b>Endereço:</b> <%= pessoa.endereco %><br/>
-        <b>WhatsApp:</b> <%= pessoa.whatsapp %><br/>
 
         <%
             if pessoa.telefones.count > 1
@@ -39,7 +38,7 @@
                 separador_telefones = "<br/>"
                 array_telefones = []
                 pessoa.telefones.each do |telefone|
-                    array_telefones << "#{telefone.telefone} (#{telefone.operadora})"
+                    array_telefones << "#{telefone.telefone} " + helper_whatsapp(telefone) + "(#{telefone.operadora})"
                 end
                 string_telefones = array_telefones.join("<br/>")
             else
@@ -47,7 +46,7 @@
                 separador_telefones = " "
                 if pessoa.telefones.count == 1
                     telefone = pessoa.telefones.first
-                    string_telefones = "#{telefone.telefone} (#{telefone.operadora})"
+                    string_telefones = "#{telefone.telefone} " + helper_whatsapp(telefone) + "(#{telefone.operadora})"
                 else
                     string_telefones = ""
                 end

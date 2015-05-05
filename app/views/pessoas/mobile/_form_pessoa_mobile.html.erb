@@ -19,7 +19,7 @@
     $('#novo_telefone_<%= tipo_pessoa %>').on('click', function (evento) {
       evento.preventDefault();
       $('#telefones_<%= tipo_pessoa %>').append(
-                      '<%= raw (render 'pessoas/mobile/form_telefone_mobile', telefone: Telefone.new, tipo_pessoa: tipo_pessoa).gsub("\n", "") %>'
+                      '<%= raw (render 'pessoas/mobile/form_telefone_mobile', telefone: Telefone.new, tipo_pessoa: tipo_pessoa, eh_whatsapp: false).gsub("\n", "") %>'
       );
 
       atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
@@ -241,20 +241,14 @@
   <p/>
 <% end %>
 
-<div class="field">
-  <%= label_tag "whatsapp_#{tipo_pessoa}", 'Número WhatsApp' %><br>
-  <div class="erro_form"><%= pessoa.errors[:whatsapp].first %></div>
-  <input type="tel" name="whatsapp_<%= tipo_pessoa %>" value="<%= pessoa.whatsapp %>" class="mascara_telefone" style="text-align: center; width: 90%;" />
-</div>
-
 <p/>
 
 <div class="field">
-  <%= label_tag 'Telefones de contato (adicionar mesmo que já tenha adicionado WhatsApp)' %><br/>
+  <%= label_tag 'Telefones' %><br/>
 
   <span id="telefones_<%= tipo_pessoa %>">
       <% pessoa.telefones.each do |telefone| %>
-        <%= render 'pessoas/mobile/form_telefone_mobile', telefone: telefone, tipo_pessoa: tipo_pessoa %>
+        <%= render 'pessoas/mobile/form_telefone_mobile', telefone: telefone, tipo_pessoa: tipo_pessoa, eh_whatsapp: eh_whatsapp %>
       <% end %>
   </span>
 

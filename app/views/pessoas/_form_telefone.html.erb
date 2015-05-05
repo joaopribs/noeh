@@ -1,0 +1,22 @@
+<div class="campos_telefone">
+    <div class="field">
+        <label for="telefone_<%= tipo_pessoa %>">Número</label><br/>
+        <div class="erro_form"><%= telefone.errors[:telefone].first %></div>
+        <input type="text" name="telefones_<%= tipo_pessoa %>[]" value="<%= telefone.telefone %>" class="mascara_telefone" size="30" />
+    </div>
+    <div class="field">
+        <label for="telefone_<%= tipo_pessoa %>">Operadora</label><br/>
+        <div class="erro_form"><%= telefone.errors[:operadora].first %></div>
+        <%= select_tag "operadoras_#{tipo_pessoa}[]", options_for_select(operadoras_telefone, telefone.operadora) %>
+    </div>
+    <div class="field">
+        <div class="erro_form"><%= telefone.errors[:eh_whatsapp].first %></div>
+        <label>
+            <input type="hidden" name="eh_whatsapps_<%= tipo_pessoa %>[]" value="<%= eh_whatsapp %>" class="hidden_whatsapp" />
+            <%= check_box_tag "radio", "true", eh_whatsapp, class: 'checkbox_whatsapp' %>
+            WhatsApp
+        </label>
+    </div>
+
+    <a href="#" class="link_remover remover_telefone_<%= tipo_pessoa %>">Remover</a>
+</div>

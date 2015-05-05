@@ -11,30 +11,27 @@
 	<b>Nome usual:</b><br/>
 	<%= pessoa.nome_usual %>
 	<p/>
-	<b>WhatsApp:</b><br/>
-	<%= pessoa.whatsapp %>
-	<p/>
 
 	<%
 	    if pessoa.telefones.count > 1
 	        titulo_telefones = "Telefones"
 	        array_telefones = []
 	        pessoa.telefones.each do |telefone|
-	            array_telefones << "#{telefone.telefone} (#{telefone.operadora})"
+	            array_telefones << "#{telefone.telefone} " + helper_whatsapp(telefone) + "(#{telefone.operadora})"
 	        end
 	        string_telefones = array_telefones.join("<br/>")
 	    else
 	        titulo_telefones = "Telefone"
 	        if pessoa.telefones.count == 1
 	            telefone = pessoa.telefones.first
-	            string_telefones = "#{telefone.telefone} (#{telefone.operadora})"
+	            string_telefones = "#{telefone.telefone} " + helper_whatsapp(telefone) + "(#{telefone.operadora})"
 	        else
 	            string_telefones = ""
 	        end
 	    end
 	%>
 
-	<b><%= titulo_telefones %> de contato:</b><br/>
+	<b><%= titulo_telefones %>:</b><br/>
 	<%= raw string_telefones %>
 	<p/>
 

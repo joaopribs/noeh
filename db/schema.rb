@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150502152600) do
+ActiveRecord::Schema.define(version: 20150505194800) do
 
   create_table "auto_sugestao", force: :cascade do |t|
     t.integer  "pessoa_id",   limit: 4
@@ -115,7 +115,6 @@ ActiveRecord::Schema.define(version: 20150502152600) do
     t.string   "usuario_facebook",            limit: 255
     t.string   "id_app_facebook",             limit: 255
     t.string   "url_imagem_facebook_pequena", limit: 255
-    t.string   "whatsapp",                    limit: 255
     t.string   "onde_fez_alteracao",          limit: 255
     t.integer  "quem_criou",                  limit: 4
     t.integer  "quem_editou",                 limit: 4
@@ -166,11 +165,12 @@ ActiveRecord::Schema.define(version: 20150502152600) do
   add_index "sessions", ["updated_at"], name: "index_sessions_on_updated_at", using: :btree
 
   create_table "telefones", force: :cascade do |t|
-    t.string   "telefone",   limit: 255
-    t.string   "operadora",  limit: 255
-    t.integer  "pessoa_id",  limit: 4
+    t.string   "telefone",    limit: 255
+    t.string   "operadora",   limit: 255
+    t.integer  "pessoa_id",   limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "eh_whatsapp", limit: 1
   end
 
   add_index "telefones", ["pessoa_id"], name: "index_telefones_on_pessoa_id", using: :btree

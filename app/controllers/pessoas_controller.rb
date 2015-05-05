@@ -911,7 +911,7 @@ class PessoasController < ApplicationController
         end
       end
 
-      telefones = pegar_telefones(params[:telefones_pessoa], params[:operadoras_pessoa])
+      telefones = pegar_telefones(params[:telefones_pessoa], params[:operadoras_pessoa], params[:eh_whatsapps_pessoa])
       instrumentos = pegar_instrumentos(params[:instrumentos_pessoa])
 
       hash = ActionController::Parameters.new({nome: (params[:nome_pessoa] || "").strip,
@@ -933,7 +933,6 @@ class PessoasController < ApplicationController
                                               url_facebook: params[:url_facebook_pessoa].strip,
                                               url_imagem_facebook: params[:url_imagem_facebook_pessoa],
                                               url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_pessoa],
-                                              whatsapp: params[:whatsapp_pessoa],
                                               telefones: telefones,
                                               instrumentos: instrumentos, 
                                               onde_fez_alteracao: params[:onde_fez_alteracao]})
@@ -956,7 +955,7 @@ class PessoasController < ApplicationController
         end
       end
 
-      telefones = pegar_telefones(params[:telefones_conjuge], params[:operadoras_conjuge])
+      telefones = pegar_telefones(params[:telefones_conjuge], params[:operadoras_conjuge], params[:eh_whatsapps_conjuge])
       instrumentos = pegar_instrumentos(params[:instrumentos_conjuge])
 
       hash = ActionController::Parameters.new(nome: (params[:nome_conjuge] || "").strip,
@@ -972,7 +971,6 @@ class PessoasController < ApplicationController
                                               url_facebook: params[:url_facebook_conjuge].strip,
                                               url_imagem_facebook: params[:url_imagem_facebook_conjuge],
                                               url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_conjuge],
-                                              whatsapp: params[:whatsapp_pessoa_conjuge],
                                               telefones: telefones,
                                               instrumentos: instrumentos, 
                                               onde_fez_alteracao: params[:onde_fez_alteracao])
@@ -980,15 +978,16 @@ class PessoasController < ApplicationController
       return hash
     end
 
-    def pegar_telefones(numeros, operadoras)
+    def pegar_telefones(numeros, operadoras, eh_whatsapps)
       telefones = []
 
       if numeros.present? && operadoras.present?
         numeros.each_with_index do |numero_telefone, index|
           operadora = operadoras[index]
+          eh_whatsapp = eh_whatsapps[index] == "true"
 
           if numero_telefone.present? && operadora.present?
-            telefones << Telefone.new(telefone: numero_telefone.strip, operadora: operadora)
+            telefones << Telefone.new(telefone: numero_telefone.strip, operadora: operadora, eh_whatsapp: eh_whatsapp)
           end
         end
       end
