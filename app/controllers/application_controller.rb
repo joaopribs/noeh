@@ -297,6 +297,8 @@ class ApplicationController < ActionController::Base
             curl.verbose = true
           end
 
+          url_depois_login = c.last_effective_url
+
           c = Curl::Easy.http_get(url) do |curl| 
             curl.follow_location = true
             curl.enable_cookies = true
@@ -309,8 +311,6 @@ class ApplicationController < ActionController::Base
           end
 
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
-
-          puts conteudo_pagina
 
           img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
           # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
@@ -332,7 +332,8 @@ class ApplicationController < ActionController::Base
         nome: nome,
         usuario: usuario_facebook, 
         ultima_url: ultima_url, 
-        conteudo_pagina: conteudo_pagina
+        conteudo_pagina: conteudo_pagina, 
+        url_depois_login: url_depois_login
       }
     end
   end
