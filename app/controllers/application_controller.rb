@@ -300,22 +300,22 @@ class ApplicationController < ActionController::Base
           url_depois_login = c.last_effective_url
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
 
-          # c = Curl::Easy.http_get(url) do |curl| 
-          #   curl.follow_location = true
-          #   curl.enable_cookies = true
-          #   curl.cookiefile = "cookie.txt"
-          #   curl.cookiejar = "cookie.txt"
+          c = Curl::Easy.http_get(url) do |curl| 
+            curl.follow_location = true
+            curl.enable_cookies = true
+            curl.cookiefile = "cookie.txt"
+            curl.cookiejar = "cookie.txt"
           
-          #   curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-          #   curl.headers["Referer"] = 'http://www.facebook.com'
-          #   curl.verbose = true
-          # end
+            curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+            curl.headers["Referer"] = 'http://www.facebook.com'
+            curl.verbose = true
+          end
 
-          # conteudo_pagina = c.body_str.force_encoding('UTF-8')
+          conteudo_pagina = c.body_str.force_encoding('UTF-8')
 
-          # img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
-          # # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
-          # nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
+          img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
+          # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
+          nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
         end
 
         ultima_url = c.last_effective_url
