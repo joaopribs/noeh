@@ -323,19 +323,16 @@ class ApplicationController < ActionController::Base
           usuario_facebook = usuario_facebook.split("?").first
         end
       rescue Exception => e
-        excecao = e
+        return e.message
       end
 
-      if excecao.nil?
-        return {
-          imagem_grande: img_grande, 
-          imagem_pequena: img_pequena, 
-          nome: nome,
-          usuario: usuario_facebook
-        }
-      else
-        return excecao.message
-      end
+      return {
+        imagem_grande: img_grande, 
+        imagem_pequena: img_pequena, 
+        nome: nome,
+        usuario: usuario_facebook, 
+        ultima_url: ultima_url
+      }
     end
   end
 
