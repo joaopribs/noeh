@@ -297,6 +297,8 @@ class ApplicationController < ActionController::Base
             curl.verbose = true
           end
 
+          c.close
+
           url_depois_login = c.last_effective_url
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
 
@@ -310,6 +312,8 @@ class ApplicationController < ActionController::Base
             curl.headers["Referer"] = 'http://www.facebook.com'
             curl.verbose = true
           end
+
+          c.close
 
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
 

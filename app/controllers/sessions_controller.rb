@@ -181,9 +181,19 @@ class SessionsController < ApplicationController
           curl.verbose = true
         end
 
+        # c.close
+
         begin
-          c.url = "https://www.facebook.com/#{id_app_facebook}"
-          c.http_get
+          c = Curl::Easy.http_get("https://www.facebook.com/#{id_app_facebook}") do |curl| 
+            curl.follow_location = true
+            curl.enable_cookies = true
+            curl.cookiefile = "cookie.txt"
+            curl.cookiejar = "cookie.txt"
+          
+            curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+            curl.headers["Referer"] = 'http://www.facebook.com'
+            curl.verbose = true
+          end
 
           ultima_url = c.last_effective_url
           usuario_facebook = ultima_url.split("/").last
@@ -192,6 +202,8 @@ class SessionsController < ApplicationController
           end
         rescue
         end
+
+        c.close
       end
 
       return usuario_facebook
