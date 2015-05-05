@@ -322,15 +322,20 @@ class ApplicationController < ActionController::Base
         if !usuario_facebook.starts_with?("profile.php")
           usuario_facebook = usuario_facebook.split("?").first
         end
-      rescue
+      rescue Exception => e
+        excecao = e
       end
 
-      return {
-        imagem_grande: img_grande, 
-        imagem_pequena: img_pequena, 
-        nome: nome,
-        usuario: usuario_facebook
-      }
+      if excecao.nil?
+        return {
+          imagem_grande: img_grande, 
+          imagem_pequena: img_pequena, 
+          nome: nome,
+          usuario: usuario_facebook
+        }
+      else
+        return excecao.message
+      end
     end
   end
 
