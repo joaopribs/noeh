@@ -299,9 +299,6 @@ class ApplicationController < ActionController::Base
 
           c.close
 
-          url_depois_login = c.last_effective_url
-          conteudo_pagina = c.body_str.force_encoding('UTF-8')
-
           c = Curl::Easy.http_get(url) do |curl| 
             curl.follow_location = true
             curl.enable_cookies = true
@@ -327,18 +324,14 @@ class ApplicationController < ActionController::Base
         if !usuario_facebook.starts_with?("profile.php")
           usuario_facebook = usuario_facebook.split("?").first
         end
-      rescue Exception => e
-        return e.message
+      rescue 
       end
 
       return {
         imagem_grande: img_grande, 
         imagem_pequena: img_pequena, 
         nome: nome,
-        usuario: usuario_facebook, 
-        ultima_url: ultima_url, 
-        conteudo_pagina: conteudo_pagina, 
-        url_depois_login: url_depois_login
+        usuario: usuario_facebook
       }
     end
   end
