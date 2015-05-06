@@ -86,11 +86,12 @@ body.deslogado {
 
 #navegacao a {
     color: #fff;
-    background-color: #000;
+    background-color: #fe7e00;
 }
 
 #navegacao a:hover {
-    background-color: #fe7e00;
+    background-color: #a4feff;
+    color: #000;
 }
 
 /* Dialog
