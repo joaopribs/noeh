@@ -1145,20 +1145,18 @@ class PessoasController < ApplicationController
 
       if relacao_pessoa.nil?
         relacao_pessoa = RelacaoPessoaConjunto.new({:pessoa_id => pessoa.id, :conjunto_pessoas_id => conjunto.id})
+        relacao_pessoa.eh_coordenador = eh_coordenador
+        relacao_pessoa.save
       end
-
-      relacao_pessoa.eh_coordenador = eh_coordenador
-      relacao_pessoa.save
 
       if pessoa.conjuge.present? && os_dois
         relacao_conjuge = RelacaoPessoaConjunto.where({:pessoa_id => pessoa.conjuge.id, :conjunto_pessoas_id => conjunto.id}).first
 
         if relacao_conjuge.nil?
           relacao_conjuge = RelacaoPessoaConjunto.new({:pessoa_id => pessoa.conjuge.id, :conjunto_pessoas_id => conjunto.id})
+          relacao_conjuge.eh_coordenador = eh_coordenador
+          relacao_conjuge.save
         end
-
-        relacao_conjuge.eh_coordenador = eh_coordenador
-        relacao_conjuge.save
       end
 
       salvar_relacao_grupo(pessoa, conjunto.encontro.grupo, os_dois, false)
