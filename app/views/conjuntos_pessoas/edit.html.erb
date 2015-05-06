@@ -152,7 +152,7 @@
 
 <% if @usuario_logado.permissoes.pode_editar_conjunto(@conjunto) %>
 
-    <% if @usuario_logado.permissoes.pode_criar_pessoas_em_grupo(@conjunto.encontro.grupo) %>
+    <% if @usuario_logado.permissoes.pode_criar_pessoas_em_grupo(@conjunto.encontro.grupo.id.to_s) %>
         <h2>Adicionar pessoa:</h2>
 
         <%
