@@ -1146,8 +1146,13 @@ class PessoasController < ApplicationController
     end
 
     def precisa_poder_criar_pessoas
-      if params[:conjunto_id]
-        conjunto = ConjuntoPessoas.find(params[:conjunto_id])
+      if params[:conjunto_id] || params[:encontro_id]
+        if params.has_key?(:encontro_id)
+          conjunto = Encontro.find(params[:encontro_id]).coordenacao_encontro
+        else
+          conjunto = ConjuntoPessoas.find(params[:conjunto_id])
+        end
+
         if !@usuario_logado.permissoes.pode_criar_pessoas_em_conjunto(conjunto)
           redirect_to root_url and return
         end
