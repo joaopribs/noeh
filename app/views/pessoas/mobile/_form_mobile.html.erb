@@ -166,16 +166,6 @@
       casadoOuSolteiro();
     });
 
-    $(".checkbox_whatsapp").off("change");
-    $(".checkbox_whatsapp").on("change", function () {
-      if ($(this).prop('checked')) {
-        $(this).siblings('.hidden_whatsapp').val("true");
-      }
-      else {
-        $(this).siblings('.hidden_whatsapp').val("false");
-      }
-    });
-
     $('.mascara_cep').mask(
         '00.000-000',
         {

@@ -43,17 +43,6 @@
             $("#acompanhar_genero_conjuge").val("false");
         });
 
-        $(".checkbox_whatsapp").off("change");
-        $(".checkbox_whatsapp").on("change", function () {
-            if ($(this).prop('checked')) {
-                $(this).siblings('.hidden_whatsapp').val("true");
-            }
-            else {
-                $(this).siblings('.hidden_whatsapp').val("false");
-            }
-        });
-
-
         $("#link_enviar").on("click", function (e) {
             e.preventDefault();
 
