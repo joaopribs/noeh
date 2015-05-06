@@ -211,11 +211,8 @@ class Pessoa < ActiveRecord::Base
 
       grupos_que_tem_encontros_que_coordena = self.grupos_que_tem_encontros_que_coordena
 
-      if grupos_que_tem_encontros_que_coordena
-        grupos = grupos_que_tem_encontros_que_coordena
-      end
-
       grupos_que_tem_encontros_que_coordena.each do |grupo_coordena|
+        grupos << grupo_coordena
         grupo_coordena.outros_grupos_que_pode_ver_equipes.each do |outro_grupo|
           grupos << outro_grupo
         end
