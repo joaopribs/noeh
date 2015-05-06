@@ -225,6 +225,7 @@
 	<%= form_tag endereco_form, method: modo_form do %>
 
     <input type="hidden" name="onde_fez_alteracao" value="celular" />
+    <input type="hidden" name="modo" value="<%= modo %>" />
 
     <% if !@pessoa.errors.empty? || !@conjuge.errors.empty? %>
       <div class="erro_form">

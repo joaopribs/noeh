@@ -736,7 +736,7 @@ class PessoasController < ApplicationController
     end
 
     def adicionar_breadcrumbs_entidades
-      if eh_auto_inserido
+      if eh_auto_inserido || params[:modo] == 'cadastrar_novo'
         return
       end
 

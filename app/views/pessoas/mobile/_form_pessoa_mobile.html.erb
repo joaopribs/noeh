@@ -248,7 +248,7 @@
 
   <span id="telefones_<%= tipo_pessoa %>">
       <% pessoa.telefones.each do |telefone| %>
-        <%= render 'pessoas/mobile/form_telefone_mobile', telefone: telefone, tipo_pessoa: tipo_pessoa, eh_whatsapp: eh_whatsapp %>
+        <%= render 'pessoas/mobile/form_telefone_mobile', telefone: telefone, tipo_pessoa: tipo_pessoa, eh_whatsapp: telefone.eh_whatsapp %>
       <% end %>
   </span>
 
