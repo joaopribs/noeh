@@ -21,6 +21,14 @@ class Permissoes
       @usuario_logado.grupos_que_coordena.collect{|g| g.id.to_s}.include?(grupo_id)
   end
 
+  def pode_criar_pessoas_em_conjunto conjunto
+    if conjunto.nil?
+      return false
+    else
+      return pode_criar_pessoas_em_grupo(conjunto.encontro.grupo.id.to_s)
+    end
+  end
+
 	def pode_editar_pessoa pessoa
     return @usuario_logado == pessoa ||
         @usuario_logado.eh_super_admin? ||
