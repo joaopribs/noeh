@@ -271,7 +271,9 @@ class ApplicationController < ActionController::Base
         # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
         nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
 
-        if img_grande == "" 
+        # Tentar outras duas vezes se nao conseguir
+        tentativa = 0
+        while tentativa <= 2 && img_grande == "" do 
           # Talvez precise fazer login e tentar de novo
           c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
             Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
@@ -307,6 +309,8 @@ class ApplicationController < ActionController::Base
           img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
           # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
           nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
+
+          tentativa += 1
         end
 
         ultima_url = c.last_effective_url
