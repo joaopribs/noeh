@@ -565,8 +565,57 @@ class PessoasController < ApplicationController
     render text: 'ok'
   end
 
-  def confirmar_auto_sugestao
-    auto_sugestao = AutoSugestao.find(params[:id_auto_sugestao])
+  def confirmar_participacoes
+    byebug
+    confirmar_ou_rejeitars = params[:confirmar_ou_rejeitar]
+    id_conjuntos = params[:conjunto]
+    eh_coordenadors = params[:eh_coordenador]
+
+    pessoa = nil
+
+    contador_confirmadas = 0
+    contador_rejeitadas = 0
+
+    if confirmar_ou_rejeitars.present?
+      confirmar_ou_rejeitars.each do |id_auto_sugestao, confirmar_ou_rejeitar| 
+        if pessoa.nil?
+          pessoa = AutoSugestao.find(id_auto_sugestao).pessoa
+        end
+
+        if confirmar_ou_rejeitar == "confirmar"
+          id_conjunto = id_conjuntos.present? ? id_conjuntos[id_auto_sugestao] : nil
+          eh_coordenador = eh_coordenadors.present? ? eh_coordenadors[id_auto_sugestao] : nil
+          confirmar_auto_sugestao(id_auto_sugestao, id_conjunto, eh_coordenador)
+          contador_confirmadas += 1
+        else
+          rejeitar_auto_sugestao(id_auto_sugestao)
+          contador_rejeitadas += 1
+        end
+      end
+    end
+
+    msg_sucesso = "#{contador_confirmadas} "
+    if contador_confirmadas == 1
+      msg_sucesso += "participação"
+    else
+      msg_sucesso += "participações"
+    end
+    msg_sucesso += " confirmada"
+    if contador_confirmadas != 1
+      msg_sucesso += "s"
+    end
+    msg_sucesso += " e #{contador_rejeitadas} rejeitada"
+    if contador_rejeitadas != 1
+      msg_sucesso += "s"
+    end
+
+    respond_to do |format|
+      format.html { redirect_to pessoa, notice: msg_sucesso }
+    end
+  end
+
+  def confirmar_auto_sugestao(id_auto_sugestao, id_conjunto, eh_coordenador)
+    auto_sugestao = AutoSugestao.find(id_auto_sugestao)
 
     precisa_poder_confirmar_ou_rejeitar_auto_sugestao(auto_sugestao)
     return if performed?
@@ -584,12 +633,12 @@ class PessoasController < ApplicationController
     texto_sugestao = auto_sugestao.sugestao
     
     begin
-      conjunto = ConjuntoPessoas.find(params[:id_conjunto])
+      conjunto = ConjuntoPessoas.find(id_conjunto)
     rescue
       conjunto = nil
     end
 
-    eh_coordenador = params[:eh_coordenador] == "true"
+    eh_coordenador = eh_coordenador == "true"
 
     salvar_relacoes_ao_confirmar_auto_sugestao pessoa, grupo, conjunto, texto_sugestao, eh_coordenador
 
@@ -617,12 +666,10 @@ class PessoasController < ApplicationController
     end
 
     auto_sugestao.destroy
-
-    render text: 'ok'
   end
 
-  def rejeitar_auto_sugestao
-    auto_sugestao = AutoSugestao.find(params[:id_auto_sugestao])
+  def rejeitar_auto_sugestao(id_auto_sugestao)
+    auto_sugestao = AutoSugestao.find(id_auto_sugestao)
 
     precisa_poder_confirmar_ou_rejeitar_auto_sugestao(auto_sugestao)
     return if performed?
@@ -650,8 +697,6 @@ class PessoasController < ApplicationController
         end
       end
     end
-
-    render text: 'ok'
   end
 
   def pessoas_a_confirmar

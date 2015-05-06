@@ -42,62 +42,59 @@
             });
         });
 
-        $('.confirmar_auto_sugestao').on('click', function (evento) {
+        $('.confirmar_participacoes').off('click');
+        $('.confirmar_participacoes').on('click', function (evento) {
           evento.preventDefault();
 
-          var tipo = $(this).data('tipo');
-          var tr = $(this).closest('tr');
-          var selectConjunto = $(tr).find('.conjunto');
+          var $form = $(this).closest('form');
 
-          var idConjunto = null;
-          if (tipo != 'grupo') {
-              idConjunto = $(selectConjunto).val();
-          }
+          var nome = $form.find('.nome').val();
+          var autoInserido = $form.find('.auto_inserido').val() == 'true';
 
-          var idAutoSugestao = $(this).data('id-auto-sugestao');
-          var ehCoordenador = $(tr).find('.eh_coordenador').prop('checked');
-          var nomePessoa = $(this).data('nome');
-          var autoInserido = $(this).data('auto-inserido') == 'true';
+          var $checkboxes = $form.find('input[name^=confirmar_ou_rejeitar]');
+          var quantidadeConfirmados = 0;
+          var quantidadeRejeitados = 0;
+          $checkboxes.each(function () {
+            if ($(this).is(':checked')) {
+              if ($(this).val() == "confirmar") {
+                quantidadeConfirmados++;
+              }
+              else {
+                quantidadeRejeitados++;
+              }
+            }
+          });
 
-          var msg = '';
+          var msg = 'Tem certeza que deseja <em>rejeitar ' + quantidadeRejeitados + '</em> e <em>confirmar ' + quantidadeConfirmados + '</em> ';
 
-          if (tipo == 'grupo') {
-              var nomeGrupo = $(this).data('nome-grupo');
-              msg = 'Tem certeza que deseja adicionar <em>' + nomePessoa + '</em> a <em>' + nomeGrupo + '</em>?';
+          if (quantidadeConfirmados == 1) {
+            msg += 'participação';
           }
           else {
-              var nomeEncontro = $(this).data('nome-encontro');
-              var anoEncontro = $(this).data('ano-encontro');
-              var conjunto = $(selectConjunto).children(':selected').text();
-
-              msg = 'Tem certeza que deseja adicionar <em>' + nomePessoa + '</em> a <em>' + conjunto + ' - ' + nomeEncontro + ' (' + anoEncontro + ')</em>?';
+            msg += 'participações';
           }
+
+          msg += ' de <em>' + nome + '</em>?';
 
           if (autoInserido) {
-            msg += ' Essa pessoa ainda não tem acesso ao sistema, e ao adicioná-la, o acesso será liberado.'
+            msg += '<p/>Essa pessoa ainda não tem acesso ao sistema, e ao adicioná-la, o acesso será liberado.'
           }
 
           $("#dialog_conteudo").html(msg);
-          $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
+          $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>OK</span></a>");
           $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
           $("#dialog").show();
 
           $(".dialog_link_confirmar").on("click", function (evento) {
               evento.preventDefault();
 
-              $.post(
-                      "<%= confirmar_auto_sugestao_url %>",
-                      {
-                          id_auto_sugestao: idAutoSugestao,
-                          id_conjunto: idConjunto,
-                          eh_coordenador: ehCoordenador
-                      },
-                      function (resposta) {
-                          if (resposta == 'ok') {
-                              window.location.reload();
-                          }
-                      }
-              );
+              $(this).off("click");
+              $(this).addClass('dialog_link_desativado');
+              $(this).children('.texto').html('Carregando...');
+              iniciarSpinners();
+              $('.dialog_link_cancelar').hide();
+
+              $form.submit();
           });
 
           $(".dialog_link_cancelar").on("click", function (evento) {
@@ -106,56 +103,6 @@
           });
         });
 
-        $('.rejeitar_auto_sugestao').on('click', function (evento) {
-          evento.preventDefault();
-
-          var tipo = $(this).data('tipo');
-          var tr = $(this).closest('tr');
-          var selectConjunto = $(tr).find('.conjunto');
-          var idAutoSugestao = $(this).data('id-auto-sugestao');
-          var textoSugestao = $(this).data('texto-sugestao')
-          var nomePessoa = $(this).data('nome');
-
-          var msg = '';
-
-          if (tipo == 'grupo') {
-              var nomeGrupo = $(this).data('nome-grupo');
-              msg = 'Tem certeza que deseja rejeitar a participação de <em>' + nomePessoa + '</em> em <em>' + nomeGrupo + '</em>?';
-          }
-          else {
-              var nomeEncontro = $(this).data('nome-encontro');
-              var anoEncontro = $(this).data('ano-encontro');
-              var conjunto = $(selectConjunto).children(':selected').text();
-
-              msg = 'Tem certeza que deseja rejeitar a participação <em>"' + textoSugestao + '"</em> de <em>' + nomePessoa + '</em> em <em>' + nomeEncontro + ' (' + anoEncontro + ')</em>?';
-          }
-
-          $("#dialog_conteudo").html(msg);
-          $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
-          $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
-          $("#dialog").show();
-
-          $(".dialog_link_confirmar").on("click", function (evento) {
-              evento.preventDefault();
-
-              $.post(
-                      "<%= rejeitar_auto_sugestao_url %>",
-                      {
-                          id_auto_sugestao: idAutoSugestao
-                      },
-                      function (resposta) {
-                          if (resposta == 'ok') {
-                              window.location.reload();
-                          }
-                      }
-              );
-          });
-
-          $(".dialog_link_cancelar").on("click", function (evento) {
-              evento.preventDefault();
-              esconderDialog();
-          });
-        });
     });
 </script>
 

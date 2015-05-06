@@ -1,92 +1,83 @@
-<table class="zebra participacoes">
-    <thead>
-        <tr>
-          <th align="left">Participação</th>
-          <th align="left">Auto-Sugestão</th>
-          <th>Coord.</th>
-          <th>Adicionar ao sistema</th>
-          <th></th>
-          <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <% auto_sugestoes.each do |auto_sugestao| %>
-            <%
-               tipo = auto_sugestao.sugestao == 'so_grupo' ? 'grupo' : 'conjunto'
+<%= form_tag :confirmar_participacoes do %>
+  <input type="hidden" class="nome" value="<%= nome %>" />
+  <input type="hidden" class="quantidade" value="<%= auto_sugestoes.count %>" />
+  <input type="hidden" class="auto_inserido" value="<%= auto_inserido %>" />
+  <table class="zebra participacoes">
+      <thead>
+          <tr>
+            <th align="left">Participação</th>
+            <th align="left">Auto-Sugestão</th>
+            <th>Coord.</th>
+            <th>Adicionar ao sistema</th>
+            <th>Confirmação</th>
+          </tr>
+      </thead>
+      <tbody>
+          <% auto_sugestoes.each do |auto_sugestao| %>
+              <%
+                 tipo = auto_sugestao.sugestao == 'so_grupo' ? 'grupo' : 'conjunto'
 
-               nome_grupo = auto_sugestao.grupo.nome
+                 nome_grupo = auto_sugestao.grupo.nome
 
-               if tipo == 'conjunto'
-                 nome_encontro = auto_sugestao.encontro.nome
-                 ano_encontro = auto_sugestao.encontro.data_inicio.year
-               else
-                 nome_encontro = nil
-                 ano_encontro = nil
-               end
-            %>
+                 if tipo == 'conjunto'
+                   nome_encontro = auto_sugestao.encontro.nome
+                   ano_encontro = auto_sugestao.encontro.data_inicio.year
+                 else
+                   nome_encontro = nil
+                   ano_encontro = nil
+                 end
+              %>
 
-            <tr>
-              <td>
-                <% if tipo == "grupo" %>
-                    <%= auto_sugestao.grupo.nome %>
-                <% else %>
-                    <% encontro = auto_sugestao.encontro %>
-                    <%= "#{encontro.nome} (#{encontro.data_inicio.year})" %>
-                <% end %>
-              </td>
-              <td class="sugestao">
-                <% if tipo == "grupo" %>
-                    -
-                <% else %>
-                  <%= auto_sugestao.sugestao %>
-                <% end %>
-              </td>
-              <td align="center" class="sugestao">
-                <% if auto_sugestao.coordenador %>
-                    Coord.
-                <% end %>
-              </td>
-              <td align="center">
-                <% if tipo != "grupo" %>
-                    <%= select_tag 'conjunto', options_for_select(encontro.conjuntos_ordenados.collect{|c| [c.nome_pra_auto_sugestao, c.id]}), include_blank: false, class: 'conjunto' %>
-                <% else %>
-                    <select>
-                      <option><%= auto_sugestao.grupo.nome %></option>
-                    </select>
-                <% end %>
-                <br/>
-                <label>
-                  <input type="checkbox" name="eh_coordenador" class="eh_coordenador" /> Coordenação
-                </label>
-              </td>
-              <td align="center">
-                <%= link_to '', '#', class: 'link_submeter confirmar_auto_sugestao',
-                            data: {
-                                    id_auto_sugestao: auto_sugestao.id,
-                                    tipo: tipo,
-                                    nome_grupo: nome_grupo,
-                                    nome_encontro: nome_encontro,
-                                    ano_encontro: ano_encontro, 
-                                    nome: nome,
-                                    auto_inserido: auto_inserido
-                                }
-                %>
-              </td>
-              <td align="center">
-                <%= link_to '', '#', class: 'link_excluir rejeitar_auto_sugestao',
-                            data: {
-                                    id_auto_sugestao: auto_sugestao.id,
-                                    tipo: tipo,
-                                    nome_grupo: nome_grupo,
-                                    nome_encontro: nome_encontro,
-                                    ano_encontro: ano_encontro,
-                                    texto_sugestao: auto_sugestao.sugestao, 
-                                    nome: nome, 
-                                    auto_inserido: auto_inserido
-                            }
-                %>
-              </td>
-            </tr>
-        <% end %>
-    </tbody>
-</table>
+              <tr>
+                <td>
+                  <% if tipo == "grupo" %>
+                      <%= auto_sugestao.grupo.nome %>
+                  <% else %>
+                      <% encontro = auto_sugestao.encontro %>
+                      <%= "#{encontro.nome} (#{encontro.data_inicio.year})" %>
+                  <% end %>
+                </td>
+                <td class="sugestao">
+                  <% if tipo == "grupo" %>
+                      -
+                  <% else %>
+                    <%= auto_sugestao.sugestao %>
+                  <% end %>
+                </td>
+                <td align="center" class="sugestao">
+                  <% if auto_sugestao.coordenador %>
+                      Coord.
+                  <% end %>
+                </td>
+                <td align="center">
+                  <% if tipo != "grupo" %>
+                      <%= select_tag "conjunto[#{auto_sugestao.id}]", options_for_select(encontro.conjuntos_ordenados.collect{|c| [c.nome_pra_auto_sugestao, c.id]}), include_blank: false, class: 'conjunto' %>
+                  <% else %>
+                      <select>
+                        <option><%= auto_sugestao.grupo.nome %></option>
+                      </select>
+                  <% end %>
+                  <br/>
+                  <label>
+                    <input type="checkbox" name="eh_coordenador[<%= auto_sugestao.id %>]" class="eh_coordenador" value="true" /> Coordenação
+                  </label>
+                </td>
+                <td style="text-align: center; white-space: nowrap;">
+                  <label>
+                    <input type="radio" name="confirmar_ou_rejeitar[<%= auto_sugestao.id %>]" value="confirmar" checked="checked"/>
+                    <%= image_tag 'check.png' %>
+                  </label>
+                  <label>
+                    <input type="radio" name="confirmar_ou_rejeitar[<%= auto_sugestao.id %>]" value="rejeitar" />
+                    <%= image_tag 'cancelar.png' %>
+                  </label>
+                </td>
+              </tr>
+          <% end %>
+      </tbody>
+  </table>
+
+  <center>
+    <a href="#" class="link_upload confirmar_participacoes">Salvar confirmações</a>
+  </center>
+<% end %>

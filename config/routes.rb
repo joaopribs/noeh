@@ -75,8 +75,7 @@ Noeh::Application.routes.draw do
 
   get '/privacidade', :to => 'homepage#privacidade', :as => :privacidade
 
-  post '/confirmar_participacao', :to => 'pessoas#confirmar_auto_sugestao', :as => :confirmar_auto_sugestao
-  post '/rejeitar_participacao', :to => 'pessoas#rejeitar_auto_sugestao', :as => :rejeitar_auto_sugestao
+  post '/confirmar_participacoes', :to => 'pessoas#confirmar_participacoes', :as => :confirmar_participacoes
   get '/pessoas_confirmar', :to => 'pessoas#pessoas_a_confirmar', :as => :pessoas_a_confirmar
 
   post '/pegar_informacoes_facebook_pelo_link', :to => 'application#pegar_informacoes_facebook_pelo_link', :as => :pegar_informacoes_facebook_pelo_link
