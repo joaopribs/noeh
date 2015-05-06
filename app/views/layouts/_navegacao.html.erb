@@ -41,7 +41,7 @@
     <% end %>
 
     <% if @usuario_logado.permissoes.pode_pesquisar_pessoas %>
-        <%= link_to "Pesquisar pessoas", pesquisar_pessoas_path, class: "pesquisar_pessoas" %>
+        <%= link_to "Pesquisar", pesquisar_pessoas_path, class: "pesquisar_pessoas" %>
     <% end %>
 
     <% if @usuario_logado.eh_super_admin %>
