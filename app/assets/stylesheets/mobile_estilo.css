@@ -360,3 +360,8 @@ a.link_entrar_pelo_facebook {
 .field {
     margin-bottom: 15%;
 }
+
+.whatsapp {
+    color: #57ca00;
+    font-weight: bold;
+}
