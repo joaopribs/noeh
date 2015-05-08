@@ -374,10 +374,10 @@
                 atualizarFuncoesAutoInserir();
             </script>
           </div>
-        <% end %>
 
-        <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_#{tipo_pessoa}" do %>
+          <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_#{tipo_pessoa}" do %>
             Adicionar outra participação <span class="campos_casado" <% if !@eh_casal %>style="display: none;"<% end %>>individual dessa pessoa (não dos dois como um casal)</span>
+          <% end %>
         <% end %>
 
       <% end %>

@@ -286,6 +286,11 @@ class Pessoa < ActiveRecord::Base
     return outra_pessoa.grupos.count > 0 && (outra_pessoa.grupos - grupos_que_coordena).empty?
   end
 
+  def eh_coordenador_de_todos_os_conjuntos_permanentes_de outra_pessoa
+    conjuntos_permanentes_que_coordena = self.conjuntos_permanentes.select{|c| c.coordenadores.include?(self)}
+    return outra_pessoa.conjuntos_permanentes.count > 0 && (outra_pessoa.conjuntos_permanentes - conjuntos_permanentes_que_coordena).empty?
+  end
+
   def grupos_em_que_pode_adicionar_outra_pessoa outra_pessoa
     grupos = self.grupos_que_coordena
 

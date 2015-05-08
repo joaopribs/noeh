@@ -10,6 +10,7 @@ class Permissoes
 		return @usuario_logado.eh_super_admin? ||
 		  @usuario_logado.eh_coordenador_de_grupo_de(pessoa) ||
 		  @usuario_logado.eh_coordenador_de_encontro_de(pessoa) || 
+      @usuario_logado.eh_coordenador_de_conjunto_permanente_de(pessoa) || 
 		  @usuario_logado.grupos_que_coordena.count > 0 ||
 		  @usuario_logado.esta_coordenando_agora_alguma_equipe_de_outra_pessoa(pessoa) || 
 		  @usuario_logado == pessoa
@@ -25,8 +26,16 @@ class Permissoes
     if conjunto.nil?
       return false
     else
-      return pode_criar_pessoas_em_grupo(conjunto.encontro.grupo.id.to_s)
+      return pode_criar_pessoas_em_grupo(conjunto.encontro.grupo.id.to_s) || 
+        (conjunto.tipo == 'ConjuntoPermanente' && conjunto.coordenadores.include?(@usuario_logado))
     end
+  end
+
+  def pode_adicionar_pessoas_ao_conjunto conjunto
+    return @usuario_logado.eh_super_admin? ||
+        conjunto.encontro.grupo.coordenadores.include?(@usuario_logado) ||
+        conjunto.encontro.coordenadores.include?(@usuario_logado) || 
+        (conjunto.tipo == 'ConjuntoPermanente' && conjunto.coordenadores.include?(@usuario_logado))
   end
 
 	def pode_editar_pessoa pessoa
@@ -35,7 +44,8 @@ class Permissoes
         @usuario_logado.eh_coordenador_de_grupo_de(pessoa) ||
         @usuario_logado.eh_coordenador_de_encontro_de(pessoa) || 
         @usuario_logado.esta_coordenando_agora_alguma_equipe_de_outra_pessoa(pessoa) || 
-        @usuario_logado.conjuge == pessoa
+        @usuario_logado.conjuge == pessoa || 
+        @usuario_logado.eh_coordenador_de_todos_os_conjuntos_permanentes_de(pessoa)
   end
 
 	def pode_ver_participacao conjunto, pessoa
@@ -72,7 +82,8 @@ class Permissoes
 	def pode_excluir_pessoa pessoa
 		return @usuario_logado.eh_super_admin? || 
 			(@usuario_logado.eh_coordenador_de_grupo_de(pessoa) && 
-				!pessoa.eh_super_admin?)
+				!pessoa.eh_super_admin?) || 
+      (!pessoa.eh_super_admin? && @usuario_logado.eh_coordenador_de_todos_os_conjuntos_permanentes_de(pessoa))
 	end
 
 	def pode_pesquisar_pessoas

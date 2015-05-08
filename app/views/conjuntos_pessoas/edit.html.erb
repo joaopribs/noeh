@@ -80,6 +80,10 @@
   <p/>
 <% end %>
 
+<% if @conjunto.cor.present? %>
+  <b>Cor:</b> <span style="color: <%= @conjunto.cor.hex_cor %>;"><%= @conjunto.cor.nome %></span><br/>
+<% end %>
+
 <b>Encontro:</b> <%= @conjunto.encontro.nome %><br/>
 <b>Data:</b> <%= @conjunto.encontro.data %>
 
@@ -150,9 +154,9 @@
   </div>
 </div>
 
-<% if @usuario_logado.permissoes.pode_editar_conjunto(@conjunto) %>
+<% if @usuario_logado.permissoes.pode_adicionar_pessoas_ao_conjunto(@conjunto) %>
 
-    <% if @usuario_logado.permissoes.pode_criar_pessoas_em_grupo(@conjunto.encontro.grupo.id.to_s) %>
+    <% if @usuario_logado.permissoes.pode_criar_pessoas_em_conjunto(@conjunto) %>
         <h2>Adicionar pessoa:</h2>
 
         <%

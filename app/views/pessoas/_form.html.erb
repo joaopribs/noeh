@@ -573,8 +573,10 @@
 
             </div>
 
-            <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_casal" do %>
-                Adicionar outra participação dos dois como um casal
+            <% if grupos_pra_inserir.count > 0 %>
+                <%= link_to '#', class: 'link_novo', id: "link_adicionar_participacao_casal" do %>
+                    Adicionar outra participação dos dois como um casal
+                <% end %>
             <% end %>
         <% end %>
 
