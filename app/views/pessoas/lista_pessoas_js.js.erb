@@ -5,6 +5,36 @@ function getParameterByName(name, string) {
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+function filtrarPessoas() {
+    var query = $('#query_filtrar_pessoas').val();
+
+    if (query.length < 3) {
+        $("#dialog_conteudo").html('Seu critério de busca deve ter no mínimo <em>3 caracteres</em>');
+        $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
+        $("#dialog").show();
+
+        $(".dialog_link_confirmar").on("click", function (evento) {
+            evento.preventDefault();
+            esconderDialog();
+        });
+    }
+    else {
+        $(self.containerDaTabela).find('.overlay_carregando').show();
+
+        $.post(
+                "<%= filtrar_pessoas_url %>",
+                {
+                    query: query
+                },
+                function (resposta) {
+                    if (resposta == "ok") {
+                        listaPessoas.carregar(1, query);
+                    }
+                }
+        );
+    }
+}
+
 function ListaPessoas(containerDaTabela, tipoPagina, fazerPaginacao, tipoId, idObjeto, mostrarConjuges, mostrarFiltro, funcaoSucesso) {
 
     var self = this;
@@ -327,36 +357,16 @@ function ListaPessoas(containerDaTabela, tipoPagina, fazerPaginacao, tipoId, idO
                 });
             });
 
+            $('#query_filtrar_pessoas').keypress(function (evento) {
+                if (evento.which == 13) {
+                    evento.preventDefault();
+                    filtrarPessoas();
+                }
+            });   
+
             $('#enviar_query_filtrar_pessoas').on('click', function (evento) {
                 evento.preventDefault();
-
-                var query = $('#query_filtrar_pessoas').val();
-
-                if (query.length < 3) {
-                    $("#dialog_conteudo").html('Seu critério de busca deve ter no mínimo <em>3 caracteres</em>');
-                    $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
-                    $("#dialog").show();
-
-                    $(".dialog_link_confirmar").on("click", function (evento) {
-                        evento.preventDefault();
-                        esconderDialog();
-                    });
-                }
-                else {
-                    $(self.containerDaTabela).find('.overlay_carregando').show();
-
-                    $.post(
-                            "<%= filtrar_pessoas_url %>",
-                            {
-                                query: query
-                            },
-                            function (resposta) {
-                                if (resposta == "ok") {
-                                    listaPessoas.carregar(1, query);
-                                }
-                            }
-                    );
-                }
+                filtrarPessoas();                
             });
 
             $('#limpar_filtro').on('click', function (evento) {
