@@ -483,6 +483,13 @@ class Pessoa < ActiveRecord::Base
           errors.add(:url_facebook, "Já há outra pessoa com esse Facebook")
         end
       end
+
+      if self.conjuge.present?
+        if (self.url_facebook.present? && self.conjuge.url_facebook.present? && self.url_facebook == self.conjuge.url_facebook) ||
+          (self.usuario_facebook.present? && self.conjuge.usuario_facebook.present? && self.usuario_facebook == self.conjuge.usuario_facebook)
+          errors.add(:url_facebook, "Você não pode criar duas pessoas com o mesmo Facebook")
+        end
+      end
     end
   end
 
