@@ -566,7 +566,6 @@ class PessoasController < ApplicationController
   end
 
   def confirmar_participacoes
-    byebug
     confirmar_ou_rejeitars = params[:confirmar_ou_rejeitar]
     id_conjuntos = params[:conjunto]
     eh_coordenadors = params[:eh_coordenador]
