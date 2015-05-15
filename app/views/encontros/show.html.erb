@@ -128,11 +128,12 @@
         <b>Liberação do sistema:</b> <%= @encontro.data_liberacao.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
         <b>Fechamento do sistema:</b> <%= @encontro.data_fechamento.strftime("%d/%m/%Y") unless @encontro.data_liberacao.blank? %><br/>
 
-        <% qtd_encontreiros = @encontro.equipes.inject(0) {|soma, equipe| equipe.pessoas.count} %>
+        <% qtd_encontreiros = @encontro.equipes.inject(0) {|soma, equipe| soma += equipe.pessoas.count} %>
+        <% qtd_encontreiros += @encontro.conjuntos_permanentes.inject(0) {|soma, conjunto_permanente| soma += conjunto_permanente.relacoes_pessoa_conjunto.where(eh_coordenador: true).count} %>
         <b>Encontreiros:</b> <%= qtd_encontreiros %> pessoa<%= "s" if qtd_encontreiros != 1 %>,
         em <%= @encontro.equipes.count %> equipes<br/>
 
-        <% qtd_encontristas = @encontro.conjuntos_permanentes.inject(0) {|soma, conjunto_permanente| conjunto_permanente.relacoes_pessoa_conjunto.where(eh_coordenador: false).count} %>
+        <% qtd_encontristas = @encontro.conjuntos_permanentes.inject(0) {|soma, conjunto_permanente| soma += conjunto_permanente.relacoes_pessoa_conjunto.where(eh_coordenador: false).count} %>
         <b>Encontristas:</b> <%= qtd_encontristas %> pessoa<%= "s" if qtd_encontristas != 1 %>,
         em <%= @encontro.conjuntos_permanentes.count %> <%= denominacoes_conjuntos_permanentes.select{|d| d[:nome] == @encontro.denominacao_conjuntos_permanentes}[0][:plural].downcase %><br/>
 
