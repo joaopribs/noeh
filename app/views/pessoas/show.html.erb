@@ -42,6 +42,20 @@
             });
         });
 
+        $('.confirmar_ou_rejeitar').off('click');
+        $('.confirmar_ou_rejeitar').on('click', function () {
+          $(this).parent().siblings('.limpar_confirmar_ou_rejeitar').show();
+        });
+
+        $('.limpar_confirmar_ou_rejeitar a').off('click');
+        $('.limpar_confirmar_ou_rejeitar a').on('click', function (evento) {
+          evento.preventDefault();
+
+          $(this).parent().siblings('label').children('.confirmar_ou_rejeitar').prop('checked', false);
+
+          $(this).parent().hide();
+        });
+
         $('.confirmar_participacoes').off('click');
         $('.confirmar_participacoes').on('click', function (evento) {
           evento.preventDefault();
@@ -65,42 +79,55 @@
             }
           });
 
-          var msg = 'Tem certeza que deseja <em>rejeitar ' + quantidadeRejeitados + '</em> e <em>confirmar ' + quantidadeConfirmados + '</em> ';
+          if (quantidadeConfirmados + quantidadeRejeitados > 0) {
+            var msg = 'Tem certeza que deseja <em>confirmar ' + quantidadeConfirmados + '</em> e <em>rejeitar ' + quantidadeRejeitados + '</em> ';
 
-          if (quantidadeConfirmados == 1) {
-            msg += 'participação';
+            if (quantidadeRejeitados == 1) {
+              msg += 'participação';
+            }
+            else {
+              msg += 'participações';
+            }
+
+            msg += ' de <em>' + nome + '</em>?';
+
+            if (autoInserido) {
+              msg += '<p/>Essa pessoa ainda não tem acesso ao sistema, e ao adicioná-la, o acesso será liberado.'
+            }
+
+            $("#dialog_conteudo").html(msg);
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>OK</span></a>");
+            $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_confirmar").on("click", function (evento) {
+                evento.preventDefault();
+
+                $(this).off("click");
+                $(this).addClass('dialog_link_desativado');
+                $(this).children('.texto').html('Carregando...');
+                iniciarSpinners();
+                $('.dialog_link_cancelar').hide();
+
+                $form.submit();
+            });
+
+            $(".dialog_link_cancelar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            });
           }
           else {
-            msg += 'participações';
+            $("#dialog_conteudo").html("<em>Nenhuma</em> participação foi confirmada ou rejeitada");
+            $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar'>OK</a>");
+            $("#dialog").show();
+
+            $(".dialog_link_confirmar").on("click", function (evento) {
+                evento.preventDefault();
+                esconderDialog();
+            }); 
           }
-
-          msg += ' de <em>' + nome + '</em>?';
-
-          if (autoInserido) {
-            msg += '<p/>Essa pessoa ainda não tem acesso ao sistema, e ao adicioná-la, o acesso será liberado.'
-          }
-
-          $("#dialog_conteudo").html(msg);
-          $("#dialog_conteudo").append("<p/><a href='#' class='dialog_link_confirmar' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>OK</span></a>");
-          $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
-          $("#dialog").show();
-
-          $(".dialog_link_confirmar").on("click", function (evento) {
-              evento.preventDefault();
-
-              $(this).off("click");
-              $(this).addClass('dialog_link_desativado');
-              $(this).children('.texto').html('Carregando...');
-              iniciarSpinners();
-              $('.dialog_link_cancelar').hide();
-
-              $form.submit();
-          });
-
-          $(".dialog_link_cancelar").on("click", function (evento) {
-              evento.preventDefault();
-              esconderDialog();
-          });
+          
         });
 
     });

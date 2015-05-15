@@ -64,13 +64,16 @@
                 </td>
                 <td style="text-align: center; white-space: nowrap;">
                   <label>
-                    <input type="radio" name="confirmar_ou_rejeitar[<%= auto_sugestao.id %>]" value="confirmar" checked="checked"/>
+                    <input type="radio" class="confirmar_ou_rejeitar" name="confirmar_ou_rejeitar[<%= auto_sugestao.id %>]" value="confirmar" />
                     <%= image_tag 'check.png' %>
                   </label>
                   <label>
-                    <input type="radio" name="confirmar_ou_rejeitar[<%= auto_sugestao.id %>]" value="rejeitar" />
+                    <input type="radio" class="confirmar_ou_rejeitar" name="confirmar_ou_rejeitar[<%= auto_sugestao.id %>]" value="rejeitar" />
                     <%= image_tag 'cancelar.png' %>
                   </label>
+                  <div class="limpar_confirmar_ou_rejeitar" style="display: none;">
+                    <a href="#">Limpar</a>
+                  </div>
                 </td>
               </tr>
           <% end %>
