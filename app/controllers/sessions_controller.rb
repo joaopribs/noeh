@@ -215,7 +215,7 @@ class SessionsController < ApplicationController
         end
       end
 
-      return "#{i}#{usuario_facebook}"
+      return usuario_facebook
     end
 
 end
