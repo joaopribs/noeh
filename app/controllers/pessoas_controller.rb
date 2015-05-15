@@ -498,7 +498,7 @@ class PessoasController < ApplicationController
     @pessoas = Pessoa.pegar_pessoas(session[:id_pessoas], forcar_conjuges)
 
     @total = @pessoas.count
-    @numero_casais = @pessoas.select{|p| p.conjuge != nil}.count / 2
+    @numero_casais = @pessoas.select{|p| p.conjuge != nil && session[:id_pessoas].include?(p.conjuge_id)}.count / 2
 
     @mostrar_filtro = params[:mostrar_filtro].nil? ? true : params[:mostrar_filtro] == "true"
     @fazer_paginacao = params[:fazer_paginacao].nil? ? true : params[:fazer_paginacao] == "true"
