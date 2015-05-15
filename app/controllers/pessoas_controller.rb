@@ -609,7 +609,11 @@ class PessoasController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_to pessoa, notice: msg_sucesso }
+      if pessoa.present?
+        format.html { redirect_to pessoa, notice: msg_sucesso }
+      else
+        format.html { redirect_to root_url, notice: msg_sucesso }
+      end
     end
   end
 
