@@ -184,7 +184,7 @@ class SessionsController < ApplicationController
             curl.verbose = true
           end
 
-          # c.close
+          c.close
 
           begin
             c = Curl::Easy.http_get("https://www.facebook.com/#{id_app_facebook}") do |curl| 
@@ -215,7 +215,7 @@ class SessionsController < ApplicationController
         end
       end
 
-      return usuario_facebook
+      return "#{i}#{usuario_facebook}"
     end
 
 end
