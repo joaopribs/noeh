@@ -166,25 +166,14 @@ class SessionsController < ApplicationController
     def pegar_usuario_facebook_pelo_id(id_app_facebook)
       usuario_facebook = ""
 
-      if id_app_facebook.present?
-        c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
-          Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
-          Curl::PostField.content('pass', APP_CONFIG['senha_facebook_request'])) do |curl| 
+      i = 0
+      while usuario_facebook == "" && i < 10 do
 
-          curl.follow_location = true
-          curl.enable_cookies = true
-          curl.cookiefile = "cookie.txt"
-          curl.cookiejar = "cookie.txt"
-        
-          curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-          curl.headers["Referer"] = 'http://www.facebook.com'
-          curl.verbose = true
-        end
+        if id_app_facebook.present?
+          c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
+            Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
+            Curl::PostField.content('pass', APP_CONFIG['senha_facebook_request'])) do |curl| 
 
-        # c.close
-
-        begin
-          c = Curl::Easy.http_get("https://www.facebook.com/#{id_app_facebook}") do |curl| 
             curl.follow_location = true
             curl.enable_cookies = true
             curl.cookiefile = "cookie.txt"
@@ -195,15 +184,35 @@ class SessionsController < ApplicationController
             curl.verbose = true
           end
 
-          ultima_url = c.last_effective_url
-          usuario_facebook = ultima_url.split("/").last
-          if !usuario_facebook.starts_with?("profile.php")
-            usuario_facebook = usuario_facebook.split("?").first
-          end
-        rescue
-        end
+          # c.close
 
-        c.close
+          begin
+            c = Curl::Easy.http_get("https://www.facebook.com/#{id_app_facebook}") do |curl| 
+              curl.follow_location = true
+              curl.enable_cookies = true
+              curl.cookiefile = "cookie.txt"
+              curl.cookiejar = "cookie.txt"
+            
+              curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+              curl.headers["Referer"] = 'http://www.facebook.com'
+              curl.verbose = true
+            end
+
+            ultima_url = c.last_effective_url
+            usuario_facebook = ultima_url.split("/").last
+            if !usuario_facebook.starts_with?("profile.php")
+              usuario_facebook = usuario_facebook.split("?").first
+            end
+            if usuario_facebook == "login.php"
+              usuario_facebook = ""
+            end
+          rescue
+          end
+
+          c.close
+
+          i += 1
+        end
       end
 
       return usuario_facebook
