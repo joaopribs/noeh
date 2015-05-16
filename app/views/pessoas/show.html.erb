@@ -56,6 +56,15 @@
           $(this).parent().hide();
         });
 
+        $('.conjunto').off('change');
+        $('.conjunto').on('change', function () {
+          if (!$(this).parent().siblings().find('.confirmar_ou_rejeitar.confirmar').prop("checked") && 
+            !$(this).parent().siblings().find('.confirmar_ou_rejeitar.rejeitar').prop("checked")) {
+            $(this).parent().siblings().find('.confirmar_ou_rejeitar.confirmar').prop("checked", true);
+            $(this).parent().siblings().find('.limpar_confirmar_ou_rejeitar').show();
+          }
+        });
+
         $('.confirmar_participacoes').off('click');
         $('.confirmar_participacoes').on('click', function (evento) {
           evento.preventDefault();
