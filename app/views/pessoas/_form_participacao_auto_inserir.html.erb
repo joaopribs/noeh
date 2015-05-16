@@ -1,13 +1,22 @@
 <div>
 
-    <input type="hidden" name="auto_inserido_<%= tipo_pessoa %>[]" value="false" class="auto_inserido" />
+    <% 
+        grupo = grupo_id != "-1" ? Grupo.find(grupo_id) : nil 
+
+        if @usuario_logado.present?
+            auto_inserido = grupo.present? && @usuario_logado.grupos_que_coordena.include?(grupo)
+        else
+            auto_inserido = true
+        end
+    %>
+
+    <input type="hidden" name="auto_inserido_<%= tipo_pessoa %>[]" value="<%= auto_inserido %>" class="auto_inserido" />
+
 
     <div class="field">
         <label for="grupo">Grupo</label><br/>
         <%= select_tag "grupos_auto_inserir_#{tipo_pessoa}[]", options_for_select(grupos.collect{|g| [g.nome, g.id]}, grupo_id), include_blank: true, class: 'grupo_participacao' %>
     </div>
-
-    <% grupo = grupo_id != "-1" ? Grupo.find(grupo_id) : nil %>
 
     <% if grupo_id != "-1" && grupo.tem_encontros %>
         <div class="field wrapper_encontro_participacao">

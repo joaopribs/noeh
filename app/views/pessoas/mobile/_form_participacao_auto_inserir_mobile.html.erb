@@ -1,5 +1,15 @@
 <div class="container" style="display: table; margin: auto; margin-bottom: 4vmin; padding-bottom: 4vmin; width: 100%; text-align: center;">
 
+    <% 
+        grupo = grupo_id != "-1" ? Grupo.find(grupo_id) : nil 
+
+        if @usuario_logado.present?
+            auto_inserido = grupo.present? && @usuario_logado.grupos_que_coordena.include?(grupo)
+        else
+            auto_inserido = true
+        end
+    %>
+
     <input type="hidden" name="auto_inserido_<%= tipo_pessoa %>[]" value="false" class="auto_inserido" />
 
     <div style="display: inline-block;">
@@ -8,8 +18,6 @@
     </div>
 
     <br style="clear: both;" />
-
-    <% grupo = grupo_id != "-1" ? Grupo.find(grupo_id) : nil %>
 
     <div class="wrapper_encontro_participacao" style="<% if !(grupo_id != "-1" && grupo.tem_encontros) %>display: none;<% end %> margin-left: 2vmin;">
         <% if grupo_id != "-1" && grupo.tem_encontros %>

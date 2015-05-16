@@ -362,7 +362,7 @@
                   grupos_que_coordena = @usuario_logado.nil? ? [] : @usuario_logado.grupos_que_coordena.collect{|g| "#{g.id}"}
 
                   mostrar_campo_lista = grupos_que_coordena.include?(grupo_id)
-                  mostrar_campo_texto = !mostrar_campo_lista
+                  mostrar_campo_texto = !mostrar_campo_lista && texto_sugestao != 'so_grupo'
                 %>
                 <%= render 'form_participacao_auto_inserir', tipo_pessoa: tipo_pessoa, grupo_id: grupo_id, encontro_id: encontro_id, conjunto_id: conjunto_id, sugestao: texto_sugestao, coordenador: coordenador, grupos: grupos_pra_inserir, mostrar_campo_lista: mostrar_campo_lista, mostrar_campo_texto: mostrar_campo_texto %>
               <% end %>

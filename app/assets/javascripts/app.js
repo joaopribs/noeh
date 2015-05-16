@@ -34,12 +34,16 @@ var spinnerOpts = {
     left: '12px' // Left position relative to parent
 };
 
-function iniciarSpinners(mostrarSpinner) {
+function iniciarSpinners(mostrarSpinner, $elemento) {
     if (mostrarSpinner == null) {
         mostrarSpinner = true;
     }
 
-    $(".img_spinner").each(function () {
+    if ($elemento == null) {
+        $elemento = $(".img_spinner");
+    }
+
+    $elemento.each(function () {
         var cor = $(this).data("corspinner");
         if (cor == null) {
             cor = "#fff";
