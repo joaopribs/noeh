@@ -593,19 +593,40 @@ class PessoasController < ApplicationController
       end
     end
 
-    msg_sucesso = "#{contador_confirmadas} "
-    if contador_confirmadas == 1
-      msg_sucesso += "participação"
-    else
-      msg_sucesso += "participações"
+    texto_confirmadas = nil
+    texto_rejeitadas = nil
+    
+    if contador_confirmadas > 0
+      texto_confirmadas = "#{contador_confirmadas} "
+      if contador_confirmadas == 1 
+        texto_confirmadas += 'participacão confirmada'
+      else
+        texto_confirmadas += 'participacões confirmadas'
+      end
     end
-    msg_sucesso += " confirmada"
-    if contador_confirmadas != 1
-      msg_sucesso += "s"
+
+    if contador_rejeitadas > 0
+      texto_rejeitadas = "#{contador_rejeitadas} "
+      if contador_rejeitadas == 1 
+        if contador_confirmadas == 0
+          texto_rejeitadas += 'participação '
+        end
+        texto_rejeitadas += 'rejeitada'
+      else
+        if contador_confirmadas == 0 
+          texto_rejeitadas += 'participações '
+        end
+        texto_rejeitadas += 'rejeitadas'
+      end
     end
-    msg_sucesso += " e #{contador_rejeitadas} rejeitada"
-    if contador_rejeitadas != 1
-      msg_sucesso += "s"
+
+    separador = ""
+    msg_sucesso = ""
+    [texto_confirmadas, texto_rejeitadas].each do |texto|
+      if texto.present?
+        msg_sucesso += "#{separador}#{texto}"
+        separador = " e "
+      end
     end
 
     respond_to do |format|

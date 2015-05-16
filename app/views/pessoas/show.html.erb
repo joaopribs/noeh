@@ -18,7 +18,7 @@
                 $(this).on('click', function (evento) {evento.preventDefault();});
                 $(this).addClass('dialog_link_desativado');
                 $(this).children('.texto').html('Carregando...');
-                iniciarSpinners();
+                iniciarSpinners(true, $(this).find('.img_spinner'));
                 $('.dialog_link_cancelar').hide();
 
                 $.ajax({
@@ -89,16 +89,29 @@
           });
 
           if (quantidadeConfirmados + quantidadeRejeitados > 0) {
-            var msg = 'Tem certeza que deseja <em>confirmar ' + quantidadeConfirmados + '</em> e <em>rejeitar ' + quantidadeRejeitados + '</em> ';
+            var msg = 'Tem certeza que deseja ';
 
-            if (quantidadeRejeitados == 1) {
+            var quantidadeParaOPlural = quantidadeRejeitados;
+
+            if (quantidadeConfirmados > 0 && quantidadeRejeitados > 0) {
+              msg += '<em>confirmar ' + quantidadeConfirmados + '</em> e <em>rejeitar ' + quantidadeRejeitados + ' ';
+            }
+            else if (quantidadeConfirmados > 0) {
+              msg += '<em>confirmar ' + quantidadeConfirmados + ' ';
+              quantidadeParaOPlural = quantidadeConfirmados;
+            }
+            else {
+              msg += '<em>rejeitar ' + quantidadeRejeitados + ' ';
+            }
+
+            if (quantidadeParaOPlural == 1) {
               msg += 'participação';
             }
             else {
               msg += 'participações';
-            }
+            } 
 
-            msg += ' de <em>' + nome + '</em>?';
+            msg += '</em> de <em>' + nome + '</em>?';
 
             if (autoInserido) {
               msg += '<p/>Essa pessoa ainda não tem acesso ao sistema, e ao adicioná-la, o acesso será liberado.'
