@@ -274,6 +274,9 @@ class ApplicationController < ActionController::Base
         # Tentar outras duas vezes se nao conseguir
         tentativa = 0
         while tentativa <= 2 && img_grande == "" do 
+          # tentar limpar o cookie pra tentar na vez seguinte
+          File.truncate('cookie.txt', 0)
+
           # Talvez precise fazer login e tentar de novo
           c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
             Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 

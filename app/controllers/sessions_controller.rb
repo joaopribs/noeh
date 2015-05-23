@@ -213,6 +213,12 @@ class SessionsController < ApplicationController
 
           i += 1
         end
+
+        if usuario_facebook == ""
+          # tentar limpar o cookie pra tentar na vez seguinte
+          File.truncate('cookie.txt', 0)
+        end
+
       end
 
       return usuario_facebook
