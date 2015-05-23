@@ -94,5 +94,6 @@ Noeh::Application.routes.draw do
 
   post '/pegar_usuario_facebook', :to => 'sessions#pegar_usuario_facebook', :as => :pegar_usuario_facebook
   get '/teste', :to => 'homepage#teste', :as => :teste
+  get '/imprimircookie', :to => 'homepage#imprimircookie'
 
 end

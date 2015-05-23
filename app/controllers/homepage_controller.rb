@@ -27,4 +27,8 @@ class HomepageController < ApplicationController
   def teste
   end
 
+  def imprimircookie
+    @cookie = IO.read "cookie.txt"
+  end
+
 end
