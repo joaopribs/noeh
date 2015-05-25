@@ -324,6 +324,11 @@ class ApplicationController < ActionController::Base
       rescue 
       end
 
+      # Se ainda não conseguir, salvar o problema no banco de dados
+      if img_grande == "" && nome == "" && usuario_facebook == ""
+        Problema.new(problema: "Não conseguiu pegar informações de Facebook pela URL: #{url}").save
+      end
+
       return {
         imagem_grande: img_grande, 
         imagem_pequena: img_pequena, 

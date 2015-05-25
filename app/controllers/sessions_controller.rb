@@ -221,6 +221,11 @@ class SessionsController < ApplicationController
 
       end
 
+      # Se ainda não conseguir, salvar o problema no banco de dados
+      if usuario_facebook == ""
+        Problema.new(problema: "Não conseguiu pegar usuário do Facebook pelo ID: #{id_app_facebook}").save
+      end
+
       return usuario_facebook
     end
 
