@@ -259,7 +259,7 @@ class ApplicationController < ActionController::Base
       usuario_facebook = informacoes[:usuario_facebook]
 
       # Se não conseguir, fazer login e tentar de novo
-      if img_grande == "" && nome == "" && usuario_facebook == ""
+      if img_grande == "" && nome == ""
         login_facebook
         informacoes = tentar_pegar_informacoes_facebook(url)
 
