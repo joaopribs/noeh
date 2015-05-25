@@ -248,94 +248,94 @@ class ApplicationController < ActionController::Base
 
   def pegar_informacoes_facebook(url)
     img_grande = ""
-    img_pequena = ""
     nome = ""
     usuario_facebook = ""
 
     if url.present?
-      begin
-        c = Curl::Easy.http_get(url) do |curl| 
-          curl.follow_location = true
-          curl.enable_cookies = true
-          curl.cookiefile = "cookie.txt"
-          curl.cookiejar = "cookie.txt"
-        
-          curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-          curl.headers["Referer"] = 'http://www.facebook.com'
-          curl.verbose = true
-        end
+      informacoes = tentar_pegar_informacoes_facebook(url)
+      
+      img_grande = informacoes[:img_grande]
+      nome = informacoes[:nome]
+      usuario_facebook = informacoes[:usuario_facebook]
 
-        conteudo_pagina = c.body_str.force_encoding('UTF-8')
+      # Se não conseguir, fazer login e tentar de novo
+      if img_grande == "" && nome == "" && usuario_facebook == ""
+        login_facebook
+        informacoes = tentar_pegar_informacoes_facebook(url)
 
-        img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
-        # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
-        nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
-
-        # Tentar outras duas vezes se nao conseguir
-        tentativa = 0
-        while tentativa <= 2 && img_grande == "" do 
-          # tentar limpar o cookie pra tentar na vez seguinte
-          File.truncate('cookie.txt', 0)
-
-          # Talvez precise fazer login e tentar de novo
-          c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
-            Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
-            Curl::PostField.content('pass', APP_CONFIG['senha_facebook_request'])) do |curl| 
-
-            curl.follow_location = true
-            curl.enable_cookies = true
-            curl.cookiefile = "cookie.txt"
-            curl.cookiejar = "cookie.txt"
-          
-            curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-            curl.headers["Referer"] = 'http://www.facebook.com'
-            curl.verbose = true
-          end
-
-          c.close
-
-          c = Curl::Easy.http_get(url) do |curl| 
-            curl.follow_location = true
-            curl.enable_cookies = true
-            curl.cookiefile = "cookie.txt"
-            curl.cookiejar = "cookie.txt"
-          
-            curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-            curl.headers["Referer"] = 'http://www.facebook.com'
-            curl.verbose = true
-          end
-
-          c.close
-
-          conteudo_pagina = c.body_str.force_encoding('UTF-8')
-
-          img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
-          # img_pequena = pegar_imagem_pela_classe('_s0 _2dpc _rw img', conteudo_pagina)
-          nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
-
-          tentativa += 1
-        end
-
-        ultima_url = c.last_effective_url
-        usuario_facebook = ultima_url.split("/").last
-        if !usuario_facebook.starts_with?("profile.php")
-          usuario_facebook = usuario_facebook.split("?").first
-        end
-      rescue 
+        img_grande = informacoes[:img_grande]
+        nome = informacoes[:nome]
+        usuario_facebook = informacoes[:usuario_facebook]
       end
 
       # Se ainda não conseguir, salvar o problema no banco de dados
       if img_grande == "" && nome == "" && usuario_facebook == ""
-        Problema.new(problema: "Não conseguiu pegar informações de Facebook pela URL: #{url} - ultima url de redirect: #{ultima_url}").save
+        Problema.new(problema: "Não conseguiu pegar informações de Facebook pela URL: #{url}").save
       end
 
       return {
         imagem_grande: img_grande, 
-        imagem_pequena: img_pequena, 
         nome: nome,
         usuario: usuario_facebook
       }
     end
+  end
+
+  def tentar_pegar_informacoes_facebook(url)
+    puts "-------- tentando pegar informaçoes do facebook ----------"
+
+    c = Curl::Easy.http_get(url) do |curl| 
+      curl.follow_location = true
+      curl.enable_cookies = true
+      curl.cookiefile = "cookie.txt"
+      curl.cookiejar = "cookie.txt"
+    
+      curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+      curl.headers["Referer"] = 'http://www.facebook.com'
+      curl.verbose = true
+    end
+
+    conteudo_pagina = c.body_str.force_encoding('UTF-8')
+
+    img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
+    nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
+
+    ultima_url = c.last_effective_url
+
+    c.close
+
+    usuario_facebook = ultima_url.split("/").last
+    if !usuario_facebook.starts_with?("profile.php")
+      usuario_facebook = usuario_facebook.split("?").first
+    end
+
+    return {
+      img_grande: img_grande, 
+      nome: nome,
+      usuario_facebook: usuario_facebook
+    }
+  end
+
+  def login_facebook
+    File.truncate('cookie.txt', 0)
+
+    puts "-------- tentando fazer login ----------"
+
+    c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
+      Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
+      Curl::PostField.content('pass', APP_CONFIG['senha_facebook_request'])) do |curl| 
+
+      curl.follow_location = true
+      curl.enable_cookies = true
+      curl.cookiefile = "cookie.txt"
+      curl.cookiejar = "cookie.txt"
+    
+      curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+      curl.headers["Referer"] = 'http://www.facebook.com'
+      curl.verbose = true
+    end
+
+    c.close
   end
 
   private 

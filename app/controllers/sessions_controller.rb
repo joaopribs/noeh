@@ -164,70 +164,50 @@ class SessionsController < ApplicationController
     end
 
     def pegar_usuario_facebook_pelo_id(id_app_facebook)
-      usuario_facebook = ""
+      if id_app_facebook.present?
+        usuario_facebook = tentar_pegar_usuario_facebook_pelo_id(id_app_facebook)
 
-      i = 0
-      while usuario_facebook == "" && i < 10 do
-
-        if id_app_facebook.present?
-          puts "-------- tentando fazer login ----------"
-
-          c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
-            Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
-            Curl::PostField.content('pass', APP_CONFIG['senha_facebook_request'])) do |curl| 
-
-            curl.follow_location = true
-            curl.enable_cookies = true
-            curl.cookiefile = "cookie.txt"
-            curl.cookiejar = "cookie.txt"
-          
-            curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-            curl.headers["Referer"] = 'http://www.facebook.com'
-            curl.verbose = true
-          end
-
-          c.close
-
-          puts "-------- tentando pegar as informações do facebook ----------"
-
-          begin
-            c = Curl::Easy.http_get("https://www.facebook.com/#{id_app_facebook}") do |curl| 
-              curl.follow_location = true
-              curl.enable_cookies = true
-              curl.cookiefile = "cookie.txt"
-              curl.cookiejar = "cookie.txt"
-            
-              curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-              curl.headers["Referer"] = 'http://www.facebook.com'
-              curl.verbose = true
-            end
-
-            ultima_url = c.last_effective_url
-            usuario_facebook = ultima_url.split("/").last
-            if !usuario_facebook.starts_with?("profile.php")
-              usuario_facebook = usuario_facebook.split("?").first
-            end
-            if usuario_facebook == "login.php"
-              usuario_facebook = ""
-            end
-          rescue
-          end
-
-          c.close
-
-          i += 1
-        end
-
+        # Se não conseguir, fazer login e tentar novamente
         if usuario_facebook == ""
-          # tentar limpar o cookie pra tentar na vez seguinte
-          File.truncate('cookie.txt', 0)
+          login_facebook
+          usuario_facebook = tentar_pegar_usuario_facebook_pelo_id(id_app_facebook)
         end
 
+        # Se ainda não conseguir, salvar o problema no banco de dados
+        if usuario_facebook == ""
+          Problema.new(problema: "Não conseguiu pegar usuário do Facebook pelo ID: #{id_app_facebook}").save
+        end
+
+        return usuario_facebook
+      end
+    end
+
+    def tentar_pegar_usuario_facebook_pelo_id(id_app_facebook)
+      puts "-------- tentando pegar as informações do facebook ----------"
+
+      c = Curl::Easy.http_get("https://www.facebook.com/#{id_app_facebook}") do |curl| 
+        curl.follow_location = true
+        curl.enable_cookies = true
+        curl.cookiefile = "cookie.txt"
+        curl.cookiejar = "cookie.txt"
+      
+        curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
+        curl.headers["Referer"] = 'http://www.facebook.com'
+        curl.verbose = true
       end
 
-      # Se ainda não conseguir, salvar o problema no banco de dados
-      if usuario_facebook == ""
-        Problema.new(problema: "Não conseguiu pegar usuário do Facebook pelo ID: #{id_app_facebook}").save
+      ultima_url = c.last_effective_url
+
+      c.close
+
+      usuario_facebook = ultima_url.split("/").last
+
+      if !usuario_facebook.starts_with?("profile.php")
+        usuario_facebook = usuario_facebook.split("?").first
+      end
+
+      if usuario_facebook == "login.php"
+        usuario_facebook = ""
       end
 
       return usuario_facebook
