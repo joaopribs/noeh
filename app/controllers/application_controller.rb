@@ -253,6 +253,8 @@ class ApplicationController < ActionController::Base
     usuario_facebook = ""
 
     if url.present?
+      ultima_url = ""
+      
       begin
         c = Curl::Easy.http_get(url) do |curl| 
           curl.follow_location = true
