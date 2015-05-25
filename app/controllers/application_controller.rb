@@ -305,8 +305,6 @@ class ApplicationController < ActionController::Base
             curl.verbose = true
           end
 
-          ultima_url = c.last_effective_url
-
           c.close
 
           conteudo_pagina = c.body_str.force_encoding('UTF-8')
@@ -318,6 +316,7 @@ class ApplicationController < ActionController::Base
           tentativa += 1
         end
 
+        ultima_url = c.last_effective_url
         usuario_facebook = ultima_url.split("/").last
         if !usuario_facebook.starts_with?("profile.php")
           usuario_facebook = usuario_facebook.split("?").first

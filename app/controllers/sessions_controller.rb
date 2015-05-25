@@ -170,6 +170,8 @@ class SessionsController < ApplicationController
       while usuario_facebook == "" && i < 10 do
 
         if id_app_facebook.present?
+          puts "-------- tentando fazer login ----------"
+
           c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
             Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
             Curl::PostField.content('pass', APP_CONFIG['senha_facebook_request'])) do |curl| 
@@ -185,6 +187,8 @@ class SessionsController < ApplicationController
           end
 
           c.close
+
+          puts "-------- tentando pegar as informações do facebook ----------"
 
           begin
             c = Curl::Easy.http_get("https://www.facebook.com/#{id_app_facebook}") do |curl| 
