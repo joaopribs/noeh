@@ -28,8 +28,6 @@ class HomepageController < ApplicationController
   end
 
   def imprimircookie
-    FileUtils.touch "cookie.txt"
-
     @cookie = IO.read "cookie.txt"
   end
 
