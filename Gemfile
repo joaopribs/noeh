@@ -42,3 +42,5 @@ gem 'remotipart', '~> 1.2'
 gem "byebug", group: :development
 
 gem 'curb'
+
+gem "mechanize"

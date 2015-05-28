@@ -185,32 +185,32 @@ class SessionsController < ApplicationController
     def tentar_pegar_usuario_facebook_pelo_id(id_app_facebook)
       puts "-------- tentando pegar as informações do facebook ----------"
 
-      c = Curl::Easy.http_get("https://www.facebook.com/#{id_app_facebook}") do |curl| 
-        curl.follow_location = true
-        curl.enable_cookies = true
-        curl.cookiefile = "cookie.txt"
-        curl.cookiejar = "cookie.txt"
-      
-        curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-        curl.headers["Referer"] = 'http://www.facebook.com'
-        curl.verbose = true
+      agent = Mechanize.new
+
+      if File.exist?('cookies.yml')
+        agent.cookie_jar.load('cookies.yml')
       end
 
-      ultima_url = c.last_effective_url
+      begin
+        page = agent.get("https://www.facebook.com/#{id_app_facebook}")
+        puts "OK"
 
-      c.close
+        ultima_url = page.uri.to_s
 
-      usuario_facebook = ultima_url.split("/").last
+        usuario_facebook = ultima_url.split("/").last
+        if !usuario_facebook.starts_with?("profile.php")
+          usuario_facebook = usuario_facebook.split("?").first
+        end
 
-      if !usuario_facebook.starts_with?("profile.php")
-        usuario_facebook = usuario_facebook.split("?").first
+        if usuario_facebook == "login.php"
+          usuario_facebook = ""
+        end
+
+        return usuario_facebook
+      rescue
+        puts "Nao deu certo"
+        return ""
       end
-
-      if usuario_facebook == "login.php"
-        usuario_facebook = ""
-      end
-
-      return usuario_facebook
     end
 
 end

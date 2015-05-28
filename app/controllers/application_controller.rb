@@ -253,7 +253,7 @@ class ApplicationController < ActionController::Base
 
     if url.present?
       informacoes = tentar_pegar_informacoes_facebook(url)
-      
+
       img_grande = informacoes[:img_grande]
       nome = informacoes[:nome]
       usuario_facebook = informacoes[:usuario_facebook]
@@ -267,7 +267,7 @@ class ApplicationController < ActionController::Base
         nome = informacoes[:nome]
         usuario_facebook = informacoes[:usuario_facebook]
       end
-
+      
       # Se ainda não conseguir, salvar o problema no banco de dados
       if img_grande == "" && nome == "" && usuario_facebook == ""
         Problema.new(problema: "Não conseguiu pegar informações de Facebook pela URL: #{url}").save
@@ -284,58 +284,58 @@ class ApplicationController < ActionController::Base
   def tentar_pegar_informacoes_facebook(url)
     puts "-------- tentando pegar informaçoes do facebook ----------"
 
-    c = Curl::Easy.http_get(url) do |curl| 
-      curl.follow_location = true
-      curl.enable_cookies = true
-      curl.cookiefile = "cookie.txt"
-      curl.cookiejar = "cookie.txt"
-    
-      curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-      curl.headers["Referer"] = 'http://www.facebook.com'
-      curl.verbose = true
+    agent = Mechanize.new
+
+    if File.exist?('cookies.yml')
+      agent.cookie_jar.load('cookies.yml')
     end
 
-    conteudo_pagina = c.body_str.force_encoding('UTF-8')
+    begin
+      page = agent.get(url)
+      puts "OK"
 
-    img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
-    nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
+      conteudo_pagina = page.body.force_encoding('UTF-8')
 
-    ultima_url = c.last_effective_url
+      img_grande = pegar_imagem_pela_classe('profilePic img', conteudo_pagina)
+      nome = pegar_elemento_pelo_id('fb-timeline-cover-name', conteudo_pagina)
 
-    c.close
+      ultima_url = page.uri.to_s
 
-    usuario_facebook = ultima_url.split("/").last
-    if !usuario_facebook.starts_with?("profile.php")
-      usuario_facebook = usuario_facebook.split("?").first
+      usuario_facebook = ultima_url.split("/").last
+      if !usuario_facebook.starts_with?("profile.php")
+        usuario_facebook = usuario_facebook.split("?").first
+      end
+
+      return {
+        img_grande: img_grande, 
+        nome: nome,
+        usuario_facebook: usuario_facebook
+      }
+    rescue
+      puts "Nao deu certo"
+      return {
+        img_grande: "", 
+        nome: "",
+        usuario_facebook: ""
+      }
     end
-
-    return {
-      img_grande: img_grande, 
-      nome: nome,
-      usuario_facebook: usuario_facebook
-    }
   end
 
   def login_facebook
-    File.truncate('cookie.txt', 0)
-
     puts "-------- tentando fazer login ----------"
 
-    c = Curl::Easy.http_post("https://www.facebook.com/login.php?login_attempt=1", 
-      Curl::PostField.content('email', APP_CONFIG['usuario_facebook_request']), 
-      Curl::PostField.content('pass', APP_CONFIG['senha_facebook_request'])) do |curl| 
+    agent = Mechanize.new
 
-      curl.follow_location = true
-      curl.enable_cookies = true
-      curl.cookiefile = "cookie.txt"
-      curl.cookiejar = "cookie.txt"
-    
-      curl.headers["User-Agent"] = request.env['HTTP_USER_AGENT']
-      curl.headers["Referer"] = 'http://www.facebook.com'
-      curl.verbose = true
-    end
+    page = agent.get('https://facebook.com')
+    fb_form = page.forms[0]  # select 1st form
+    fb_form.email = APP_CONFIG['usuario_facebook_request']  # fill in email
+    fb_form.pass = APP_CONFIG['senha_facebook_request']  # fill password
+    fb_form.checkbox_with(:id => 'persist_box').check
+    page = agent.submit(fb_form, fb_form.buttons[0])
 
-    c.close
+    puts "OK"
+
+    agent.cookie_jar.save_as('cookies.yml')
   end
 
   private 
