@@ -28,7 +28,7 @@ class HomepageController < ApplicationController
   end
 
   def imprimircookie
-    File.truncate('cookie.txt', 0)
+    # File.truncate('cookie.txt', 0)
     
     @cookie = IO.read "cookie.txt"
   end
