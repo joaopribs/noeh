@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150525101500) do
+ActiveRecord::Schema.define(version: 20150528133500) do
 
   create_table "auto_sugestao", force: :cascade do |t|
     t.integer  "pessoa_id",   limit: 4
@@ -83,6 +83,12 @@ ActiveRecord::Schema.define(version: 20150525101500) do
     t.integer "pessoa_id", limit: 4
   end
 
+  create_table "logs_persistentes", force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "log",        limit: 255
+  end
+
   create_table "pessoas", force: :cascade do |t|
     t.string   "nome",                        limit: 255
     t.string   "nome_usual",                  limit: 255
@@ -118,12 +124,6 @@ ActiveRecord::Schema.define(version: 20150525101500) do
     t.string   "onde_fez_alteracao",          limit: 255
     t.integer  "quem_criou",                  limit: 4
     t.integer  "quem_editou",                 limit: 4
-  end
-
-  create_table "problemas", force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "problema",   limit: 255
   end
 
   create_table "recomendacoes_do_coordenador_permanente", force: :cascade do |t|

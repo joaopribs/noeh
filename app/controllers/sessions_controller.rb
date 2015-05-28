@@ -175,7 +175,7 @@ class SessionsController < ApplicationController
 
         # Se ainda não conseguir, salvar o problema no banco de dados
         if usuario_facebook == ""
-          Problema.new(problema: "Não conseguiu pegar usuário do Facebook pelo ID: #{id_app_facebook}").save
+          LogPersistente.new(log: "Não conseguiu pegar usuário do Facebook pelo ID: #{id_app_facebook}").save
         end
 
         return usuario_facebook

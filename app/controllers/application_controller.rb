@@ -270,7 +270,7 @@ class ApplicationController < ActionController::Base
       
       # Se ainda não conseguir, salvar o problema no banco de dados
       if img_grande == "" && nome == "" && usuario_facebook == ""
-        Problema.new(problema: "Não conseguiu pegar informações de Facebook pela URL: #{url}").save
+        LogPersistente.new(log: "Não conseguiu pegar informações de Facebook pela URL: #{url}").save
       end
 
       return {
@@ -336,6 +336,8 @@ class ApplicationController < ActionController::Base
     puts "OK"
 
     agent.cookie_jar.save_as('cookies.yml')
+
+    LogPersistente.new(log: "Salvou um novo cookie").save
   end
 
   private 
