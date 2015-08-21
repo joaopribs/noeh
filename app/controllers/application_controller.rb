@@ -260,12 +260,15 @@ class ApplicationController < ActionController::Base
 
       # Se não conseguir, fazer login e tentar de novo
       if img_grande == "" && nome == ""
-        login_facebook
-        informacoes = tentar_pegar_informacoes_facebook(url)
+        conseguiu_fazer_login = login_facebook
 
-        img_grande = informacoes[:img_grande]
-        nome = informacoes[:nome]
-        usuario_facebook = informacoes[:usuario_facebook]
+        if conseguiu_fazer_login
+          informacoes = tentar_pegar_informacoes_facebook(url)
+
+          img_grande = informacoes[:img_grande]
+          nome = informacoes[:nome]
+          usuario_facebook = informacoes[:usuario_facebook]
+        end
       end
       
       # Se ainda não conseguir, salvar o problema no banco de dados
@@ -292,7 +295,6 @@ class ApplicationController < ActionController::Base
 
     begin
       page = agent.get(url)
-      puts "OK"
 
       conteudo_pagina = page.body.force_encoding('UTF-8')
 
@@ -305,6 +307,12 @@ class ApplicationController < ActionController::Base
       if !usuario_facebook.starts_with?("profile.php")
         usuario_facebook = usuario_facebook.split("?").first
       end
+
+      if img_grande == ""
+        raise 
+      end
+
+      puts "OK"
 
       return {
         img_grande: img_grande, 
@@ -325,19 +333,35 @@ class ApplicationController < ActionController::Base
     puts "-------- tentando fazer login ----------"
 
     agent = Mechanize.new
+    agent.redirect_ok = :all
+    agent.follow_meta_refresh = :anywhere
 
     page = agent.get('https://facebook.com')
+
     fb_form = page.forms[0]  # select 1st form
     fb_form.email = APP_CONFIG['usuario_facebook_request']  # fill in email
     fb_form.pass = APP_CONFIG['senha_facebook_request']  # fill password
     fb_form.checkbox_with(:id => 'persist_box').check
+
     page = agent.submit(fb_form, fb_form.buttons[0])
 
-    puts "OK"
+    if page.uri.to_s.include? "login"
+      conseguiu = false
+      puts "Nao conseguiu"
+      LogPersistente.new(log: "Não conseguiu fazer login").save
+    else
+      conseguiu = true
+    end
 
-    agent.cookie_jar.save_as('cookies.yml')
+    if conseguiu
+      puts "OK"
 
-    LogPersistente.new(log: "Salvou um novo cookie").save
+      agent.cookie_jar.save_as('cookies.yml')
+
+      LogPersistente.new(log: "Salvou um novo cookie").save
+    end
+    
+    return conseguiu
   end
 
   private 
