@@ -154,6 +154,7 @@ GEM
     rdoc (4.2.0)
       json (~> 1.4)
     remotipart (1.2.1)
+    rmagick (2.15.4)
     sass (3.2.19)
     sass-rails (4.0.5)
       railties (>= 4.0.0, < 5.0)
@@ -203,6 +204,7 @@ DEPENDENCIES
   rails (= 4.2.0)
   rails_12factor
   remotipart (~> 1.2)
+  rmagick
   sass-rails (~> 4.0.2)
   sdoc
   uglifier (>= 1.3.0)

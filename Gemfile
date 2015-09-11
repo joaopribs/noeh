@@ -45,4 +45,4 @@ gem 'curb'
 
 gem "mechanize"
 
-gem "rmagick", :require => 'RMagick'
+gem "rmagick"
