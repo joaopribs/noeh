@@ -1,0 +1,8 @@
+$("#dialog_conteudo").html("Erro ao enviar foto. Tente novamente.<p/>");
+$("#dialog_conteudo").append("<a href='#' class='dialog_link_confirmar'>OK</a>");
+$("#dialog").show();
+
+$(".dialog_link_confirmar").on("click", function (evento) {
+    evento.preventDefault();
+    esconderDialog();
+});

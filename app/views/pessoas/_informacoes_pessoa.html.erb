@@ -21,7 +21,12 @@
 <table class="informacoes_pessoa <%= "conjuge_50_50" if tem_conjuge && !tem_auto_sugestoes %>">
   <tr>
     <td>
-        <img src="<%= pessoa.url_imagem(200) %>" class="imagem_facebook_detalhe"/>
+        <img src="<%= pessoa.url_imagem(200) %>" class="foto"/>
+
+        <% pessoa.fotos.where.not(id: pessoa.foto_perfil_id).each do |foto| %>
+          <br/>
+          <%= image_tag foto.foto.url, class: 'foto' %>
+        <% end %>
     </td>
     <td>
         <b>Nome completo:</b> <%= pessoa.nome %><br/>

@@ -1,0 +1,23 @@
+<% if pessoa_id.present? %>
+	<%= form_tag(pessoa_upload_foto_url(pessoa_id: pessoa_id), :html => { :multipart => true }, :remote => true) do %>
+		Selecione uma foto para enviar <p/>
+		<input type="hidden" name="tipo_pessoa" value="<%= tipo_pessoa %>" />
+
+		<img src="" id="preview_foto" style="max-width: 600px; max-height: 600px;" />
+
+		<p/>
+
+		<%= file_field_tag :foto, id: "foto_#{tipo_pessoa}" %>
+
+		<% for attribute in [:crop_x, :crop_y, :crop_w, :crop_h] %>
+	    <input type="hidden" id="<%= attribute %>" name="<%= attribute %>" value="" />
+	  <% end %>
+
+	  <a href="#" id="link_upload_foto_<%= tipo_pessoa %>" class="dialog_link_confirmar" style="position: relative; display: none;">
+			<span class="img_spinner" style="display: none;"></span>
+			<span class="texto">Enviar</span>
+		</a>
+		<a href="#" class="dialog_link_cancelar">Cancelar</a>
+
+	<% end %>
+<% end %>

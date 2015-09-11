@@ -26,14 +26,14 @@
        });
 
        function executar(atualizarBotao, nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                         idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
+                         idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge) {
            if (atualizarBotao) {
                atualizarBotaoFacebook(nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                       idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                       idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge);
            }
            else {
-               fazerLoginNoSistema(idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                       idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+               fazerLoginNoSistema(idAppFacebook, nascimento, ehHomem, urlFotoGrande, urlFacebook, casado,
+                       idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge);
            }
        }
 
@@ -52,7 +52,6 @@
                var ehHomemConjuge = null;
                var urlFacebookConjuge = null;
                var urlFotoGrandeConjuge = null;
-               var urlFotoPequenaConjuge = null;
 
                var casado = false;
                if (response.relationship_status == 'Married') {
@@ -67,14 +66,14 @@
 
                    if (!casado) {
                      executar(atualizarBotao, nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                             idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                             idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge);
                    }
                  });
                }
                else {
                  if (!casado) {
                    executar(atualizarBotao, nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                           idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                           idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge);
                  }
                }
 
@@ -89,32 +88,30 @@
                      urlFacebookConjuge = response.link;
 
                      if (!response.picture.data.is_silhouette) {
-                       urlFotoPequenaConjuge = response.picture.data.url;
-
                        FB.api('/' + idConjuge + '/picture?redirect=0&height=200&type=normal&width=200', function (response) {
                          urlFotoGrandeConjuge = response.data.url;
                          executar(atualizarBotao, nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                                 idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                                 idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge);
                        });
                      }
 
                      else {
                        executar(atualizarBotao, nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                               idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                               idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge);
                      }
                    });
                  }
                  else {
                    executar(atualizarBotao, nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                           idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+                           idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge);
                  }
                }
 
            });
        }
 
-        function fazerLoginNoSistema(idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                                     idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
+        function fazerLoginNoSistema(idAppFacebook, nascimento, ehHomem, urlFotoGrande, urlFacebook, casado,
+                                     idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge) {
             $("#msg_principal #texto").html("Checando login no noeh...");
             $(".img_spinner").show();
 
@@ -128,7 +125,6 @@
                         "id_app_facebook": idAppFacebook,
                         "nascimento": nascimento,
                         "eh_homem": ehHomem,
-                        "url_foto_pequena": urlFotoPequena,
                         "url_foto_grande": urlFotoGrande,
                         "url_facebook": urlFacebook,
                         "casado": casado,
@@ -136,8 +132,7 @@
                         "nascimento_conjuge": nascimentoConjuge,
                         "eh_homem_conjuge": ehHomemConjuge,
                         "url_facebook_conjuge": urlFacebookConjuge,
-                        "url_foto_grande_conjuge": urlFotoGrandeConjuge,
-                        "url_foto_pequena_conjuge": urlFotoPequenaConjuge
+                        "url_foto_grande_conjuge": urlFotoGrandeConjuge
                     },
                     function (resposta) {
                         if (resposta == "ok") {
@@ -163,7 +158,7 @@
        }
 
        function atualizarBotaoFacebook(nome, idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                                       idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge) {
+                                       idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge) {
            $("#msg_principal #texto").html("Entrar como<br/><b>" + nome + "</b>");
            $(".img_spinner").hide();
 
@@ -175,8 +170,8 @@
            $("#link_fb").off("click");
            $("#link_fb").on("click", function (e) {
                e.preventDefault();
-               fazerLoginNoSistema(idAppFacebook, nascimento, ehHomem, urlFotoPequena, urlFotoGrande, urlFacebook, casado,
-                       idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge, urlFotoPequenaConjuge);
+               fazerLoginNoSistema(idAppFacebook, nascimento, ehHomem, urlFotoGrande, urlFacebook, casado,
+                       idAppFacebookConjuge, nascimentoConjuge, ehHomemConjuge, urlFacebookConjuge, urlFotoGrandeConjuge);
            });
        }
 

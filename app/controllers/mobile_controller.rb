@@ -92,7 +92,6 @@ class MobileController < ApplicationController
       @pessoa.id_app_facebook = session[:id_app_facebook]
       @pessoa.url_facebook = session[:url_facebook]
       @pessoa.url_imagem_facebook = session[:url_foto_grande]
-      @pessoa.url_imagem_facebook_pequena = session[:url_foto_grande_pequena]
 
       @conjuge_ja_cadastrado = false
 
@@ -108,7 +107,6 @@ class MobileController < ApplicationController
           @conjuge.id_app_facebook = session[:id_app_facebook_conjuge]
           @conjuge.url_facebook = session[:url_facebook_conjuge]
           @conjuge.url_imagem_facebook = session[:url_foto_grande_conjuge]
-          @conjuge.url_imagem_facebook_pequena = session[:url_foto_grande_pequena_conjuge]
         end
 
         @pessoa.conjuge = @conjuge

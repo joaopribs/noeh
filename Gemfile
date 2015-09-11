@@ -44,3 +44,5 @@ gem "byebug", group: :development
 gem 'curb'
 
 gem "mechanize"
+
+gem "rmagick", :require => 'RMagick'

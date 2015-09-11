@@ -24,10 +24,12 @@ class Pessoa < ActiveRecord::Base
   has_many :instrumentos, dependent: :destroy
   has_many :auto_sugestoes, class_name: 'AutoSugestao', dependent: :destroy
   has_many :recomendacoes_equipes, -> {order(:posicao)}, class_name: 'RecomendacaoEquipe', dependent: :destroy
+  has_many :fotos, dependent: :destroy
 
   has_one :recomendacao_do_coordenador_permanente, dependent: :destroy
 
   belongs_to :conjuge, class_name: 'Pessoa', foreign_key: :conjuge_id, dependent: :destroy
+  belongs_to :foto_perfil, class_name: 'Foto', foreign_key: :foto_perfil_id
 
   validates :nome, :presence => {:message => "Obrigatório"}
   validates :nome_usual, :presence => {:message => "Obrigatório"}
@@ -38,27 +40,6 @@ class Pessoa < ActiveRecord::Base
   validate :validate_facebook
   validate :validate_email
   validate :validate_cep
-
-  has_attached_file :foto_grande,
-    :default_url => "",
-    :storage => :dropbox, 
-    :dropbox_credentials => Rails.root.join("config/dropbox_publico.yml"),
-    :dropbox_visibility => 'public',
-    :path => "foto_grande/:filename"
-
-  has_attached_file :foto_pequena,
-    :default_url => "",
-    :storage => :dropbox, 
-    :dropbox_credentials => Rails.root.join("config/dropbox_publico.yml"),
-    :dropbox_visibility => 'public',
-    :path => "foto_pequena/:filename"
-
-  validates_attachment_content_type :foto_grande, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
-  validates_attachment_content_type :foto_pequena, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif"]
-
-  # def conjuge
-  #   Pessoa.unscoped{ super }
-  # end
 
   def permissoes
     @permissoes = Permissoes.new(self)
@@ -103,11 +84,11 @@ class Pessoa < ActiveRecord::Base
   end
 
   def url_imagem tamanho
-    if self.foto_pequena.present? || self.foto_grande.present?
+    if self.foto_perfil.present?
       if tamanho < 80
-        url = self.foto_pequena.present? ? self.foto_pequena.url : self.foto_grande.url
+        url = self.foto_perfil.foto.url(:thumb)
       else
-        url = self.foto_grande.present? ? self.foto_grande.url : self.foto_pequena.url
+        url = self.foto_perfil.foto.url
       end
     else
       url = Pessoa.url_imagem_sem_imagem tamanho

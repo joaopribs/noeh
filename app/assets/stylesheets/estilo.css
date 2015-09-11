@@ -126,6 +126,10 @@ form.espaco_embaixo {
     color: #ccc;
 }
 
+.helper2 {
+    color: #aaa;
+}
+
 .helper_participacao {
     color: #aaa;
 }
@@ -351,6 +355,17 @@ a.link_carregando:hover {
     padding: 0 !important;
 }
 
+a.link_foto_principal {
+    color: #008d14;
+    padding-left: 20px;
+    background: url(foto_principal.png) no-repeat;
+    background-position: left center;
+}
+
+a.link_foto_principal:hover {
+    color: #48e05e;
+}
+
 /* Tipos de arquivo
 ------------------------------------------------------------------------------*/
 
@@ -482,6 +497,12 @@ a.arquivo_pdf:hover {
 /* Formulário de pessoa
 ------------------------------------------------------------------------------*/
 
+.imagem_facebook_form {
+    clear: both;
+    display: block;
+    width: 80px;
+}
+
 .campo_solteiro_ou_casado {
     clear: both;
     display: block;
@@ -508,14 +529,14 @@ a.arquivo_pdf:hover {
 .imagem_pessoa_form {
     vertical-align: top;
     margin-right: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     width: 120px;
 }
 
 .imagem_form {
     vertical-align: top;
     margin-right: 20px;
-    text-align: center;
+    text-align: left;
     margin-bottom: 20px;
     white-space: nowrap;
 }
@@ -848,7 +869,7 @@ table.informacoes_pessoa_lista td:first-of-type {
     float: left;
 }
 
-.informacoes_pessoa img.imagem_facebook_detalhe {
+.informacoes_pessoa img.foto {
     width: 200px;
     margin: 0;
 }

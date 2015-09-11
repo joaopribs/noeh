@@ -13,14 +13,13 @@ class SessionsController < ApplicationController
     nascimento = params[:nascimento]
     eh_homem = params[:eh_homem] == "true"
     url_foto_grande = params[:url_foto_grande]
-    url_foto_pequena = params[:url_foto_pequena]
     url_facebook = params[:url_facebook]
     casado = params[:casado] == "true"
 
     usuario = pegar_usuario(params)
 
     if usuario.present?
-      if nascimento.present? || url_foto_grande.present? || url_foto_pequena.present? || id_app_facebook.present?
+      if nascimento.present? || url_foto_grande.present? || id_app_facebook.present?
         if nascimento.present? && usuario.nascimento.blank?
           elementos = nascimento.split('/')
           mes = elementos[0]
@@ -34,19 +33,23 @@ class SessionsController < ApplicationController
 
         if url_foto_grande.present?
           nome_do_arquivo = URI::split(url_foto_grande)[5].split("/").last
-          if usuario.foto_grande_file_name != nome_do_arquivo
-            usuario.foto_grande = open(url_foto_grande)
-            usuario.foto_grande_file_name = nome_do_arquivo
-            usuario.url_imagem_facebook = url_foto_grande
+          ja_tem_essa_foto = false
+          usuario.fotos.each do |foto|
+            if foto.foto.file_name == nome_do_arquivo
+              ja_tem_essa_foto = true
+              break
+            end
           end
-        end
 
-        if url_foto_pequena.present?
-          nome_do_arquivo = URI::split(url_foto_pequena)[5].split("/").last
-          if usuario.foto_pequena_file_name != nome_do_arquivo
-            usuario.foto_pequena = open(url_foto_pequena)
-            usuario.foto_pequena_file_name = nome_do_arquivo
-            usuario.url_imagem_facebook_pequena = url_foto_pequena
+          if !ja_tem_essa_foto
+            foto = Foto.new
+            foto.foto = open(url_foto_grande)
+            foto.foto_file_name = nome_do_arquivo
+            if usuario.foto_perfil.blank?
+              usuario.foto_perfil = foto
+            end
+            usuario.fotos << foto
+            usuario.url_imagem_facebook = url_foto_grande
           end
         end
 
@@ -67,7 +70,6 @@ class SessionsController < ApplicationController
       session[:nascimento] = nascimento
       session[:eh_homem] = eh_homem
       session[:url_foto_grande] = url_foto_grande
-      session[:url_foto_pequena] = url_foto_pequena
       session[:url_facebook] = url_facebook
       session[:casado] = casado
 
@@ -76,7 +78,6 @@ class SessionsController < ApplicationController
         nascimento_conjuge = params[:nascimento_conjuge]
         eh_homem_conjuge = params[:eh_homem_conjuge] == "true"
         url_foto_grande_conjuge = params[:url_foto_grande_conjuge]
-        url_foto_pequena_conjuge = params[:url_foto_pequena_conjuge]
         url_facebook_conjuge = params[:url_facebook_conjuge]
 
         usuario_conjuge = pegar_usuario(
@@ -92,7 +93,6 @@ class SessionsController < ApplicationController
           session[:nascimento_conjuge] = params[:nascimento_conjuge]
           session[:eh_homem_conjuge] = params[:eh_homem_conjuge]
           session[:url_foto_grande_conjuge] = params[:url_foto_grande_conjuge]
-          session[:url_foto_pequena_conjuge] = params[:url_foto_pequena_conjuge]
           session[:url_facebook_conjuge] = params[:url_facebook_conjuge]
         end
 

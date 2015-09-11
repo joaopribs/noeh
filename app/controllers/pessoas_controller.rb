@@ -1,5 +1,6 @@
 #encoding: utf-8
 require "open-uri"
+require "rmagick"
 
 class PessoasController < ApplicationController
   skip_before_filter :precisa_estar_logado, :only => [:cadastrar_novo, :create, :cadastrar_novo_confirmacao, :cadastrar_novo_confirmacao_mobile]
@@ -346,7 +347,6 @@ class PessoasController < ApplicationController
     @pessoa.id_app_facebook = session[:id_app_facebook]
     @pessoa.url_facebook = session[:url_facebook]
     @pessoa.url_imagem_facebook = session[:url_foto_grande]
-    @pessoa.url_imagem_facebook_pequena = session[:url_foto_grande_pequena]
 
     if session[:casado]
       @eh_casal = true
@@ -362,7 +362,6 @@ class PessoasController < ApplicationController
         @conjuge.id_app_facebook = session[:id_app_facebook_conjuge]
         @conjuge.url_facebook = session[:url_facebook_conjuge]
         @conjuge.url_imagem_facebook = session[:url_foto_grande_conjuge]
-        @conjuge.url_imagem_facebook_pequena = session[:url_foto_grande_pequena_conjuge]
       end
 
       @pessoa.conjuge = @conjuge
@@ -439,12 +438,9 @@ class PessoasController < ApplicationController
       if pessoa.conjuge.present?
         conjuge = pessoa.conjuge.attributes
 
-        if pessoa.conjuge.foto_grande.present?
-          conjuge = conjuge.merge({url_foto_grande: pessoa.conjuge.foto_grande.url})
-        end
-
-        if pessoa.conjuge.foto_pequena.present?
-          conjuge = conjuge.merge({url_foto_pequena: pessoa.conjuge.foto_pequena.url})
+        if pessoa.conjuge.foto_perfil.present?
+          conjuge = conjuge.merge({url_foto_grande: pessoa.conjuge.foto_perfil.foto.url})
+          conjuge = conjuge.merge({url_foto_pequena: pessoa.conjuge.foto_perfil.foto.url(:thumb)})
         end
       else
         conjuge = nil
@@ -452,12 +448,9 @@ class PessoasController < ApplicationController
 
       pessoa_hash = pessoa.attributes
 
-      if pessoa.foto_grande.present?
-        pessoa_hash = pessoa_hash.merge({url_foto_grande: pessoa.foto_grande.url})
-      end
-
-      if pessoa.foto_pequena.present?
-        pessoa_hash = pessoa_hash.merge({url_foto_pequena: pessoa.foto_pequena.url})
+      if pessoa.foto_perfil.present?
+        pessoa_hash = pessoa_hash.merge({url_foto_grande: pessoa.foto_perfil.foto.url})
+        pessoa_hash = pessoa_hash.merge({url_foto_pequena: pessoa.foto_perfil.foto.url(:thumb)})
       end
 
       if params.has_key? :id_conjunto
@@ -745,6 +738,136 @@ class PessoasController < ApplicationController
 
   end
 
+  def fotos
+    @tipo_pessoa = params[:tipo_pessoa]
+    @refresh = params[:refresh] == "1"
+
+    if params[:id].blank?
+      render :nothing
+    end
+
+    precisa_poder_editar_pessoa @pessoa
+    return if performed?
+
+    @fotos = []
+    foto_perfil_id = nil
+
+    foto_perfil = @pessoa.foto_perfil
+
+    if foto_perfil.present?
+      foto_perfil_id = foto_perfil.id
+      @fotos << foto_perfil
+    end
+
+    @pessoa.fotos.where.not(id: foto_perfil_id).each do |foto|
+      @fotos << foto
+    end
+
+    render layout: false
+  end
+
+  def deletar_foto
+    precisa_poder_editar_pessoa @pessoa
+    return if performed?
+
+    if params[:foto_id]
+      foto = Foto.find(params[:foto_id])
+      if foto.nil?
+        render text: "nao achou"
+      else
+        foto.destroy
+        render text: "ok"
+      end
+    end
+  end
+
+  def setar_foto_principal
+    precisa_poder_editar_pessoa @pessoa
+    return if performed?
+
+    if params[:foto_id]
+      foto = Foto.find(params[:foto_id])
+      if foto.nil?
+        render text: "nao achou"
+      else
+        @pessoa.foto_perfil = foto
+        @pessoa.save
+        render text: "ok"
+      end
+    end
+  end
+
+  def upload_foto
+    @tipo_pessoa = params[:tipo_pessoa]
+
+    precisa_poder_editar_pessoa @pessoa
+    return if performed?
+
+    begin
+      [:crop_w, :crop_h].each do |atributo|
+        if params[atributo].blank? || params[atributo].to_i == 0
+          raise
+        end
+      end
+
+      imagem = Magick::Image.read(params[:foto].tempfile.path).first
+      imagem.resize_to_fit!(600)
+      imagem.crop!(params[:crop_x].to_i, params[:crop_y].to_i, params[:crop_w].to_i, params[:crop_h].to_i)
+      imagem.resize_to_fit!(200)
+      imagem.write(params[:foto].original_filename)
+
+      arquivo_redimensionado = File.open(imagem.filename)
+
+      foto = Foto.new
+      foto.foto = arquivo_redimensionado
+
+      arquivo_redimensionado.close
+
+      conseguiu = false
+      tentativa = 0
+
+      while tentativa < 3 and !conseguiu do
+        begin
+          @pessoa.fotos << foto
+          if @pessoa.foto_perfil.blank?
+            @pessoa.foto_perfil = foto
+          end
+          conseguiu = true
+        rescue
+          tentativa += 1
+        end
+      end
+
+      if !conseguiu
+        raise
+      end
+
+      # As vezes ele consegue, mas a imagem tem zero bytes
+      # Tentar pegar a imagem e vendo se tem zero. Se tiver, tenta mais uma vez
+
+      arquivo_online = open(foto.foto.url)
+
+      if arquivo_online.size == 0
+        @pessoa.fotos << foto
+        if @pessoa.foto_perfil.blank?
+          @pessoa.foto_perfil = foto
+        end
+      end
+
+      arquivo_online.close
+
+      respond_to do |format|
+        if @pessoa.save
+          format.js { render 'upload_foto.js.erb' }
+        end
+      end
+    rescue
+      respond_to do |format|
+        format.js { render 'upload_foto_erro.js.erb' }
+      end
+    end
+  end
+
   private
 
     def salvar_relacoes_ao_confirmar_auto_sugestao pessoa, grupo, conjunto, texto_sugestao, eh_coordenador
@@ -775,6 +898,10 @@ class PessoasController < ApplicationController
     end
 
     def set_entidades
+      if params[:pessoa_id]
+        params[:id] = params[:pessoa_id]
+      end
+
       if params[:id]
         begin
           @pessoa = Pessoa.unscoped.find(params[:id])
@@ -926,28 +1053,23 @@ class PessoasController < ApplicationController
     def atualizar_fotos(pessoa)
       if pessoa.url_imagem_facebook.present?
         nome_do_arquivo = URI::split(pessoa.url_imagem_facebook)[5].split("/").last
-        if pessoa.foto_grande_file_name != nome_do_arquivo
-          begin
-            pessoa.foto_grande = open(pessoa.url_imagem_facebook)
-          rescue
+        ja_tem_essa_foto = false
+        pessoa.fotos.each do |foto|
+          if foto.foto_file_name == nome_do_arquivo
+            ja_tem_essa_foto = true
+            break
           end
-          pessoa.foto_grande_file_name = nome_do_arquivo
         end
-      else
-        pessoa.foto_grande.clear
-      end
 
-      if pessoa.url_imagem_facebook_pequena.present?
-        nome_do_arquivo = URI::split(pessoa.url_imagem_facebook_pequena)[5].split("/").last
-        if pessoa.foto_pequena_file_name != nome_do_arquivo
-          begin
-            pessoa.foto_pequena = open(pessoa.url_imagem_facebook_pequena)
-          rescue
+        if !ja_tem_essa_foto
+          foto = Foto.new
+          foto.foto = open(pessoa.url_imagem_facebook)
+          foto.foto_file_name = nome_do_arquivo
+          if pessoa.foto_perfil.blank?
+            pessoa.foto_perfil = foto
           end
-          pessoa.foto_pequena_file_name = nome_do_arquivo
+          pessoa.fotos << foto
         end
-      else
-        pessoa.foto_pequena.clear
       end
 
       return pessoa
@@ -957,9 +1079,6 @@ class PessoasController < ApplicationController
       if tinha_antes && (pessoa.tem_facebook.nil? || pessoa.tem_facebook == "off")
         pessoa.url_facebook = nil
         pessoa.url_imagem_facebook = nil
-        pessoa.url_imagem_facebook_pequena = nil
-        pessoa.foto_grande = nil
-        pessoa.foto_pequena = nil
       end
 
       return pessoa
@@ -971,9 +1090,6 @@ class PessoasController < ApplicationController
         informacoes = pegar_informacoes_facebook(params[:url_facebook_pessoa])
         if informacoes[:imagem_grande].present?
           params[:url_imagem_facebook_pessoa] = informacoes[:imagem_grande]
-        end
-        if informacoes[:imagem_pequena].present?
-          params[:url_imagem_facebook_pequena_pessoa] = informacoes[:imagem_pequena]
         end
         if informacoes[:usuario].present?
           params[:usuario_facebook_pessoa] = informacoes[:usuario]
@@ -1001,7 +1117,6 @@ class PessoasController < ApplicationController
                                               id_app_facebook: params[:id_app_facebook_pessoa],
                                               url_facebook: params[:url_facebook_pessoa].strip,
                                               url_imagem_facebook: params[:url_imagem_facebook_pessoa],
-                                              url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_pessoa],
                                               telefones: telefones,
                                               instrumentos: instrumentos, 
                                               onde_fez_alteracao: params[:onde_fez_alteracao]})
@@ -1015,9 +1130,6 @@ class PessoasController < ApplicationController
         informacoes = pegar_informacoes_facebook(params[:url_facebook_conjuge])
         if informacoes[:imagem_grande].present?
           params[:url_imagem_facebook_conjuge] = informacoes[:imagem_grande]
-        end
-        if informacoes[:imagem_pequena].present?
-          params[:url_imagem_facebook_pequena_conjuge] = informacoes[:imagem_pequena]
         end
         if informacoes[:usuario].present?
           params[:usuario_facebook_conjuge] = informacoes[:usuario]
@@ -1039,7 +1151,6 @@ class PessoasController < ApplicationController
                                               id_app_facebook: params[:id_app_facebook_conjuge],
                                               url_facebook: params[:url_facebook_conjuge].strip,
                                               url_imagem_facebook: params[:url_imagem_facebook_conjuge],
-                                              url_imagem_facebook_pequena: params[:url_imagem_facebook_pequena_conjuge],
                                               telefones: telefones,
                                               instrumentos: instrumentos, 
                                               onde_fez_alteracao: params[:onde_fez_alteracao])

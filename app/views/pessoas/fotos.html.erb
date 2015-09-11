@@ -1,0 +1,35 @@
+<% @fotos.each_with_index do |foto, indice| %>
+
+	<% 
+		url_foto = foto.foto.url
+		if @refresh
+			url_foto = "#{url_foto}?time=#{Time.now.to_i}"
+		end	
+	%>
+
+	<%= image_tag url_foto, class: 'imagem_pessoa_form' %><br/>
+	<% if indice == 0 %>
+		Foto principal
+	<% else %>
+		<span class="area_embaixo_da_foto">
+			<span class="links_manipular_foto">
+				<a href="#" class="link_foto_principal setar_foto_principal_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Usar como principal</a><br/>
+				<a href="#" class="link_remover remover_foto_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Remover</a><br/>
+			</span>
+			<span class="carregando_manipular_foto" style="display: none;">Carregando...</span>
+		</span>
+	<% end %>
+
+	<p/>
+
+<% end %>
+
+<% if @fotos.count == 0 %>
+
+	<a href="#" id="link_enviar_foto_<%= @tipo_pessoa %>" class="link_upload">Enviar uma foto</a>
+
+<% elsif @fotos.count < 3 %>
+
+	<a href="#" id="link_enviar_foto_<%= @tipo_pessoa %>" class="link_upload">Enviar outra foto</a>
+
+<% end %>

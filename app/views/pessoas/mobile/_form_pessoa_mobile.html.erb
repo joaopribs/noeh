@@ -53,7 +53,6 @@
     $('#imagem_<%= tipo_pessoa %>').attr('src', '<%= Pessoa.url_imagem_sem_imagem(120) %>');
     $('#url_facebook_<%= tipo_pessoa %>').val("");
     $('#url_imagem_facebook_<%= tipo_pessoa %>').val("");
-    $('#url_imagem_facebook_pequena_<%= tipo_pessoa %>').val("");
     $('#usuario_facebook_<%= tipo_pessoa %>').val("");
   }
 
@@ -131,7 +130,6 @@
 
     <input type="hidden" name="usuario_facebook_<%= tipo_pessoa %>" id="usuario_facebook_<%= tipo_pessoa %>" value="<%= pessoa.usuario_facebook %>" />
     <input type="hidden" name="id_app_facebook_<%= tipo_pessoa %>" value="<%= pessoa.id_app_facebook %>" />
-    <input type="hidden" name="url_imagem_facebook_pequena_<%= tipo_pessoa %>" id="url_imagem_facebook_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook_pequena %>" />
     <input type="hidden" name="url_imagem_facebook_<%= tipo_pessoa %>" id="url_imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook %>" />
   </div>
 <% else %>
@@ -139,7 +137,6 @@
   <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
   <input type="hidden" name="usuario_facebook_<%= tipo_pessoa %>" value="<%= pessoa.usuario_facebook %>" />
   <input type="hidden" name="id_app_facebook_<%= tipo_pessoa %>" value="<%= pessoa.id_app_facebook %>" />
-  <input type="hidden" name="url_imagem_facebook_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook_pequena %>" />
   <input type="hidden" name="url_imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook %>" />
 <% end %>
 

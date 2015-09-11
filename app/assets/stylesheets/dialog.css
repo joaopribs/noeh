@@ -12,6 +12,10 @@
     display: none;
 }
 
+#dialog.menos_espaco_em_cima {
+    padding-top: 50px;
+}
+
 #dialog #dialog_overlay {
     position: absolute;
     top: 0;

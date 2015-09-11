@@ -7,7 +7,11 @@
 %>
 
 <script>
+    var jcrop_api = null; // Coloquei essa variavel aqui pra poder setar quando cria o jcrop, e remover depois
+
     $(function () {
+        carregarFotos<%= tipo_pessoa %>(false);
+
         $('#tem_facebook_<%= tipo_pessoa %>').on('change', function () {
             if ($(this).prop('checked')) {
                 $('#campos_de_facebook_<%= tipo_pessoa %>').show();
@@ -73,10 +77,10 @@
     });
 
     function limparInformacoesFacebook<%= tipo_pessoa %>() {
-      $('#imagem_<%= tipo_pessoa %>').attr('src', '<%= Pessoa.url_imagem_sem_imagem(120) %>');
+      $('#imagem_facebook_form_<%= tipo_pessoa %> > img').attr('src', '');
+      $('#imagem_facebook_form_<%= tipo_pessoa %>').hide();
       $('#url_facebook_<%= tipo_pessoa %>').val("");
       $('#url_imagem_facebook_<%= tipo_pessoa %>').val("");
-      $('#url_imagem_facebook_pequena_<%= tipo_pessoa %>').val("");
       $('#usuario_facebook_<%= tipo_pessoa %>').val("");
     }
 
@@ -84,7 +88,6 @@
       var url = $('#url_facebook_<%= tipo_pessoa %>').val();
 
       if (url != "") {
-        $('#imagem_<%= tipo_pessoa %>').attr('src', '<%= image_path('carregando.png') %>');
         $("#carregar_facebook_<%= tipo_pessoa %>").hide();
         $("#carregando_facebook_<%= tipo_pessoa %>").show();
 
@@ -99,12 +102,12 @@
             $("#carregando_facebook_<%= tipo_pessoa %>").hide();
 
             var imagem_grande = resposta.imagem_grande;
-            var imagem_pequena = resposta.imagem_pequena;
             var nome = resposta.nome;
             var usuario = resposta.usuario;
 
             if (imagem_grande != "") {
-              $('#imagem_<%= tipo_pessoa %>').attr('src', imagem_grande);
+              $('#imagem_facebook_form_<%= tipo_pessoa %> > img').attr('src', imagem_grande);
+              $('#imagem_facebook_form_<%= tipo_pessoa %>').show();
               $('#url_imagem_facebook_<%= tipo_pessoa %>').val(imagem_grande);
               $('#usuario_facebook_<%= tipo_pessoa %>').val(usuario);
               if ($('#nome_<%= tipo_pessoa %>').val() == "") {
@@ -154,20 +157,146 @@
             $(this).closest('.campos_instrumento').remove();
         });
     }
+
+    function carregarFotos<%= tipo_pessoa %>(refresh) {
+      var url = "/pessoas/<%= pessoa.id %>/fotos/<%= tipo_pessoa %>";
+      if (refresh) {
+        url = url + "?refresh=1";
+      }
+
+      <% if pessoa.id.present? %>
+        $('#fotos<%= tipo_pessoa %>').load(url, function () {
+          atualizarLinksPraRemoverFoto<%= tipo_pessoa %>();
+          atualizarLinksPraSetarFotoPrincipal<%= tipo_pessoa %>();
+          atualizarLinkPraUploadDeFoto<%= tipo_pessoa %>();
+        });
+      <% end %>
+    }
+
+    function atualizarLinksPraRemoverFoto<%= tipo_pessoa %>() {
+      $('.remover_foto_<%= tipo_pessoa %>').on('click', function (evento) {
+          evento.preventDefault();
+
+          $(this).closest(".links_manipular_foto").hide();
+          $(this).closest(".area_embaixo_da_foto").find(".carregando_manipular_foto").show();
+
+          var fotoId = $(this).data('foto-id');
+
+          $.post(
+                "/pessoas/<%= pessoa.id %>/deletar_foto",
+                {
+                    foto_id: fotoId
+                },
+                function (resposta) {
+                    if (resposta == "ok") {
+                        carregarFotos<%= tipo_pessoa %>(false);
+                    }
+                }
+          );
+      });
+    }
+
+    function atualizarLinksPraSetarFotoPrincipal<%= tipo_pessoa %>() {
+      $('.setar_foto_principal_<%= tipo_pessoa %>').on('click', function (evento) {
+          evento.preventDefault();
+
+          var fotoId = $(this).data('foto-id');
+
+          $.post(
+                "/pessoas/<%= pessoa.id %>/setar_foto_principal",
+                {
+                    foto_id: fotoId
+                },
+                function (resposta) {
+                    if (resposta == "ok") {
+                        carregarFotos<%= tipo_pessoa %>(false);
+                    }
+                }
+          );
+      });
+    }
+
+    function atualizarLinkPraUploadDeFoto<%= tipo_pessoa %>() {
+      $("#link_enviar_foto_<%= tipo_pessoa %>").on("click", function (e) {
+        e.preventDefault();
+
+        $("#dialog_conteudo").html('<%= raw (render 'form_foto', pessoa_id: pessoa.id, tipo_pessoa: tipo_pessoa).gsub("\n", "") %>');
+        $("#dialog").addClass("menos_espaco_em_cima");
+        $("#dialog").show();
+
+        $(".dialog_link_cancelar").on("click", function (evento) {
+            evento.preventDefault();
+            esconderDialog();
+        });
+
+        atualizarLinkPraUploadFormDeFoto<%= tipo_pessoa %>();
+      });
+    }
+
+
+
+    function atualizarLinkPraUploadFormDeFoto<%= tipo_pessoa %>() {
+      $("#foto_<%= tipo_pessoa %>").on("change", function () {
+        var file = $(this)[0].files[0];
+        var imageType = /image.*/;
+
+        if (file.type.match(imageType)) {
+          var reader = new FileReader();
+
+          reader.onload = function(e) {
+            $('#preview_foto').attr('src', reader.result).show();
+            $("#link_upload_foto_<%= tipo_pessoa %>").show();
+
+            jcrop_api = $.Jcrop('#preview_foto', {
+              onChange: atualizarCamposCrop<%= tipo_pessoa %>,
+              onSelect: atualizarCamposCrop<%= tipo_pessoa %>,
+              setSelect: [0, 0, 200, 200],
+              aspectRatio: 1, 
+              bgOpacity: 0.4
+            });
+          }
+
+          reader.readAsDataURL(file); 
+        } else {
+          alert("O arquivo escolhido não é uma imagem");
+          $(this).val("");
+          $("#link_upload_foto_<%= tipo_pessoa %>").hide();
+
+          if (jcrop_api != null) {
+              jcrop_api.destroy();
+          }
+
+          $('#preview_foto').hide();
+        }
+      });
+
+
+      $("#link_upload_foto_<%= tipo_pessoa %>").on("click", function (e) {
+        e.preventDefault();
+
+        if ($('#foto_<%= tipo_pessoa %>').val() != "") {
+          $(this).on('click', function (evento) {evento.preventDefault();});
+          $(this).addClass('dialog_link_desativado');
+          $(this).children('.texto').html('Carregando...');
+          iniciarSpinners(true, $(this).find('.img_spinner'));
+          $('.dialog_link_cancelar').hide();
+
+          $(this).closest('form').submit();  
+        }
+      });
+    }
+
+    function atualizarCamposCrop<%= tipo_pessoa %>(coordenadas) {
+      $("#crop_x").val(coordenadas.x);
+      $("#crop_y").val(coordenadas.y);
+      $("#crop_w").val(coordenadas.w);
+      $("#crop_h").val(coordenadas.h);
+    }
 </script>
 
 <table border="0" id="todos_os_campos_de_<%= tipo_pessoa %>">
   <tr>
-    <td class="imagem_form">
-      <%
-         if pessoa.url_imagem_facebook.blank?
-           imagem_pessoa = Pessoa.url_imagem_sem_imagem(120)
-         else
-           imagem_pessoa = pessoa.url_imagem_facebook
-         end
-      %>
-      <img src="<%= imagem_pessoa %>" id="imagem_<%= tipo_pessoa %>" class="imagem_pessoa_form"/>
-    </td>
+    <td class="imagem_form" id="fotos<%= tipo_pessoa %>"></td>
     <td>
       <% editar_facebook = (defined?(modo) && modo == "cadastrar_novo" && !pessoa.tem_informacoes_facebook) ||
               (defined?(@usuario_logado) && @usuario_logado.permissoes.pode_editar_facebook_de_pessoa(pessoa)) %>
@@ -196,11 +325,15 @@
             <input type="text" name="url_facebook_<%= tipo_pessoa %>" id="url_facebook_<%= tipo_pessoa %>" style="width: 500px;" value="<%= pessoa.url_facebook %>" />
             <a href="#" id="carregar_facebook_<%= tipo_pessoa %>" style="display: none;">Carregar</a>
             <span id="carregando_facebook_<%= tipo_pessoa %>" style="display: none;">Carregando...</span>
+
+            <div id="imagem_facebook_form_<%= tipo_pessoa %>" style="display: none;">
+              <img src="" class="imagem_facebook_form"/>
+              <span class="helper2">Essa imagem será adicionada</span>
+            </div>
           </div>
 
           <input type="hidden" name="usuario_facebook_<%= tipo_pessoa %>" id="usuario_facebook_<%= tipo_pessoa %>" value="<%= pessoa.usuario_facebook %>" />
           <input type="hidden" name="id_app_facebook_<%= tipo_pessoa %>" value="<%= pessoa.id_app_facebook %>" />
-          <input type="hidden" name="url_imagem_facebook_pequena_<%= tipo_pessoa %>" id="url_imagem_facebook_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook_pequena %>" />
           <input type="hidden" name="url_imagem_facebook_<%= tipo_pessoa %>" id="url_imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook %>" />
         </div>
       <% else %>
@@ -208,7 +341,6 @@
         <input type="hidden" name="url_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_facebook %>" />
         <input type="hidden" name="usuario_facebook_<%= tipo_pessoa %>" value="<%= pessoa.usuario_facebook %>" />
         <input type="hidden" name="id_app_facebook_<%= tipo_pessoa %>" value="<%= pessoa.id_app_facebook %>" />
-        <input type="hidden" name="url_imagem_facebook_pequena_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook_pequena %>" />
         <input type="hidden" name="url_imagem_facebook_<%= tipo_pessoa %>" value="<%= pessoa.url_imagem_facebook %>" />
       <% end %>
 

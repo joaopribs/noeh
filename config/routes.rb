@@ -18,7 +18,12 @@ Noeh::Application.routes.draw do
         get 'coordenadores/pessoas/:id/editar', :to => 'pessoas#edit', :as => :coordenadores_pessoa_editar
       end
     end
-    resources :pessoas
+    resources :pessoas do 
+      get 'fotos/:tipo_pessoa', :to => 'pessoas#fotos', :as => :fotos
+      post 'deletar_foto', :to => 'pessoas#deletar_foto', :as => :deletar_foto
+      post 'setar_foto_principal', :to => 'pessoas#setar_foto_principal', :as => :setar_foto_principal
+      post 'upload_foto', :to => 'pessoas#upload_foto', :as => :upload_foto
+    end
   end
 
   root :to => 'homepage#index'
