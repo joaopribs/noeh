@@ -236,38 +236,88 @@
 
 
     function atualizarLinkPraUploadFormDeFoto<%= tipo_pessoa %>() {
-      $("#foto_<%= tipo_pessoa %>").on("change", function () {
-        var file = $(this)[0].files[0];
-        var imageType = /image.*/;
+      $("#foto_<%= tipo_pessoa %>").on("change", function (evento) {
+        $campoFoto = $(this);
 
-        if (file.type.match(imageType)) {
-          var reader = new FileReader();
-
-          reader.onload = function(e) {
-            $('#preview_foto').attr('src', reader.result).show();
-            $("#link_upload_foto_<%= tipo_pessoa %>").show();
-
-            jcrop_api = $.Jcrop('#preview_foto', {
-              onChange: atualizarCamposCrop<%= tipo_pessoa %>,
-              onSelect: atualizarCamposCrop<%= tipo_pessoa %>,
-              setSelect: [0, 0, 200, 200],
-              aspectRatio: 1, 
-              bgOpacity: 0.4
-            });
-          }
-
-          reader.readAsDataURL(file); 
-        } else {
-          alert("O arquivo escolhido não é uma imagem");
-          $(this).val("");
-          $("#link_upload_foto_<%= tipo_pessoa %>").hide();
-
-          if (jcrop_api != null) {
-              jcrop_api.destroy();
-          }
-
-          $('#preview_foto').hide();
+        options = {
+          maxWidth: 600,
+          maxHeight: 500, 
+          canvas: false
         }
+
+        file = evento.target.files[0];
+
+        loadImage.parseMetaData(file, function (data) {
+          if (data.exif) {
+            options.orientation = data.exif.get('Orientation');
+          }
+
+          loadImage(
+            evento.target.files[0],
+            function (img) {
+              if (img.type === "error") {
+                alert("Erro ao selecionar imagem");
+            
+                $campoFoto.val("");
+                $("#link_upload_foto_<%= tipo_pessoa %>").hide();
+            
+                if (jcrop_api != null) {
+                  jcrop_api.destroy();
+                }
+
+                $('#preview_foto').hide();
+              }
+              else {
+                $('#preview_foto').attr('src', img.toDataURL());
+                $("#link_upload_foto_<%= tipo_pessoa %>").show();
+
+                jcrop_api = $.Jcrop('#preview_foto', {
+                  onChange: atualizarCamposCrop<%= tipo_pessoa %>,
+                  onSelect: atualizarCamposCrop<%= tipo_pessoa %>,
+                  setSelect: [0, 0, 200, 200],
+                  aspectRatio: 1, 
+                  bgOpacity: 0.4
+                });  
+              }
+            },
+            options
+          );
+        });
+
+        
+
+
+        // var file = $(this)[0].files[0];
+        // var imageType = /image.*/;
+
+        // if (file.type.match(imageType)) {
+        //   var reader = new FileReader();
+
+        //   reader.onload = function(e) {
+        //     $('#preview_foto').attr('src', reader.result).show();
+        //     $("#link_upload_foto_<%= tipo_pessoa %>").show();
+
+        //     jcrop_api = $.Jcrop('#preview_foto', {
+        //       onChange: atualizarCamposCrop<%= tipo_pessoa %>,
+        //       onSelect: atualizarCamposCrop<%= tipo_pessoa %>,
+        //       setSelect: [0, 0, 200, 200],
+        //       aspectRatio: 1, 
+        //       bgOpacity: 0.4
+        //     });
+        //   }
+
+        //   reader.readAsDataURL(file); 
+        // } else {
+        //   alert("O arquivo escolhido não é uma imagem");
+        //   $(this).val("");
+        //   $("#link_upload_foto_<%= tipo_pessoa %>").hide();
+
+        //   if (jcrop_api != null) {
+        //       jcrop_api.destroy();
+        //   }
+
+        //   $('#preview_foto').hide();
+        // }
       });
 
 

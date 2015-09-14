@@ -127,8 +127,19 @@ class PessoasController < ApplicationController
     end
 
     respond_to do |format|
-      if (@eh_casal && @casal_valido && @pessoa.save && @conjuge.save) ||
-        (!@eh_casal && @pessoa_valida && @pessoa.save)
+      salvou = false
+      if @eh_casal && casal_valido
+        salvou = @pessoa.save && @conjuge.save
+      elsif @pessoa_valida 
+        salvou = @pessoa.save
+      end
+
+      if salvou
+
+        atualizar_fotos(@pessoa)
+        if @eh_casal
+          atualizar_fotos(@conjuge)
+        end
 
         criar_relacoes_auto_inserir
 
@@ -279,9 +290,30 @@ class PessoasController < ApplicationController
     end
 
     respond_to do |format|
-      if ((precisa_salvar_pessoa && @pessoa.save) || !precisa_salvar_pessoa) &&
-          ((precisa_salvar_conjuge && @conjuge.save) || !precisa_salvar_conjuge) &&
-          ((precisa_salvar_velho_conjuge && @velho_conjuge.save) || !precisa_salvar_velho_conjuge)
+      salvou = false
+      if precisa_salvar_pessoa
+        salvou = @pessoa.save
+      end
+      if precisa_salvar_conjuge
+        salvou = @conjuge.save
+      end
+      if precisa_salvar_velho_conjuge
+        salvou = @velho_conjuge.save
+      end
+
+      if salvou || (!precisa_salvar_pessoa && !precisa_salvar_conjuge && !precisa_salvar_velho_conjuge)
+        if precisa_salvar_pessoa
+          atualizar_fotos(@pessoa)
+        end
+
+        if precisa_salvar_conjuge
+          atualizar_fotos(@conjuge)
+        end
+
+        if precisa_salvar_velho_conjuge
+          atualizar_fotos(@velho_conjuge)
+        end
+
         if defined? @conjunto
           salvar_relacao_conjunto(@pessoa, @conjunto, @os_dois, false)
         elsif defined? @grupo
@@ -811,7 +843,17 @@ class PessoasController < ApplicationController
       end
 
       imagem = Magick::Image.read(params[:foto].tempfile.path).first
-      imagem.resize_to_fit!(600)
+      imagem.auto_orient!
+
+      largura = imagem.columns
+      altura = imagem.rows
+      if largura > altura
+        fit = 600
+      else
+        fit = 500
+      end
+
+      imagem.resize_to_fit!(fit)
       imagem.crop!(params[:crop_x].to_i, params[:crop_y].to_i, params[:crop_w].to_i, params[:crop_h].to_i)
       imagem.resize_to_fit!(200)
       imagem.write(params[:foto].original_filename)
@@ -865,6 +907,8 @@ class PessoasController < ApplicationController
       respond_to do |format|
         format.js { render 'upload_foto_erro.js.erb' }
       end
+    ensure
+      File.delete(imagem.filename) if imagem.present? && File.exist?(imagem.filename)
     end
   end
 
@@ -1041,8 +1085,6 @@ class PessoasController < ApplicationController
 
       pessoa.auto_inserido = false
 
-      pessoa = atualizar_fotos(pessoa)
-
       if @usuario_logado.present?
         pessoa.quem_editou = @usuario_logado.id
       end
@@ -1067,6 +1109,7 @@ class PessoasController < ApplicationController
           foto.foto_file_name = nome_do_arquivo
           if pessoa.foto_perfil.blank?
             pessoa.foto_perfil = foto
+            pessoa.save
           end
           pessoa.fotos << foto
         end

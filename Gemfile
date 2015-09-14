@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby "2.1.5"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.0'
+gem 'rails', '4.2.4'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.2'
@@ -28,7 +28,7 @@ group :doc do
   gem 'sdoc', require: false
 end
 
-gem 'mysql2'
+gem 'mysql2', '~> 0.3.18'
 gem 'kaminari'
 gem 'activerecord-session_store', github: 'rails/activerecord-session_store'
 gem 'friendly_id'
@@ -36,6 +36,8 @@ gem 'friendly_id'
 gem 'rails_12factor', group: :production
 
 gem "paperclip-dropbox", ">= 1.1.7"
+
+# gem "paperclip-googledrive-new"
 
 gem 'remotipart', '~> 1.2'
 

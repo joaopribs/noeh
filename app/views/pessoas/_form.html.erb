@@ -1,3 +1,9 @@
+<% content_for(:head) do %>
+    <%= stylesheet_link_tag "jquery.Jcrop" %>
+    <%= javascript_include_tag "jquery.Jcrop.min" %>
+    <%= javascript_include_tag "load-image.all.min.js" %>
+<% end %>
+
 <% 
     if @pessoa.new_record? || @usuario_logado == @pessoa || @usuario_logado == @pessoa.conjuge
       grupos_pra_inserir = Grupo.all

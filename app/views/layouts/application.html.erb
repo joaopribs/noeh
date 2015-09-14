@@ -16,11 +16,9 @@
 
     <%= stylesheet_link_tag "ui-darkness/jquery-ui-1.10.4.custom.min.css" %>
 
-    <%= stylesheet_link_tag "jquery.Jcrop" %>
-
     <%= javascript_include_tag "application" %>
 
-    <%= javascript_include_tag "jquery.Jcrop.min" %>
+    <%= yield(:head) %>
 
     <%= csrf_meta_tags %>
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
