@@ -1,24 +1,28 @@
-<% @fotos.each_with_index do |foto, indice| %>
+<% if @fotos.count == 0 %>
+	<%= image_tag Pessoa.url_imagem_sem_imagem(120), class: 'imagem_pessoa_form' %><p/>
+<% else %>
+	<% @fotos.each_with_index do |foto, indice| %>
 
-	<% 
-		url_foto = foto.foto.url
-		if @refresh
-			url_foto = "#{url_foto}?time=#{Time.now.to_i}"
-		end	
-	%>
+		<% 
+			url_foto = foto.foto.url
+			if @refresh
+				url_foto = "#{url_foto}?time=#{Time.now.to_i}"
+			end	
+		%>
 
-	<%= image_tag url_foto, class: 'imagem_pessoa_form' %><br/>
-	<% if indice == 0 %>
-		Foto principal
-	<% else %>
-		<span class="area_embaixo_da_foto">
-			<a href="#" class="link_foto_principal setar_foto_principal_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Usar como principal</a><br/>
-			<a href="#" class="link_remover remover_foto_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Excluir</a><br/>
-		</span>
+		<%= image_tag url_foto, class: 'imagem_pessoa_form' %><br/>
+		<% if indice == 0 %>
+			Foto principal
+		<% else %>
+			<span class="area_embaixo_da_foto">
+				<a href="#" class="link_foto_principal setar_foto_principal_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Usar como principal</a><br/>
+				<a href="#" class="link_remover remover_foto_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Excluir</a><br/>
+			</span>
+		<% end %>
+
+		<p/>
+
 	<% end %>
-
-	<p/>
-
 <% end %>
 
 <% if @fotos.count == 0 %>
