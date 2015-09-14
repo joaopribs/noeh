@@ -35,7 +35,7 @@ class SessionsController < ApplicationController
           nome_do_arquivo = URI::split(url_foto_grande)[5].split("/").last
           ja_tem_essa_foto = false
           usuario.fotos.each do |foto|
-            if foto.foto.file_name == nome_do_arquivo
+            if foto.foto_file_name == nome_do_arquivo
               ja_tem_essa_foto = true
               break
             end

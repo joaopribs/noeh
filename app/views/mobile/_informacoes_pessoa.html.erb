@@ -1,6 +1,29 @@
-<center>
-	<img src="<%= pessoa.url_imagem(150) %>" class="foto"/>
-</center>
+<% content_for(:head) do %>
+	<%= stylesheet_link_tag "slick.css" %>
+	<%= stylesheet_link_tag "slick-theme.css" %>
+	<%= javascript_include_tag "slick.min.js" %>
+
+	<script>
+	$(function () {
+		$('.carousel').slick({
+			centerMode: true, 
+			centerPadding: 0, 
+			infinite: false
+		});
+	});
+	</script>
+<% end %>
+
+<div class="carousel">
+	<div>
+		<img src="<%= pessoa.url_imagem(150) %>" class="foto"/>
+	</div>
+	<% pessoa.fotos.where.not(id: pessoa.foto_perfil_id).each do |foto| %>
+		<div>
+			<img src="<%= foto.foto.url %>" class="foto"/>
+		</div>
+	<% end %>
+</div>
 
 <p/>
 
