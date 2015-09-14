@@ -1093,7 +1093,7 @@ class PessoasController < ApplicationController
     end
 
     def atualizar_fotos(pessoa)
-      if pessoa.url_imagem_facebook.present?
+      if pessoa.fotos.size < 3 && pessoa.url_imagem_facebook.present?
         nome_do_arquivo = URI::split(pessoa.url_imagem_facebook)[5].split("/").last
         ja_tem_essa_foto = false
         pessoa.fotos.each do |foto|

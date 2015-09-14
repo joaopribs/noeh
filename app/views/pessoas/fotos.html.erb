@@ -12,11 +12,8 @@
 		Foto principal
 	<% else %>
 		<span class="area_embaixo_da_foto">
-			<span class="links_manipular_foto">
-				<a href="#" class="link_foto_principal setar_foto_principal_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Usar como principal</a><br/>
-				<a href="#" class="link_remover remover_foto_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Remover</a><br/>
-			</span>
-			<span class="carregando_manipular_foto" style="display: none;">Carregando...</span>
+			<a href="#" class="link_foto_principal setar_foto_principal_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Usar como principal</a><br/>
+			<a href="#" class="link_remover remover_foto_<%= @tipo_pessoa %>" data-foto-id="<%= foto.id %>">Excluir</a><br/>
 		</span>
 	<% end %>
 

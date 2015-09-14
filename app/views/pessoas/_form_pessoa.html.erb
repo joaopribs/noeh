@@ -177,22 +177,42 @@
       $('.remover_foto_<%= tipo_pessoa %>').on('click', function (evento) {
           evento.preventDefault();
 
-          $(this).closest(".links_manipular_foto").hide();
-          $(this).closest(".area_embaixo_da_foto").find(".carregando_manipular_foto").show();
-
           var fotoId = $(this).data('foto-id');
 
-          $.post(
-                "/pessoas/<%= pessoa.id %>/deletar_foto",
-                {
-                    foto_id: fotoId
-                },
-                function (resposta) {
-                    if (resposta == "ok") {
-                        carregarFotos<%= tipo_pessoa %>(false);
+          $("#dialog_conteudo").html("Tem certeza que deseja <em>excluir</em> essa foto?<p/>");
+          $("#dialog_conteudo").append("<a href='#' class='dialog_link_confirmar' data-foto-id='" + fotoId + "' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>Confirmar</span></a>");
+          $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+          $("#dialog").show();
+
+          $(".dialog_link_cancelar").on("click", function (evento) {
+              evento.preventDefault();
+              esconderDialog();
+          });
+
+          $(".dialog_link_confirmar").on("click", function (evento) {
+              evento.preventDefault();
+              
+              $(this).on('click', function (evento) {evento.preventDefault();});
+              $(this).addClass('dialog_link_desativado');
+              $(this).children('.texto').html('Carregando...');
+              iniciarSpinners(true, $(this).find('.img_spinner'));
+              $('.dialog_link_cancelar').hide();
+
+              var fotoId = $(this).data('foto-id');
+
+              $.post(
+                    "/pessoas/<%= pessoa.id %>/deletar_foto",
+                    {
+                        foto_id: fotoId
+                    },
+                    function (resposta) {
+                        if (resposta == "ok") {
+                            carregarFotos<%= tipo_pessoa %>(false);
+                            esconderDialog();
+                        }
                     }
-                }
-          );
+              );
+          });
       });
     }
 
@@ -202,17 +222,40 @@
 
           var fotoId = $(this).data('foto-id');
 
-          $.post(
-                "/pessoas/<%= pessoa.id %>/setar_foto_principal",
-                {
-                    foto_id: fotoId
-                },
-                function (resposta) {
-                    if (resposta == "ok") {
-                        carregarFotos<%= tipo_pessoa %>(false);
+          $("#dialog_conteudo").html("Tem certeza que deseja usar essa foto <em>como principal</em>?<p/>");
+          $("#dialog_conteudo").append("<a href='#' class='dialog_link_confirmar' data-foto-id='" + fotoId + "' style='position: relative;'><span class='img_spinner' style='display: none;'></span><span class='texto'>Confirmar</span></a>");
+          $("#dialog_conteudo").append("<a href='#' class='dialog_link_cancelar'>Cancelar</a>");
+          $("#dialog").show();
+
+          $(".dialog_link_cancelar").on("click", function (evento) {
+              evento.preventDefault();
+              esconderDialog();
+          });
+
+          $(".dialog_link_confirmar").on("click", function (evento) {
+              evento.preventDefault();
+              
+              $(this).on('click', function (evento) {evento.preventDefault();});
+              $(this).addClass('dialog_link_desativado');
+              $(this).children('.texto').html('Carregando...');
+              iniciarSpinners(true, $(this).find('.img_spinner'));
+              $('.dialog_link_cancelar').hide();
+
+              var fotoId = $(this).data('foto-id');
+
+              $.post(
+                    "/pessoas/<%= pessoa.id %>/setar_foto_principal",
+                    {
+                        foto_id: fotoId
+                    },
+                    function (resposta) {
+                        if (resposta == "ok") {
+                            carregarFotos<%= tipo_pessoa %>(false);
+                            esconderDialog();
+                        }
                     }
-                }
-          );
+              );
+          });
       });
     }
 
@@ -283,41 +326,6 @@
             options
           );
         });
-
-        
-
-
-        // var file = $(this)[0].files[0];
-        // var imageType = /image.*/;
-
-        // if (file.type.match(imageType)) {
-        //   var reader = new FileReader();
-
-        //   reader.onload = function(e) {
-        //     $('#preview_foto').attr('src', reader.result).show();
-        //     $("#link_upload_foto_<%= tipo_pessoa %>").show();
-
-        //     jcrop_api = $.Jcrop('#preview_foto', {
-        //       onChange: atualizarCamposCrop<%= tipo_pessoa %>,
-        //       onSelect: atualizarCamposCrop<%= tipo_pessoa %>,
-        //       setSelect: [0, 0, 200, 200],
-        //       aspectRatio: 1, 
-        //       bgOpacity: 0.4
-        //     });
-        //   }
-
-        //   reader.readAsDataURL(file); 
-        // } else {
-        //   alert("O arquivo escolhido não é uma imagem");
-        //   $(this).val("");
-        //   $("#link_upload_foto_<%= tipo_pessoa %>").hide();
-
-        //   if (jcrop_api != null) {
-        //       jcrop_api.destroy();
-        //   }
-
-        //   $('#preview_foto').hide();
-        // }
       });
 
 
