@@ -2,23 +2,29 @@
 	<%= stylesheet_link_tag "swiper.min.css" %>
 	<%= javascript_include_tag "swiper.jquery.min" %>
 
-	<script>
-	$(function () {
-		var mySwiper = new Swiper ('.swiper-container', {
-        pagination: '.swiper-pagination',
-        slidesPerView: 1.5,
-        centeredSlides: true,
-        spaceBetween: 0
-    });
-	});
-	</script>
-
 	<style>
 		.swiper-container {
-		    width: 100%;
-		    /*height: 150px;*/
-		}  
+			width: 100%;
+		}
+		.swiper-slide {
+			width: 50vmin;
+			text-align: center;
+		}
+		.swiper-slide img {
+			width: 50vmin;
+		}
 	</style>
+
+	<script>
+		$(function () {
+			var mySwiper = new Swiper ('.swiper-container', {
+	        pagination: '.swiper-pagination',
+	        slidesPerView: 'auto',
+	        centeredSlides: true,
+	        spaceBetween: 0
+	    });
+		});
+	</script>
 <% end %>
 
 <!-- Slider main container -->
@@ -27,11 +33,11 @@
     <div class="swiper-wrapper">
         <!-- Slides -->
         <div class="swiper-slide">
-        	<img src="<%= pessoa.url_imagem(150) %>" class="foto"/>
+        	<img src="<%= pessoa.url_imagem(150) %>"/>
         </div>
         <% pessoa.fotos.where.not(id: pessoa.foto_perfil_id).each do |foto| %>
 					<div class="swiper-slide">
-						<img src="<%= foto.foto.url %>" class="foto"/>
+						<img src="<%= foto.foto.url %>"/>
 					</div>
 				<% end %>
     </div>
