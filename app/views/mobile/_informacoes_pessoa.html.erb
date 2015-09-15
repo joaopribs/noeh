@@ -1,27 +1,40 @@
 <% content_for(:head) do %>
-	<%= stylesheet_link_tag "slick.css" %>
-	<%= stylesheet_link_tag "slick-theme.css" %>
-	<%= javascript_include_tag "slick.min.js" %>
+	<%= stylesheet_link_tag "swiper.min.css" %>
+	<%= javascript_include_tag "swiper.jquery.min" %>
 
 	<script>
 	$(function () {
-		$('.carousel').slick({
-			centerMode: true, 
-			slidesToShow: 3
-		});
+		var mySwiper = new Swiper ('.swiper-container', {
+        pagination: '.swiper-pagination',
+        slidesPerView: 1.5,
+        centeredSlides: true,
+        spaceBetween: 0
+    });
 	});
 	</script>
+
+	<style>
+		.swiper-container {
+		    width: 100%;
+		    /*height: 150px;*/
+		}  
+	</style>
 <% end %>
 
-<div class="carousel">
-	<div>
-		<img src="<%= pessoa.url_imagem(150) %>" class="foto"/>
-	</div>
-	<% pessoa.fotos.where.not(id: pessoa.foto_perfil_id).each do |foto| %>
-		<div>
-			<img src="<%= foto.foto.url %>" class="foto"/>
-		</div>
-	<% end %>
+<!-- Slider main container -->
+<div class="swiper-container">
+    <!-- Additional required wrapper -->
+    <div class="swiper-wrapper">
+        <!-- Slides -->
+        <div class="swiper-slide">
+        	<img src="<%= pessoa.url_imagem(150) %>" class="foto"/>
+        </div>
+        <% pessoa.fotos.where.not(id: pessoa.foto_perfil_id).each do |foto| %>
+					<div class="swiper-slide">
+						<img src="<%= foto.foto.url %>" class="foto"/>
+					</div>
+				<% end %>
+    </div>
 </div>
 
 <p/>
