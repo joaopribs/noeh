@@ -847,13 +847,16 @@ class PessoasController < ApplicationController
 
       largura = imagem.columns
       altura = imagem.rows
-      if largura > altura
+      if largura >= altura && largura > 600
         fit = 600
-      else
+      elsif altura >= largura && altura > 500
         fit = 500
       end
 
-      imagem.resize_to_fit!(fit)
+      if fit.present?
+        imagem.resize_to_fit!(fit)
+      end
+
       imagem.crop!(params[:crop_x].to_i, params[:crop_y].to_i, params[:crop_w].to_i, params[:crop_h].to_i)
       imagem.resize_to_fit!(200)
       imagem.write(params[:foto].original_filename)

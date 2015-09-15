@@ -311,7 +311,38 @@
                 $('#preview_foto').hide();
               }
               else {
+                if (jcrop_api != null) {
+                  jcrop_api.destroy();
+                }
+
+                $('#preview_foto').hide();
+
+                if (img.nodeName.toLowerCase() == "img") {
+                  largura = img.width;
+                  altura = img.height;
+                  if (largura > altura) {
+                    if (largura > 600) {
+                      largura = 600;
+                      altura = img.height * 600 / img.width;
+                    }
+                  }
+                  else {
+                    if (altura > 500) {
+                      altura = 500;
+                      largura = img.width * 500 / img.height;
+                    }
+                  }
+
+                  var canvas = document.createElement("canvas");
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+                  canvas.getContext("2d").drawImage(img, 0, 0, largura, altura);
+                  
+                  img = canvas;
+                }
+
                 $('#preview_foto').attr('src', img.toDataURL());
+                $('#preview_foto').show();
                 $("#link_upload_foto_<%= tipo_pessoa %>").show();
 
                 jcrop_api = $.Jcrop('#preview_foto', {
