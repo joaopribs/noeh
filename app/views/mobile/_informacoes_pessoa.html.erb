@@ -6,10 +6,32 @@
 		.swiper-container {
 			width: 100%;
 		}
+
 		.swiper-slide {
 			width: 50vmin;
 			text-align: center;
+
+			/* Center slide text vertically */
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
 		}
+
+		.swiper-slide.explicacao {
+			background-color: #f86f05;
+			width: 50vmin;
+			height: 50vmin;
+		}
+
 		.swiper-slide img {
 			width: 50vmin;
 		}
@@ -40,6 +62,9 @@
 						<img src="<%= foto.foto.url %>"/>
 					</div>
 				<% end %>
+				<div class="swiper-slide explicacao">
+					Você pode alterar essas fotos entrando no sistema pelo computador
+				</div>
     </div>
 </div>
 
