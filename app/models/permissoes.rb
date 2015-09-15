@@ -51,6 +51,7 @@ class Permissoes
 	def pode_ver_participacao conjunto, pessoa
 	  return @usuario_logado.eh_super_admin? ||
 	  		@usuario_logado == pessoa || 
+        @usuario_logado.conjuge == pessoa || 
 	      @usuario_logado.grupos_que_pode_ver.include?(conjunto.encontro.grupo) ||
 	      pode_gerenciar_conjunto(conjunto)
 	end
