@@ -847,10 +847,10 @@ class PessoasController < ApplicationController
 
       largura = imagem.columns
       altura = imagem.rows
-      if largura >= altura && largura > 600
-        fit = 600
-      elsif altura >= largura && altura > 500
+      if altura >= largura && altura > 500
         fit = 500
+      elsif largura >= altura && largura > 600
+        fit = 600
       end
 
       if fit.present?
