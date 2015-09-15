@@ -320,17 +320,13 @@
                 if (img.nodeName.toLowerCase() == "img") {
                   largura = img.width;
                   altura = img.height;
-                  if (largura > altura) {
-                    if (largura > 600) {
+                  
+                  if (largura >= altura && largura > 600) {
                       largura = 600;
                       altura = img.height * 600 / img.width;
-                    }
-                  }
-                  else {
-                    if (altura > 500) {
-                      altura = 500;
-                      largura = img.width * 500 / img.height;
-                    }
+                  } else if (altura >= largura && altura > 500) {
+                    altura = 500;
+                    largura = img.width * 500 / img.height;
                   }
 
                   var canvas = document.createElement("canvas");
