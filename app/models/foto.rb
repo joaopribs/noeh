@@ -16,6 +16,7 @@ class Foto < ActiveRecord::Base
     :storage => :dropbox, 
     :dropbox_credentials => Rails.root.join("config/dropbox_publico.yml"),
     :dropbox_visibility => 'public',
+    :path => "foto/:style/:id_:filename", 
     :styles => {
     	:thumb => "50x50#"
     }
