@@ -49,4 +49,4 @@ gem "mechanize"
 
 gem "rmagick"
 
-gem 'newrelic_rpm'
+gem 'passenger'
