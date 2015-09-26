@@ -6,3 +6,13 @@ development:
   password: noeh
   host: 127.0.0.1
   port: 3306
+
+production: 
+  adapter: mysql2
+  database: noeh
+  username: noeh
+  host: noeh.clkxz3haigap.sa-east-1.rds.amazonaws.com
+  password: noehamazon
+  port: 3306
+  pool: 5
+  timeout: 5000
