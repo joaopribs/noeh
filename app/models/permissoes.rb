@@ -82,7 +82,7 @@ class Permissoes
 
 	def pode_excluir_pessoa pessoa
 		return @usuario_logado.eh_super_admin? || 
-			(@usuario_logado.eh_coordenador_de_grupo_de(pessoa) && 
+			(@usuario_logado.eh_coordenador_de_todos_os_grupos_de(pessoa) && 
 				!pessoa.eh_super_admin?) || 
       (!pessoa.eh_super_admin? && @usuario_logado.eh_coordenador_de_todos_os_conjuntos_permanentes_de(pessoa))
 	end
