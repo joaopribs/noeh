@@ -128,7 +128,7 @@ class PessoasController < ApplicationController
 
     respond_to do |format|
       salvou = false
-      if @eh_casal && casal_valido
+      if @eh_casal && @casal_valido
         salvou = @pessoa.save && @conjuge.save
       elsif @pessoa_valida 
         salvou = @pessoa.save
