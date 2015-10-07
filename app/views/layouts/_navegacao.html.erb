@@ -14,6 +14,16 @@
             $(".submenu").on("mouseleave", function () {
                 $(this).hide();
             });
+
+            $("#nome_a_pesquisar").on("keydown", function (evento) {
+                if (evento.keyCode == 13) {
+                    $(this).closest("form").submit();
+                }
+            });
+
+            $("#submeter_form_pesquisar").on("click", function () {
+                $(this).closest("form").submit();
+            });
         });
     </script>
 
@@ -41,7 +51,27 @@
     <% end %>
 
     <% if @usuario_logado.permissoes.pode_pesquisar_pessoas %>
-        <%= link_to "Pesquisar", pesquisar_pessoas_path, class: "pesquisar_pessoas" %>
+        <span class="tem_submenu">
+            <a href="#">Pesquisar ▼</a>
+            <div class="submenu">
+                <span class="titulo" class="pesquisar_pessoas">Pesquisar ▼</span>
+                <div class="conteudo">
+                    <table>
+                        <tr>
+                            <td nowrap style="padding-right: 10px;">
+                                <%= form_tag(:pesquisar_pessoas) do %>
+                                    <input type="hidden" name="pesquisa" value="1" />
+                                    Nome: <input type="text" id="nome_a_pesquisar" name="nome" style="width: 200px;" />
+                                    <a href="#" id="submeter_form_pesquisar">Pesquisar</a>
+                                <% end %>
+                                <br/>
+                                <%= link_to "Pesquisa avançada", pesquisar_pessoas_path %>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </span>
     <% end %>
 
     <% if @usuario_logado.eh_super_admin %>
