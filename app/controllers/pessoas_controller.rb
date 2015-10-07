@@ -1071,6 +1071,8 @@ class PessoasController < ApplicationController
 
       pessoa = atualizar_fotos(pessoa)
 
+      pessoa = atualizar_telefones(pessoa, tipo_pessoa)
+
       if @usuario_logado.present?
         pessoa.quem_criou = @usuario_logado.id
         pessoa.quem_editou = @usuario_logado.id
@@ -1081,16 +1083,30 @@ class PessoasController < ApplicationController
 
     def atualizar_pessoa(pessoa, tipo_pessoa)
       if tipo_pessoa == "pessoa"
-        pessoa.assign_attributes(pessoa_params)
+        parametros = pessoa_params
       elsif tipo_pessoa == "conjuge"
-        pessoa.assign_attributes(conjuge_params)
+        parametros = conjuge_params
       end
+
+      pessoa.assign_attributes(parametros)
+
+      pessoa = atualizar_telefones(pessoa, tipo_pessoa)
 
       pessoa.auto_inserido = false
 
       if @usuario_logado.present?
         pessoa.quem_editou = @usuario_logado.id
       end
+
+      return pessoa
+    end
+
+    def atualizar_telefones(pessoa, tipo_pessoa)
+      telefones = pegar_telefones(params["telefones_#{tipo_pessoa}"], params["operadoras_#{tipo_pessoa}"], params["eh_whatsapps_#{tipo_pessoa}"])
+
+      pessoa.telefones.clear
+
+      pessoa.telefones << telefones
 
       return pessoa
     end
@@ -1142,7 +1158,6 @@ class PessoasController < ApplicationController
         end
       end
 
-      telefones = pegar_telefones(params[:telefones_pessoa], params[:operadoras_pessoa], params[:eh_whatsapps_pessoa])
       instrumentos = pegar_instrumentos(params[:instrumentos_pessoa])
 
       hash = ActionController::Parameters.new({nome: (params[:nome_pessoa] || "").strip,
@@ -1163,7 +1178,6 @@ class PessoasController < ApplicationController
                                               id_app_facebook: params[:id_app_facebook_pessoa],
                                               url_facebook: params[:url_facebook_pessoa].strip,
                                               url_imagem_facebook: params[:url_imagem_facebook_pessoa],
-                                              telefones: telefones,
                                               instrumentos: instrumentos, 
                                               onde_fez_alteracao: params[:onde_fez_alteracao]})
       hash.permit!
@@ -1182,7 +1196,6 @@ class PessoasController < ApplicationController
         end
       end
 
-      telefones = pegar_telefones(params[:telefones_conjuge], params[:operadoras_conjuge], params[:eh_whatsapps_conjuge])
       instrumentos = pegar_instrumentos(params[:instrumentos_conjuge])
 
       hash = ActionController::Parameters.new(nome: (params[:nome_conjuge] || "").strip,
@@ -1197,7 +1210,6 @@ class PessoasController < ApplicationController
                                               id_app_facebook: params[:id_app_facebook_conjuge],
                                               url_facebook: params[:url_facebook_conjuge].strip,
                                               url_imagem_facebook: params[:url_imagem_facebook_conjuge],
-                                              telefones: telefones,
                                               instrumentos: instrumentos, 
                                               onde_fez_alteracao: params[:onde_fez_alteracao])
       hash.permit!
