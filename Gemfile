@@ -50,3 +50,5 @@ gem "mechanize"
 gem "rmagick"
 
 gem 'passenger'
+
+gem 'execjs'
