@@ -11,8 +11,8 @@ production:
   adapter: mysql2
   database: noeh
   username: noeh
-  host: noeh.clkxz3haigap.sa-east-1.rds.amazonaws.com
-  password: noehamazon
+  host: localhost
+  password: ChimbraGalera2
   port: 3306
   pool: 5
   timeout: 5000
