@@ -69,8 +69,7 @@ class ApplicationController < ActionController::Base
 
     indice = Time.zone.now.hour
 
-    # @cor = cores[indice]
-    @cor = "preto"
+    @cor = cores[indice]
 
   end
 
