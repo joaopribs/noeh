@@ -103,7 +103,7 @@
             <tr>
                 <td>
                     <%
-                        if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar" || @tipo_pagina == "pesquisar_pessoas"
+                        if @tipo_pagina == "lista_pessoas" || @tipo_pagina == "ex_participantes_de_grupo" || @tipo_pagina == "pessoas_a_confirmar" || @tipo_pagina == "pesquisar_pessoas" || @tipo_pagina == "recomendacoes"
                             link_pessoa = pessoa
                         elsif @tipo_pagina == "pessoas_no_grupo"
                             link_pessoa = grupo_pessoa_path(@grupo, pessoa)
