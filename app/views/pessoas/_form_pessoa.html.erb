@@ -104,6 +104,8 @@
           $novoRelacionamento.find('.nome_e_relacionamento').html(nome + ' - ' + relacionamento);
           $novoRelacionamento.find('.outra_pessoa_id').val(outraPessoaId);
           $novoRelacionamento.find('.padrao_id').val(padraoId);
+
+          atualizarLinksPraRemoverRelacionamento<%= tipo_pessoa %>();
         });
 
         $('#link_adicionar_participacao_<%= tipo_pessoa %>').on('click', function (evento) {
