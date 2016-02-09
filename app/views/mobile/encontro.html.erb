@@ -53,5 +53,5 @@ em <%= @encontro.conjuntos_permanentes.count %> <%= denominacoes_conjuntos_perma
 
 <h2>Coordenadores do Encontro</h2>
 
-<%= render 'lista_pessoas', pessoas: @encontro.coordenadores.sort_by{|a| [a.conjuge.nil? ? 0 : 1, a]}, tipo_pagina: 'pessoas_na_coordenacao', forcar_conjuges: false, mostrar_telefones: true %>
+<%= render 'lista_pessoas', pessoas: @encontro.coordenadores.sort_by{|a| [a.conjuge.nil? ? 0 : 1, a]}, tipo_pagina: 'pessoas_na_coordenacao', forcar_conjuges: false, mostrar_telefones: true, forcar_individual: false %>
 
