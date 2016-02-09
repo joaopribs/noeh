@@ -3,6 +3,7 @@
 <% 
   if tipo_pagina == "relacionamentos"
     elementos_a_iterar = relacionamentos
+    pessoas = relacionamentos.collect { |r| r.outra_pessoa }
   else
     elementos_a_iterar = pessoas
   end
