@@ -25,6 +25,7 @@ class Pessoa < ActiveRecord::Base
   has_many :auto_sugestoes, class_name: 'AutoSugestao', dependent: :destroy
   has_many :recomendacoes_equipes, -> {order(:posicao)}, class_name: 'RecomendacaoEquipe', dependent: :destroy
   has_many :fotos, dependent: :destroy
+  has_many :relacionamentos, dependent: :destroy
 
   has_one :recomendacao_do_coordenador_permanente, dependent: :destroy
 

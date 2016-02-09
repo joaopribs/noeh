@@ -1,33 +1,69 @@
 <%= stylesheet_link_tag "pesquisa_pessoas_por_nome" %>
 
 <%
-   if tipo_pesquisa == "pesquisa_conjuge"
-     campo_pesquisa = "campo_pesquisa_conjuge"
-     resultados_pesquisa = "resultados_pesquisa_conjuge"
-     pessoa_a_mostrar = @conjuge_mostrar
-     mostrar_pessoa = pessoa_a_mostrar.id.present?
-     detalhes_pesquisa = "detalhes_pesquisa_conjuge"
-   elsif tipo_pesquisa == "pesquisa_grupo"
-     campo_pesquisa = "campo_pesquisa_grupo"
-     resultados_pesquisa = "resultados_pesquisa_grupo"
-     pessoa_a_mostrar = nil
-     mostrar_pessoa = false
-     detalhes_pesquisa = "detalhes_pesquisa_grupo"
-   elsif tipo_pesquisa == "pesquisa_conjunto"
-     campo_pesquisa = "campo_pesquisa_conjunto"
-     resultados_pesquisa = "resultados_pesquisa_conjunto"
-     pessoa_a_mostrar = nil
-     mostrar_pessoa = false
-     detalhes_pesquisa = "detalhes_pesquisa_conjunto"
-   end
+    if tipo_pesquisa == "pesquisa_conjuge"
+        campo_pesquisa = "campo_pesquisa_conjuge"
+        resultados_pesquisa = "resultados_pesquisa_conjuge"
+        pessoa_a_mostrar = @conjuge_mostrar
+        mostrar_pessoa = pessoa_a_mostrar.id.present?
+        detalhes_pesquisa = "detalhes_pesquisa_conjuge"
+        campo_menor = false
+        scroll = true
+        incluir_conjuge_no_resultado = true
+        incluir_obs_conjuge = false
+    elsif tipo_pesquisa == "pesquisa_grupo"
+        campo_pesquisa = "campo_pesquisa_grupo"
+        resultados_pesquisa = "resultados_pesquisa_grupo"
+        pessoa_a_mostrar = nil
+        mostrar_pessoa = false
+        detalhes_pesquisa = "detalhes_pesquisa_grupo"
+        campo_menor = false
+        scroll = true
+        incluir_conjuge_no_resultado = true
+        incluir_obs_conjuge = false
+    elsif tipo_pesquisa == "pesquisa_conjunto"
+        campo_pesquisa = "campo_pesquisa_conjunto"
+        resultados_pesquisa = "resultados_pesquisa_conjunto"
+        pessoa_a_mostrar = nil
+        mostrar_pessoa = false
+        detalhes_pesquisa = "detalhes_pesquisa_conjunto"
+        campo_menor = false
+        scroll = true
+        incluir_conjuge_no_resultado = true
+        incluir_obs_conjuge = false
+    elsif tipo_pesquisa == "pesquisa_relacionamento"
+        campo_pesquisa = "campo_pesquisa_relacionamento_#{tipo_pessoa}"
+        resultados_pesquisa = "resultados_pesquisa_relacionamento_#{tipo_pessoa}"
+        pessoa_a_mostrar = nil
+        mostrar_pessoa = false
+        detalhes_pesquisa = "detalhes_pesquisa_relacionamento_#{tipo_pessoa}"
+        campo_menor = true
+        scroll = false
+        incluir_conjuge_no_resultado = false
+        incluir_obs_conjuge = true
+    end
 %>
 
 <script>
-    var buscaDePessoas;
+    var buscaDePessoas_<%= id_pesquisa %>;
 
     $(function () {
-        <% if tipo_pesquisa == "pesquisa_grupo" %>
-            $("#botao_adicionar_pessoa_ao_grupo").on("click", function (evento) {
+        <% 
+            if ["pesquisa_grupo", "pesquisa_conjunto"].include?(tipo_pesquisa)
+                if tipo_pesquisa == "pesquisa_grupo" 
+                    elemento_botao = "#botao_adicionar_pessoa_ao_grupo"
+                    url_post = adicionar_pessoa_a_grupo_url
+                    parametro_id = "id_grupo"
+                    valor_id = @grupo.id
+                elsif tipo_pesquisa == "pesquisa_conjunto"
+                    elemento_botao = "#botao_adicionar_pessoa_ao_conjunto"
+                    url_post = adicionar_pessoa_a_conjunto_url
+                    parametro_id = "id_conjunto"
+                    valor_id = @conjunto.id
+                end
+        %>
+
+            $('<%= elemento_botao %>').on("click", function (evento) {
                 evento.preventDefault();
 
                 var id_pessoa = $(this).data("id_pessoa");
@@ -35,9 +71,9 @@
 
                 if (id_pessoa != null && id_pessoa != "") {
                     $.post(
-                            "<%= adicionar_pessoa_a_grupo_url %>",
+                            "<%= url_post %>",
                             {
-                                id_grupo: <%= @grupo.id %>,
+                                <%= parametro_id %>: <%= valor_id %>,
                                 id_pessoa: id_pessoa, 
                                 so_um_ou_os_dois: so_um_ou_os_dois
                             },
@@ -52,47 +88,14 @@
                     );
                 }
             });
-        <% elsif tipo_pesquisa == "pesquisa_conjunto" %>
-            $("#botao_adicionar_pessoa_ao_conjunto").on("click", function (evento) {
-                evento.preventDefault();
 
-                var id_pessoa = $(this).data("id_pessoa");
-                var so_um_ou_os_dois = $('input:radio[name=so_um_ou_os_dois]:checked').val();
-
-                if (id_pessoa != null && id_pessoa != "") {
-                    $.post(
-                            "<%= adicionar_pessoa_a_conjunto_url %>",
-                            {
-                                id_conjunto: <%= @conjunto.id %>,
-                                id_pessoa: id_pessoa, 
-                                so_um_ou_os_dois: so_um_ou_os_dois
-                            },
-                            function (response) {
-                                listaPessoas.carregar();
-                                buscaDePessoas.limpar();
-
-                                mostrarNotificacao(response.msgSucesso);
-
-                                $("html, body").animate({scrollTop: 0}, 500);
-                            }
-                    );
-                }
-            });
         <% end %>
 
-
-
-        buscaDePessoas = new BuscaDePessoas("<%= pesquisa_pessoas_por_nome_url %>",
+        buscaDePessoas_<%= id_pesquisa %> = new BuscaDePessoas("<%= pesquisa_pessoas_por_nome_url %>",
                 $("#<%= resultados_pesquisa %>"),
                 $("#<%= campo_pesquisa %>"),
                 $("#<%= detalhes_pesquisa %>"),
-
-                <% if tipo_pesquisa == 'pesquisa_conjunto' %>
-                    true,
-                <% else %>
-                    false,
-                <% end %>
-
+                <%= tipo_pesquisa == 'pesquisa_conjunto' ? 'true' : 'false' %>, 
                 {
                     <%
                         parametros_array = []
@@ -102,6 +105,10 @@
                             parametros_array << "id_conjunto: #{@conjunto.id}"
                         elsif tipo_pesquisa == "pesquisa_conjuge"
                             parametros_array << "ignorar_casais: true"
+                            if !@pessoa.new_record?
+                                parametros_array << "pessoa_ignorar: #{@pessoa.id}"
+                            end
+                        elsif tipo_pesquisa == "pesquisa_relacionamento"
                             if !@pessoa.new_record?
                                 parametros_array << "pessoa_ignorar: #{@pessoa.id}"
                             end
@@ -130,25 +137,49 @@
                         $("#botao_adicionar_pessoa_ao_conjunto").data("id_pessoa", pessoa.id);
                     <% elsif tipo_pesquisa == "pesquisa_conjuge" %>
                         $("#id_conjuge").val(pessoa.id);
+                    <% elsif tipo_pesquisa == "pesquisa_relacionamento" %>
+                        if (pessoa.eh_homem) {
+                            $(".botao_adicionar_relacionamento_<%= tipo_pessoa %>").data("sexo", "masculino");
+                            $("#<%= detalhes_pesquisa %> .padroes_masculino").show();
+                            $("#<%= detalhes_pesquisa %> .padroes_feminino").hide();
+                        }
+                        else {
+                            $(".botao_adicionar_relacionamento_<%= tipo_pessoa %>").data("sexo", "feminino");
+                            $("#<%= detalhes_pesquisa %> .padroes_masculino").hide();
+                            $("#<%= detalhes_pesquisa %> .padroes_feminino").show();
+                        }
+                        $("#<%= detalhes_pesquisa %> .pessoa_relacionamento_id").val(pessoa.id);
                     <% end %>
-                }
+                }, 
+                <%= scroll ? 'true' : 'false' %>, 
+                <%= incluir_conjuge_no_resultado ? 'true' : 'false' %>,
+                <%= incluir_obs_conjuge ? 'true' : 'false' %>, 
+                <%= tipo_pesquisa == "pesquisa_relacionamento" ? 'true' : 'false' %>
         );
-        buscaDePessoas.inicializar();
+        buscaDePessoas_<%= id_pesquisa %>.inicializar();
+
+        $('.limpar_pesquisa').on('click', function (evento) {
+            evento.preventDefault();
+            buscaDePessoas_<%= id_pesquisa %>.limpar();
+        })
     });
 </script>
 
 <div class="container_dos_campos_de_pesquisa_por_nome">
-      <input type="text" class="nome_pessoa_pesquisa_por_nome" id="<%= campo_pesquisa %>" value="<%= pessoa_a_mostrar.nome_usual if mostrar_pessoa %>" />
-      <div class="resultados_pesquisa_por_nome" id="<%= resultados_pesquisa %>"></div>
+      <input type="text" class="nome_pessoa_pesquisa_por_nome <%= "campo_menor" if campo_menor %>" id="<%= campo_pesquisa %>" value="<%= pessoa_a_mostrar.nome_usual if mostrar_pessoa %>" />
+      <div class="resultados_pesquisa_por_nome <%= "campo_menor" if campo_menor %>" id="<%= resultados_pesquisa %>"></div>
+      <% if tipo_pesquisa == "pesquisa_relacionamento" %>
+        <%= link_to 'Cancelar', '#', class: "link_cancelar cancelar_relacionamento_#{tipo_pessoa} limpar_pesquisa cancelar_pesquisa_antes" %>
+      <% end %>
 </div>
 
-<div class="detalhes_pesquisa_por_nome" id="<%= detalhes_pesquisa %>" <% if !mostrar_pessoa %>style="display: none;"<% end %>>
+<div class="detalhes_pesquisa_por_nome <%= "campo_menor" if campo_menor %>" id="<%= detalhes_pesquisa %>" <% if !mostrar_pessoa %>style="display: none;"<% end %>>
     <div class="imagens_detalhe_pesquisa_por_nome">
         <img class="imagem_detalhe_pesquisa_por_nome" src="<%= pessoa_a_mostrar.url_imagem(100) if mostrar_pessoa %>" /><img class="imagem_detalhe_pesquisa_por_nome" src="" style="display: none;" />
     </div>
 
     <span class="nome_detalhe_pesquisa_por_nome"><%= pessoa_a_mostrar.nome if mostrar_pessoa %></span>
-    <span class="nome_usual_detalhe_pesquisa_por_nome"><%= "(#{pessoa_a_mostrar.nome_usual})" if mostrar_pessoa %></span>
+    <span class="obs_pessoa_detalhe_pesquisa_por_nome"><%= "(#{pessoa_a_mostrar.nome_usual})" if mostrar_pessoa %></span>
     <span class="obs_detalhe_pesquisa_por_nome"></span>
     <span class="grupos_pesquisa_por_nome"></span>
 
@@ -168,6 +199,19 @@
         <%= link_to 'Adicionar', '#', class: 'link_novo', id: 'botao_adicionar_pessoa_ao_conjunto' %>
     <% elsif tipo_pesquisa == "pesquisa_conjuge" %>
         <input type="hidden" name="id_conjuge" id="id_conjuge" value="<%= pessoa_a_mostrar.id if mostrar_pessoa %>" />
+    <% elsif tipo_pesquisa == "pesquisa_relacionamento" %>
+        <br/>
+        <input type="hidden" name="pessoa_relacionamento_id" class="pessoa_relacionamento_id" />
+        <% 
+            padroes_masculino = PadraoRelacionamento.all.collect{|p| [p.relacionamento_masculino, p.id]}.sort {|a, b| a[0] <=> b[0]}
+            padroes_feminino = PadraoRelacionamento.all.collect{|p| [p.relacionamento_feminino, p.id]}.sort {|a, b| a[0] <=> b[0]}
+        %>
+        <%= select_tag "relacionamento_padrao_masculino", options_for_select(padroes_masculino), include_blank: false, class: "padroes_masculino", style: "display: none;" %>
+        <%= select_tag "relacionamento_padrao_feminino", options_for_select(padroes_feminino), include_blank: false, class: "padroes_feminino", style: "display: none;" %>
+        <br/>
+        <br/>
+        <%= link_to 'Adicionar', '#', class: "link_novo botao_adicionar_relacionamento_#{tipo_pessoa} limpar_pesquisa" %>
+        <%= link_to 'Cancelar', '#', class: "link_cancelar cancelar_relacionamento_#{tipo_pessoa} limpar_pesquisa" %>
     <% end %>
 </div>
 

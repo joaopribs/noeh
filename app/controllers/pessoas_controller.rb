@@ -136,8 +136,11 @@ class PessoasController < ApplicationController
 
       if salvou
 
+        atualizar_relacionamentos(@pessoa, "pessoa")
+
         atualizar_fotos(@pessoa)
         if @eh_casal
+          atualizar_relacionamentos(@conjuge, "conjuge")
           atualizar_fotos(@conjuge)
         end
 
@@ -304,10 +307,12 @@ class PessoasController < ApplicationController
       if salvou || (!precisa_salvar_pessoa && !precisa_salvar_conjuge && !precisa_salvar_velho_conjuge)
         if precisa_salvar_pessoa
           atualizar_fotos(@pessoa)
+          atualizar_relacionamentos(@pessoa, "pessoa")
         end
 
         if precisa_salvar_conjuge
           atualizar_fotos(@conjuge)
+          atualizar_relacionamentos(@conjuge, "conjuge")
         end
 
         if precisa_salvar_velho_conjuge
@@ -439,6 +444,10 @@ class PessoasController < ApplicationController
 
     if params.has_key? :pessoa_ignorar
       id_pessoas_ignorar.concat [params[:pessoa_ignorar]]
+    end
+
+    if params.has_key? :id_pessoas_ignorar
+      id_pessoas_ignorar.concat(params[:id_pessoas_ignorar])
     end
 
     if id_pessoas_ignorar.count > 0
@@ -1070,7 +1079,6 @@ class PessoasController < ApplicationController
       end
 
       pessoa = atualizar_fotos(pessoa)
-
       pessoa = atualizar_telefones(pessoa, tipo_pessoa)
 
       if @usuario_logado.present?
@@ -1109,6 +1117,95 @@ class PessoasController < ApplicationController
       pessoa.telefones << telefones
 
       return pessoa
+    end
+
+    def atualizar_relacionamentos(pessoa, tipo_pessoa)
+      relacionamentos_a_processar = pessoa.relacionamentos.to_a
+
+      if params.has_key?("relacionamentos_outra_pessoa_id_#{tipo_pessoa}")
+        params["relacionamentos_outra_pessoa_id_#{tipo_pessoa}"].each_with_index do |outra_pessoa_id, index|
+          padrao_relacionamento_id = params["relacionamentos_padrao_#{tipo_pessoa}"][index]
+
+          outra_pessoa = Pessoa.where(id: outra_pessoa_id).first
+          padrao_relacionamento = PadraoRelacionamento.where(id: padrao_relacionamento_id).first
+          padrao_relacionamento_oposto = PadraoRelacionamento.where(id: padrao_relacionamento.relacionamento_oposto).first
+
+          if outra_pessoa.present? && padrao_relacionamento.present?
+            # checar se ja existe do lado da pessoa
+            relacionamento_pessoa = Relacionamento.where(pessoa: pessoa, outra_pessoa: outra_pessoa, padrao_relacionamento: padrao_relacionamento).first
+            if relacionamento_pessoa.present?
+              # ja existe o relacionamento do lado da pessoa
+              # checar se ja existe na outra pessoa
+              relacionamento_oposto = Relacionamento.where(pessoa: outra_pessoa, outra_pessoa: pessoa, padrao_relacionamento: padrao_relacionamento_oposto).first
+              if relacionamento_oposto.present?
+                # nada a fazer, ja tem o relacionamento dos dois lados
+              else
+                # criar o relacionamento oposto
+                relacionamento_oposto = Relacionamento.new({
+                  pessoa: outra_pessoa, 
+                  outra_pessoa: pessoa, 
+                  padrao_relacionamento: padrao_relacionamento_oposto})
+                relacionamento_oposto.save
+              end
+            else
+              # nao existe o relacionamento do lado da pessoa, entao vamos criar
+              relacionamento_pessoa = Relacionamento.new({
+                pessoa: pessoa, 
+                outra_pessoa: outra_pessoa, 
+                padrao_relacionamento: padrao_relacionamento})
+              relacionamento_pessoa.save
+
+              # checar se ja existe na outra pessoa
+              relacionamento_oposto = Relacionamento.where(pessoa: outra_pessoa, outra_pessoa: pessoa, padrao_relacionamento: padrao_relacionamento_oposto).first
+              if relacionamento_oposto.present?
+                # nada a fazer, ja tem o relacionamento dos dois lados
+              else
+                # criar o relacionamento oposto
+                relacionamento_oposto = Relacionamento.new({
+                  pessoa: outra_pessoa, 
+                  outra_pessoa: pessoa, 
+                  padrao_relacionamento: padrao_relacionamento_oposto})
+                relacionamento_oposto.save
+              end
+            end
+
+            relacionamentos_a_processar = remover_relacionamento_do_array(relacionamentos_a_processar, relacionamento_pessoa)
+          end
+        end
+      end
+
+      # deletar os relacionamentos restantes
+      if relacionamentos_a_processar.present? && relacionamentos_a_processar.count > 0
+        relacionamentos_a_processar.each do |relacionamento_a_deletar|
+          outra_pessoa = relacionamento_a_deletar.outra_pessoa
+          padrao_relacionamento = relacionamento_a_deletar.padrao_relacionamento
+          padrao_relacionamento_oposto = padrao_relacionamento.relacionamento_oposto
+
+          # deletar da outra pessoa
+          relacionamento_oposto_a_deletar = Relacionamento.where(pessoa: outra_pessoa, outra_pessoa: pessoa, padrao_relacionamento: padrao_relacionamento).first
+
+          if relacionamento_oposto_a_deletar.present?
+            relacionamento_oposto_a_deletar.destroy
+          end
+
+          relacionamento_a_deletar.destroy
+        end
+      end
+
+      return pessoa
+    end
+
+    def remover_relacionamento_do_array(array, relacionamento_a_remover)
+      array.each do |elemento|
+        if elemento.pessoa == relacionamento_a_remover.pessoa && 
+          elemento.outra_pessoa == relacionamento_a_remover.outra_pessoa && 
+          elemento.padrao_relacionamento == relacionamento_a_remover.padrao_relacionamento
+          array.delete(elemento)
+          break
+        end
+      end
+
+      return array
     end
 
     def atualizar_fotos(pessoa)

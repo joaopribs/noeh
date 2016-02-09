@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150911162000) do
+ActiveRecord::Schema.define(version: 20160208121103) do
 
   create_table "auto_sugestao", force: :cascade do |t|
     t.integer  "pessoa_id",   limit: 4
@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20150911162000) do
     t.string   "sugestao",    limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "coordenador", limit: 1
+    t.boolean  "coordenador"
     t.integer  "encontro_id", limit: 4
     t.integer  "conjuge_id",  limit: 4
   end
@@ -41,8 +41,8 @@ ActiveRecord::Schema.define(version: 20150911162000) do
   create_table "cores", force: :cascade do |t|
     t.string  "hex_cor",                limit: 255
     t.string  "hex_contraste",          limit: 255
-    t.boolean "de_equipe",              limit: 1
-    t.boolean "de_conjunto_permanente", limit: 1
+    t.boolean "de_equipe"
+    t.boolean "de_conjunto_permanente"
     t.string  "nome",                   limit: 255
     t.string  "classe_css",             limit: 255
     t.string  "hex_cor_hover",          limit: 255
@@ -52,7 +52,7 @@ ActiveRecord::Schema.define(version: 20150911162000) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "grupo_id",                          limit: 4
-    t.boolean  "padrao",                            limit: 1,   default: false
+    t.boolean  "padrao",                                        default: false
     t.string   "denominacao_conjuntos_permanentes", limit: 255, default: "Círculo"
     t.string   "nome",                              limit: 255
     t.string   "local",                             limit: 255
@@ -84,7 +84,7 @@ ActiveRecord::Schema.define(version: 20150911162000) do
     t.string   "nome",          limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "tem_encontros", limit: 1,   default: false
+    t.boolean  "tem_encontros",             default: false
     t.string   "slug",          limit: 255
   end
 
@@ -99,6 +99,12 @@ ActiveRecord::Schema.define(version: 20150911162000) do
     t.string   "log",        limit: 255
   end
 
+  create_table "padroes_relacionamento", force: :cascade do |t|
+    t.string  "relacionamento_masculino", limit: 255
+    t.string  "relacionamento_feminino",  limit: 255
+    t.integer "relacionamento_oposto_id", limit: 4
+  end
+
   create_table "pessoas", force: :cascade do |t|
     t.string   "nome",                limit: 255
     t.string   "nome_usual",          limit: 255
@@ -109,16 +115,16 @@ ActiveRecord::Schema.define(version: 20150911162000) do
     t.string   "cidade",              limit: 255
     t.string   "estado",              limit: 255
     t.string   "cep",                 limit: 255
-    t.boolean  "eh_homem",            limit: 1
+    t.boolean  "eh_homem"
     t.string   "email",               limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "eh_super_admin",      limit: 1
+    t.boolean  "eh_super_admin"
     t.integer  "conjuge_id",          limit: 4
     t.string   "complemento",         limit: 255
     t.string   "url_facebook",        limit: 255
     t.datetime "ultimo_login"
-    t.boolean  "auto_inserido",       limit: 1,   default: false
+    t.boolean  "auto_inserido",                   default: false
     t.string   "url_imagem_facebook", limit: 255
     t.string   "usuario_facebook",    limit: 255
     t.string   "id_app_facebook",     limit: 255
@@ -131,7 +137,7 @@ ActiveRecord::Schema.define(version: 20150911162000) do
   create_table "recomendacoes_do_coordenador_permanente", force: :cascade do |t|
     t.integer  "conjunto_pessoas_id",       limit: 4
     t.integer  "pessoa_id",                 limit: 4
-    t.boolean  "recomenda_pra_coordenador", limit: 1
+    t.boolean  "recomenda_pra_coordenador"
     t.string   "comentario",                limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -145,16 +151,24 @@ ActiveRecord::Schema.define(version: 20150911162000) do
     t.datetime "updated_at"
   end
 
+  create_table "relacionamentos", force: :cascade do |t|
+    t.integer  "pessoa_id",                limit: 4
+    t.integer  "outra_pessoa_id",          limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "padrao_relacionamento_id", limit: 4
+  end
+
   create_table "relacoes_pessoa_conjunto", force: :cascade do |t|
     t.integer  "pessoa_id",           limit: 4
     t.integer  "conjunto_pessoas_id", limit: 4
-    t.boolean  "eh_coordenador",      limit: 1
+    t.boolean  "eh_coordenador"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "relacoes_pessoa_grupo", force: :cascade do |t|
-    t.boolean  "eh_coordenador",          limit: 1
+    t.boolean  "eh_coordenador"
     t.integer  "pessoa_id",               limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -178,7 +192,7 @@ ActiveRecord::Schema.define(version: 20150911162000) do
     t.integer  "pessoa_id",   limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "eh_whatsapp", limit: 1
+    t.boolean  "eh_whatsapp"
   end
 
   add_index "telefones", ["pessoa_id"], name: "index_telefones_on_pessoa_id", using: :btree

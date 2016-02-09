@@ -14,6 +14,13 @@ module ApplicationHelper
     return ['Vocal', 'Baixo', 'Bateria', 'Guitarra', 'Percussão', 'Sanfona', 'Saxofone', 'Teclado', 'Violão']
   end
 
+  def relacionamentos
+    return {
+      masculino: ['Afilhado', 'Avô', 'Cunhado', 'Ex-Marido', 'Ex-Namorado', 'Filho', 'Genro', 'Irmão', 'Namorado', 'Neto', 'Padrasto', 'Pai', 'Primo', 'Sobrinho', 'Sogro', 'Tio'], 
+      feminino: ['Afilhada', 'Avó', 'Cunhada', 'Ex-Esposa', 'Ex-Namorada', 'Filha', 'Irmã', 'Madrasta', 'Mãe', 'Namorada', 'Neta', 'Nora', 'Prima', 'Sobrinha', 'Sogra', 'Tia']
+    }
+  end
+
   def denominacoes_conjuntos_permanentes
     return [
       {

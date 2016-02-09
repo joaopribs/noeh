@@ -62,6 +62,50 @@
             atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
         });
 
+        $('#novo_relacionamento_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
+
+            $(this).hide();
+            $('#pesquisa_relacionamento_<%= tipo_pessoa %>').show();
+
+            atualizarLinksPraRemoverRelacionamento<%= tipo_pessoa %>();
+        });
+
+        $('.botao_adicionar_relacionamento_<%= tipo_pessoa %>').on('click', function (evento) {
+          evento.preventDefault();
+
+          $('#pesquisa_relacionamento_<%= tipo_pessoa %>').hide();
+          $('#novo_relacionamento_<%= tipo_pessoa %>').show();
+
+          var $detalhesPesquisa = $('#detalhes_pesquisa_relacionamento_<%= tipo_pessoa %>');
+
+          var imgSrc = $detalhesPesquisa.find('.imagem_detalhe_pesquisa_por_nome').first().attr('src');
+          var nome = $detalhesPesquisa.find('.nome_detalhe_pesquisa_por_nome').html();
+          var outraPessoaId = $detalhesPesquisa.find('.pessoa_relacionamento_id').val();
+
+          var sexo = $(this).data('sexo');
+          if (sexo == 'masculino') {
+            $selectRelacionamento = $detalhesPesquisa.find('.padroes_masculino');
+          }
+          else {
+            $selectRelacionamento = $detalhesPesquisa.find('.padroes_feminino');
+          }
+
+          var padraoId = $selectRelacionamento.val();
+          var relacionamento = $selectRelacionamento.find(':selected').text();
+
+          $('#relacionamentos_<%= tipo_pessoa %>').append(
+            '<%= raw (render 'relacionamento', relacionamento: Relacionamento.new, pode_ver: false, incluir_form: true, tipo_pessoa: tipo_pessoa).gsub("\n", "") %>'
+          );
+
+          var $novoRelacionamento = $('#relacionamentos_<%= tipo_pessoa %>').find('.relacionamento').last();
+
+          $novoRelacionamento.find('.img_relacionamento').attr('src', imgSrc);
+          $novoRelacionamento.find('.nome_e_relacionamento').html(nome + ' - ' + relacionamento);
+          $novoRelacionamento.find('.outra_pessoa_id').val(outraPessoaId);
+          $novoRelacionamento.find('.padrao_id').val(padraoId);
+        });
+
         $('#link_adicionar_participacao_<%= tipo_pessoa %>').on('click', function (evento) {
             evento.preventDefault();
 
@@ -74,6 +118,7 @@
 
         atualizarLinksPraRemoverTelefoneEMascara<%= tipo_pessoa %>();
         atualizarLinksPraRemoverInstrumento<%= tipo_pessoa %>();
+        atualizarLinksPraRemoverRelacionamento<%= tipo_pessoa %>();
     });
 
     function limparInformacoesFacebook<%= tipo_pessoa %>() {
@@ -155,6 +200,21 @@
             evento.preventDefault();
 
             $(this).closest('.campos_instrumento').remove();
+        });
+    }
+
+    function atualizarLinksPraRemoverRelacionamento<%= tipo_pessoa %>() {
+        $('.remover_relacionamento_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
+
+            $(this).closest('.relacionamento').remove();
+        });
+
+        $('.cancelar_relacionamento_<%= tipo_pessoa %>').on('click', function (evento) {
+            evento.preventDefault();
+
+            $('#pesquisa_relacionamento_<%= tipo_pessoa %>').hide();
+            $('#novo_relacionamento_<%= tipo_pessoa %>').show();
         });
     }
 
@@ -542,6 +602,23 @@
 
         <a href="#" id="novo_instrumento_<%= tipo_pessoa %>" class="link_novo">Adicionar habilidade musical</a>
       </div>
+
+      <h2 class="sem_espaco_embaixo">Relacionamentos/Parentes</h2>
+
+      <div class="field" id="relacionamentos_<%= tipo_pessoa %>">
+        <% pessoa.relacionamentos.each do |relacionamento| %>
+          <%= render 'relacionamento', relacionamento: relacionamento, pode_ver: false, incluir_form: true, tipo_pessoa: tipo_pessoa %>
+        <% end %>
+      </div>
+
+      <br style="clear: both;" />
+      <a href="#" id="novo_relacionamento_<%= tipo_pessoa %>" class="link_novo">Adicionar relacionamento/parente</a>
+
+      <div class="field" id="pesquisa_relacionamento_<%= tipo_pessoa %>" style="display: none;">
+        <%= render 'pessoas/pesquisa_pessoas_por_nome', tipo_pesquisa: "pesquisa_relacionamento", id_pesquisa: "pesquisa_relacionamento_#{tipo_pessoa}", pessoa: pessoa, tipo_pessoa: tipo_pessoa %>
+      </div>
+
+      <br style="clear: right;" />
 
       <% if modo != "criando" %>
 

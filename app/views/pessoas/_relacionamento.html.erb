@@ -1,0 +1,32 @@
+<%
+  if relacionamento.outra_pessoa.present?
+    outra_pessoa = relacionamento.outra_pessoa
+  else
+    outra_pessoa = Pessoa.new
+  end
+
+  if relacionamento.padrao_relacionamento.present?
+    padrao = relacionamento.padrao_relacionamento
+  else
+    padrao = PadraoRelacionamento.new
+  end
+%>
+
+<div class="relacionamento" style="clear: both;">
+  <% if pode_ver %>
+    <a href="<%= pessoa_url(outra_pessoa) %>">
+      <img src="<%= outra_pessoa.url_imagem(30) %>" class="img_relacionamento" />
+      <%= outra_pessoa.nome %>
+    </a>
+    <%= "- #{relacionamento.relacionamento}" %>  
+  <% else %>
+    <img src="<%= outra_pessoa.url_imagem(30) %>" class="img_relacionamento" />
+    <span class="nome_e_relacionamento"><%= "#{outra_pessoa.nome} - #{relacionamento.relacionamento}" %></span>
+  <% end %>
+
+  <% if incluir_form %>
+    <input type="hidden" name="relacionamentos_outra_pessoa_id_<%= tipo_pessoa %>[]" class="outra_pessoa_id" value="<%= outra_pessoa.id %>" />
+    <input type="hidden" name="relacionamentos_padrao_<%= tipo_pessoa %>[]" class="padrao_id" value="<%= padrao.id %>" />
+    <a href="#" class="link_remover remover_relacionamento_<%= tipo_pessoa %>" style="margin-left: 10px;">Remover</a>
+  <% end %>
+</div>

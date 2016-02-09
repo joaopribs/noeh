@@ -66,6 +66,15 @@
             <p><b>Último login:</b> <%= pessoa.ultimo_login.strftime('%d/%m/%Y às %H:%M:%S') %></p>
         <% end %>
 
+        <% if pessoa.relacionamentos.count > 0 %>
+          <h2 class="sem_espaco_embaixo">Relacionamentos/Parentes</h2>
+          <% pessoa.relacionamentos.each do |relacionamento| %>
+            <%= render 'relacionamento', relacionamento: relacionamento, pode_ver: @usuario_logado.permissoes.pode_ver_pessoa(relacionamento.outra_pessoa), incluir_form: false %>
+          <% end %>
+
+          <br style="clear: both;" />
+        <% end %>
+
         <h2 class="sem_espaco_embaixo">Grupos</h2>
         <ul class="bullets">
           <%= render 'grupos_de_pessoa', pessoa: pessoa, tipo_participacoes: "individuais_e_casal" %>

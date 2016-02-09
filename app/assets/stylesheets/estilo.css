@@ -912,6 +912,13 @@ table.participacoes tr th:not(:nth-of-type(2)) {
     font-weight: bold;
 }
 
+.img_relacionamento {
+    width: 30px;
+    height: 30px;
+    float: left;
+    margin-right: 5px;
+}
+
 /* Página de listagem de grupos
 ------------------------------------------------------------------------------*/
 

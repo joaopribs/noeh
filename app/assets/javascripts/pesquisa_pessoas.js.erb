@@ -10,7 +10,7 @@ if(!Array.indexOf){
     };
 }
 
-function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerDosDetalhes, mostrarConjuntos, dadosExtra, funcaoExtra) {
+function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerDosDetalhes, mostrarConjuntos, dadosExtra, funcaoExtra, scroll, incluirConjuge, incluirObsConjuge) {
 
     var self = this;
 
@@ -32,6 +32,9 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
     this.dadosExtra = dadosExtra,
     this.funcaoExtra = funcaoExtra,
     this.mostrarConjuntos = mostrarConjuntos,
+    this.scroll = scroll, 
+    this.incluirConjuge = incluirConjuge,
+    this.incluirObsConjuge = incluirObsConjuge,
 
     this.inicializar = function () {
         // 13 = enter
@@ -150,7 +153,7 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
                         }
                         resultados.push('<img src="' + img_src + '" class="imagem_fb_busca"/>');
 
-                        if (this.conjuge != null) {
+                        if (this.conjuge != null && self.incluirConjuge) {
                             var img_src_conjuge = "";
                             if (this.conjuge.url_foto_pequena != null && this.conjuge.url_foto_pequena != "") {
                                 img_src_conjuge = this.conjuge.url_foto_pequena;
@@ -167,7 +170,7 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
                         resultados.push('</td><td>');
 
                         var texto = "";
-                        if (this.conjuge == null) {
+                        if (this.conjuge == null || !self.incluirConjuge) {
                             texto = this.nome + " (" + this.nome_usual + ")";
                         }
                         else {
@@ -236,9 +239,11 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
 
                 self.atualizarAcaoHoverLinks();
 
-                $("html, body").animate({
-                    scrollTop: $(self.campoDePesquisa).offset().top
-                }, 500);
+                if (this.scroll) {
+                    $("html, body").animate({
+                        scrollTop: $(self.campoDePesquisa).offset().top
+                    }, 500);    
+                }
             },
             "json"
         );
@@ -249,7 +254,7 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
         if (self.resultadoSelecionado < 0) {
             self.resultadoSelecionado = 0;
         }
-        self.atualizarDetalhesFb();
+        self.atualizarDetalhes();
     },
 
     this.moverPraBaixo = function () {
@@ -257,7 +262,7 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
         if (self.resultadoSelecionado >= $(self.arrayResultados).length) {
             self.resultadoSelecionado = $(self.arrayResultados).length - 1;
         }
-        self.atualizarDetalhesFb();
+        self.atualizarDetalhes();
     },
 
     this.atualizarAcaoHoverLinks = function () {
@@ -265,17 +270,20 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
             $(self.containerDosResultados).find('a').removeClass('selecionado');
             var indice = $(self.containerDosResultados).find("li a").index(this);
             self.resultadoSelecionado = indice;
-            self.atualizarDetalhesFb();
+            self.atualizarDetalhes();
         });
     },
 
-    this.atualizarDetalhesFb = function () {
+    this.atualizarDetalhes = function () {
         if (self.resultadoSelecionado != -1) {
+            $(campoDePesquisa).siblings('.cancelar_pesquisa_antes').hide();
+
             var pessoa = self.arrayResultados[self.resultadoSelecionado];
 
             var idPessoa = pessoa.id;
             var nome = pessoa.nome;
             var nomeUsual = pessoa.nome_usual;
+            var ehHomem = pessoa.eh_homem;
             var urlFotoGrande = pessoa.url_foto_grande;
             var urlFotoPequena = pessoa.url_foto_pequena;
             var conjuge = pessoa.conjuge;
@@ -290,9 +298,15 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
                 $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa_por_nome").first().attr("src", "<%= Pessoa.url_imagem_sem_imagem(100) %>");
             }
 
-            if (conjuge == null) {
+            if (conjuge == null || !self.incluirConjuge) {
                 $(this.containerDosDetalhes).find(".nome_detalhe_pesquisa_por_nome").html(nome);
-                $(this.containerDosDetalhes).find(".nome_usual_detalhe_pesquisa_por_nome").html("(" + nomeUsual + ")");
+
+                var observacaoPessoa = "(" + nomeUsual + ")";
+                if (self.incluirObsConjuge && conjuge != null) {
+                    observacaoPessoa += "<br/>Casad" + (ehHomem ? "o" : "a") + " com " + conjuge.nome_usual;
+                }
+
+                $(this.containerDosDetalhes).find(".obs_pessoa_detalhe_pesquisa_por_nome").html(observacaoPessoa);
                 $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa_por_nome").last().hide();
             }
             else {
@@ -311,7 +325,7 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
                 }
 
                 $(this.containerDosDetalhes).find(".nome_detalhe_pesquisa_por_nome").html(nomeUsual + " / " + nomeUsualConjuge);
-                $(this.containerDosDetalhes).find(".nome_usual_detalhe_pesquisa_por_nome").html("")
+                $(this.containerDosDetalhes).find(".obs_pessoa_detalhe_pesquisa_por_nome").html("")
                 $(this.containerDosDetalhes).find(".imagem_detalhe_pesquisa_por_nome").last().show();
             }
 
@@ -377,6 +391,10 @@ function BuscaDePessoas(url, containerDosResultados, campoDePesquisa, containerD
 
         $(this.campoDePesquisa).val("");
         $(this.containerDosDetalhes).hide();
+
+        $(this.containerDosDetalhes).find('select').prop('selectedIndex', 0);
+
+        $('.cancelar_pesquisa_antes').show();
     }
 
 };
