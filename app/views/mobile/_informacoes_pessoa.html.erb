@@ -124,6 +124,16 @@
 	<%= pessoa.instrumentos.collect{|instrumento| instrumento.nome}.join(", ") %>
 </div>
 
+<h2 class="sem_espaco_embaixo">Relacionamentos/Parentes</h2>
+
+<% if pessoa.relacionamentos.count == 0 %>
+	Nenhum registro de relacionamentos/parentes no sistema
+<% else %>
+	<%= render 'lista_pessoas', relacionamentos: pessoa.relacionamentos, tipo_pagina: 'relacionamentos', forcar_conjuges: false, mostrar_telefones: false %>
+<% end %>
+
+<p/>
+
 <% grupos = pessoa.participacoes_em_grupos("individuais_e_casal") %>
 
 <% if grupos.count > 0 %>

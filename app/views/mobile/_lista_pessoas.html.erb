@@ -1,6 +1,23 @@
 <% ids_pessoas_ja_mostradas = [] %>
 
-<% pessoas.each do |pessoa| %>
+<% 
+  if tipo_pagina == "relacionamentos"
+    elementos_a_iterar = relacionamentos
+  else
+    elementos_a_iterar = pessoas
+  end
+%>
+
+<% elementos_a_iterar.each do |elemento| %>
+
+  <% 
+    if tipo_pagina == "relacionamentos" 
+      relacionamento = elemento
+      pessoa = relacionamento.outra_pessoa
+    else
+      pessoa = elemento
+    end
+  %>
 
   <% if !ids_pessoas_ja_mostradas.include?(pessoa.id) %>
     <% ids_pessoas_ja_mostradas << pessoa.id %>
@@ -29,23 +46,27 @@
       <%= link_to nome, mobile_pessoa_path(pessoa) %>
       <% if ((tipo_pagina == "pessoas_no_conjunto" && conjunto.tipo != "CoordenacaoEncontro") || tipo_pagina == "pessoas_no_grupo") && eh_coordenador %>
         - Coord.
+      <% elsif tipo_pagina == "relacionamentos" %>
+        - <%= relacionamento.relacionamento %>
       <% end %>
 
-      <br/>
+      <% if mostrar_telefones %>
+        <br/>
 
-      <span class="telefones">
-      <% 
-        telefones = []
+        <span class="telefones">
+          <% 
+            telefones = []
 
-        telefones = telefones.concat(pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"})
+            telefones = telefones.concat(pessoa.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"})
 
-        if pessoa.conjuge.present? && (forcar_conjuges || pessoas.include?(pessoa.conjuge))
-          telefones = telefones.concat(pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"})
-        end
-      %>
-      
-      <%= telefones.join(" / ") %>
-      </span>
+            if pessoa.conjuge.present? && (forcar_conjuges || pessoas.include?(pessoa.conjuge))
+              telefones = telefones.concat(pessoa.conjuge.telefones.collect{|t| "#{t.telefone} (#{t.operadora})"})
+            end
+          %>
+          
+          <%= telefones.join(" / ") %>
+        </span>
+      <% end %>
     </div>
 
     <br style="clear: both"/>
